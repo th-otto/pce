@@ -40,5 +40,7 @@ int rc759_cmd (rc759_t *sim, cmd_t *cmd);
 
 void rc759_cmd_init (rc759_t *sim, monitor_t *mon);
 
+void rc759_run_emscripten (rc759_t *sim);
+void rc759_run_emscripten_step ();
 
 #endif

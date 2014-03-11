@@ -573,7 +573,7 @@ void st_run_emscripten (atari_st_t *sim)
 	}
 #endif
 
-	// pce_stop();
+	/* pce_stop(); /
 }
 
 
@@ -599,7 +599,7 @@ void st_run_emscripten_step ()
 			return;
 		}
 	}
-	// emscripten_pause_main_loop();
+	/* emscripten_pause_main_loop(); */
 }
 /*
  * end emscripten specific main loop

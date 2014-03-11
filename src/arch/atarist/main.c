@@ -231,7 +231,7 @@ int main (int argc, char *argv[])
 #ifdef __EMSCRIPTEN__
 	int emscripten;
 	emscripten = 0;
-		// arg defaults
+		/* arg defaults */
 		pce_log_set_level (stderr, MSG_DEB);
 		cfg = "pce-config.cfg";
 		emscripten = 1;

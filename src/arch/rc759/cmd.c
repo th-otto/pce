@@ -514,6 +514,62 @@ void rc759_run (rc759_t *sim)
 	pce_stop();
 }
 
+/*
+ * emscripten specific main loop
+ */
+
+#ifdef __EMSCRIPTEN__
+/*
+ * setup and run the simulation
+ */
+void rc759_run_emscripten (rc759_t *sim)
+{
+	rc759_sim = sim;
+
+	pce_start (&sim->brk);
+
+	rc759_clock_discontinuity (sim);
+
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(rc759_run_emscripten_step, 100, 1);
+#else
+	while (!sim->brk) {
+		rc759_run_emscripten_step();
+	}
+#endif
+
+	sim->current_int &= 0xff;
+	/* pce_stop(); */
+}
+
+/*
+ * run one iteration
+ */
+void rc759_run_emscripten_step ()
+{
+
+	// for each 'emscripten step' we'll run a bunch of actual cycles
+	// to minimise overhead from emscripten's main loop management
+	int i;
+	for (i = 0; i < 10000; ++i)
+	{
+		rc759_clock (rc759_sim, 8);
+
+		if (rc759_sim->brk) {
+			pce_stop();
+#ifdef __EMSCRIPTEN__
+			emscripten_cancel_main_loop();
+#endif
+			return;
+		}
+	}
+}
+/*
+ * end emscripten specific main loop
+ */
+#endif
+
+
 static
 void pce_op_int (void *ext, unsigned char n)
 {
@@ -761,7 +817,7 @@ void rc759_cmd_key (cmd_t *cmd, rc759_t *sim)
 				str + i
 			);
 
-			rc759_kbd_set_key (&sim->kbd, event, key);
+			rc759_kbd_set_key (&sim->kbd, event, key, 0);
 		}
 	}
 

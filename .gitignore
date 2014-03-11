@@ -31,6 +31,12 @@ src/arch/ibmpc/pce-ibmpc
 src/arch/macplus/pce-macplus
 src/arch/cpm80/pce-cpm80
 src/arch/dos/pce-dos
+src/arch/rc759/pce-rc759
+src/arch/sim405/pce-sim405
+src/arch/sim6502/pce-sim6502
+src/arch/simarm/pce-simarm
+src/arch/simarm/pce-simarm
+src/arch/sims32/pce-sims32
 src/config.h
 src/config.inc
 src/utils/pce-img/pce-img
