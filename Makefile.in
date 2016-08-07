@@ -24,12 +24,6 @@ QP = @
 QR = @
 endif
 
-ifneq "$(EMSCRIPTEN)" "yes"
-ARFLAGS = -rc
-else
-ARFLAGS = rc
-endif
-
 all: all2
 
 

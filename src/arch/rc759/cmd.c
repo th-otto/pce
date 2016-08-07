@@ -34,6 +34,9 @@
 #include <lib/msgdsk.h>
 #include <lib/sysdep.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 static mon_cmd_t par_cmd[] = {
 	{ "c", "[cnt]", "clock the simulation [1]" },
@@ -524,8 +527,6 @@ void rc759_run (rc759_t *sim)
  */
 void rc759_run_emscripten (rc759_t *sim)
 {
-	rc759_sim = sim;
-
 	pce_start (&sim->brk);
 
 	rc759_clock_discontinuity (sim);
@@ -547,15 +548,16 @@ void rc759_run_emscripten (rc759_t *sim)
  */
 void rc759_run_emscripten_step ()
 {
+	rc759_t *sim = par_sim;
 
 	// for each 'emscripten step' we'll run a bunch of actual cycles
 	// to minimise overhead from emscripten's main loop management
 	int i;
 	for (i = 0; i < 10000; ++i)
 	{
-		rc759_clock (rc759_sim, 8);
+		rc759_clock (sim, 8);
 
-		if (rc759_sim->brk) {
+		if (sim->brk) {
 			pce_stop();
 #ifdef __EMSCRIPTEN__
 			emscripten_cancel_main_loop();
