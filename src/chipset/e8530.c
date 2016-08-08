@@ -28,7 +28,7 @@
 
 #define DEBUG_SCC 0
 
-#ifdef __EMSCRIPTEN_
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
@@ -87,11 +87,6 @@ void e8530_init (e8530_t *scc)
 	scc->irq_ext = NULL;
 	scc->irq = NULL;
 	scc->irq_val = 0;
-#ifdef __EMSCRIPTEN__
-	EM_ASM_({
-		e8530_init_js($0)
-	},scc);
-#endif
 }
 
 void e8530_free (e8530_t *scc)
@@ -227,10 +222,33 @@ void e8530_set_int_cond (e8530_t *scc, unsigned chn, unsigned char cond)
 		c0->rr[3] |= (chn == 0) ? 0x10 : 0x02;
 	}
 
+#ifdef SDLC_LOCALTALK_ENABLE
+		if (cond & 0x04) {
+			/* receive interrupt */
+			if((c->wr[1] & 0x18) == 0x08) {
+				/* "Rx Int On First Character or Special Condition" */
+				if(scc->chn[chn].int_on_1st_rx) {
+					scc->chn[chn].int_on_1st_rx = 0;
+					c0->rr[3] |= (chn == 0) ? 0x20 : 0x04;
+				}
+			} else if ((c->wr[1] & 0x18) == 0x10) {
+				/* "Int On All Rx Characters or Special Condition" */
+				c0->rr[3] |= (chn == 0) ? 0x20 : 0x04;
+			}
+		}
+#else
 	if ((cond & 0x04) && ((c->wr[1] & 0x18) == 0x10)) {
 		/* receive interrupt */
 		c0->rr[3] |= (chn == 0) ? 0x20 : 0x04;
 	}
+#endif
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	if ((cond & 0x10) && (c->wr[1] & 0x18)) {
+		/* special condition (i.e. SDLC End of Frame) */
+		c0->rr[3] |= (chn == 0) ? 0x20 : 0x04;
+	}
+#endif
 
 	if ((c0->wr[9] & 0x08) == 0) {
 		/* MIE == 0 */
@@ -300,6 +318,54 @@ void e8530_check_rxd (e8530_t *scc, unsigned chn)
 		return;
 	}
 
+#ifdef SDLC_LOCALTALK_ENABLE
+	/* When in SDLC mode, expect frames delimited by 0x7E in rxbuf.
+	   The escape character is 0x7D and is followed by the char
+	   XORed with 0x20, as in PPP */
+	if((scc->chn[chn].wr[4] & 0x30) == 0x20) {
+		switch(c->rxbuf[c->rx_j]) {
+			case 0x7E:
+				/* Advance to next character */
+				c->rx_j = (c->rx_j + 1) % E8530_BUF_MAX;
+				/* Set End of Frame bit in RR1 */
+#ifdef SDLC_DEBUG
+				fprintf (stderr, "SCC %c: setting End of Frame bit\n", scc_get_chn (chn));
+#endif
+				scc->chn[chn].rr[1] |= 0x80;
+				/* Character available */
+				c->rr[0] |= 0x01;
+				c->rxd_empty = 0;
+				/* Raise interrupt */
+				e8530_set_int_cond (scc, chn, 0x10);
+				return;
+			case 0x7D:
+				/* 0x7D is an escape character. Following char is XORed with 0x20 */
+				{
+					/* Advance to next character */
+					unsigned saved_rx_j = c->rx_j;
+					c->rx_j = (c->rx_j + 1) % E8530_BUF_MAX;
+					if (c->rx_i == c->rx_j) {
+						/* Oops. The next character not in buffer yet. */
+						c->rx_j = saved_rx_j;
+						return;
+					}
+				}
+				/* XOR character with 0x20 */
+				c->rxbuf[c->rx_j] ^= 0x20;
+				/* ... intentional pass-thru to default */
+			default:
+#ifdef SDLC_DEBUG
+				fprintf (stderr, "SCC %c: resetting hunt bit and End of Frame bit\n", scc_get_chn (chn));
+#endif
+				/* Clear hunt mode because we received first byte in new frame */
+				scc->chn[chn].rr[0] &= ~0x10;
+				/* Clear End of Frame (SDLC) bit in RR1 for any regular characters */
+				scc->chn[chn].rr[1] &= ~0x80;
+				break;
+		}
+	}
+#endif
+
 	c->read_char_cnt -= 1;
 
 	c->rr[8] = c->rxbuf[c->rx_j];
@@ -314,6 +380,46 @@ void e8530_check_rxd (e8530_t *scc, unsigned chn)
 
 	e8530_set_int_cond (scc, chn, 0x04);
 }
+
+#ifdef SDLC_LOCALTALK_ENABLE
+static void e8530_set_rr0 (e8530_t *scc, unsigned chn, unsigned char val);
+
+static
+void e8530_set_tx_underrun (e8530_t *scc, unsigned chn) {
+	if((scc->chn[chn].rr[0] & 0x40) == 0) {
+		/* A 0-to-1 transition of the Tx Underrun/EOM bit triggers an External/Status interrupt */
+		e8530_set_rr0 (scc, chn, scc->chn[chn].rr[0] |= 0x40);
+	}
+}
+#endif
+
+#ifdef SDLC_LOCALTALK_ENABLE
+static
+void e8530_send_sdlc_trailer (e8530_t *scc, unsigned chn) {
+	unsigned       i;
+	e8530_chn_t   *c;
+
+	c = &scc->chn[chn];
+
+	unsigned char trailer[] = {
+		0x00,  /* Frame check, ignored */
+		0x7E   /* Flag */
+	};
+
+	for(i = 0; i < sizeof(trailer)/sizeof(unsigned char); i++) {
+		unsigned char val = trailer[i];
+
+		c->txbuf[c->tx_i] = val;
+		c->tx_i = (c->tx_i + 1) % E8530_BUF_MAX;
+
+		if (c->set_out != NULL) {
+			c->set_out (c->set_out_ext, val);
+		}
+	}
+
+	c->sdlc_frame_in_progress = 0;
+}
+#endif
 
 /*
  * Move a character from TxD to the output queue and adjust interrupt
@@ -344,6 +450,27 @@ void e8530_check_txd (e8530_t *scc, unsigned chn)
 	c->write_char_cnt -= 1;
 
 	val = c->wr[8];
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	/* When in SDLC mode, escape any special characters */
+	if((scc->chn[chn].wr[4] & 0x30) == 0x20) {
+		switch(val) {
+			case 0x7E:
+			case 0x7D:
+			/* Output escape character 0x7D */
+			c->txbuf[c->tx_i] = 0x7D;
+			c->tx_i = (c->tx_i + 1) % E8530_BUF_MAX;
+			if (c->set_out != NULL) {
+				c->set_out (c->set_out_ext, 0x7D);
+			}
+			/* XOR character to send with 0x20 */
+			val ^= 0x20;
+		}
+		/* Set a flag to let us know we are tranmitting a SDLC frame. This will
+		 * let us know to write the trailing characters at the end of a frame.*/
+		c->sdlc_frame_in_progress = 1;
+	}
+#endif
 
 	c->txbuf[c->tx_i] = val;
 	c->tx_i = (c->tx_i + 1) % E8530_BUF_MAX;
@@ -548,6 +675,17 @@ unsigned char e8530_get_rr0 (e8530_t *scc, unsigned chn)
 	return (val);
 }
 
+#ifdef SDLC_LOCALTALK_ENABLE
+/*
+ * RR1: special receive condition
+ */
+static
+unsigned char e8530_get_rr1 (e8530_t *scc, unsigned chn)
+{
+	return (scc->chn[chn].rr[1]);
+}
+#endif
+
 /*
  * RR2: interrupt vector
  * If read from channel B, include status
@@ -655,6 +793,12 @@ unsigned char e8530_get_reg (e8530_t *scc, unsigned chn, unsigned reg)
 		val = e8530_get_rr0 (scc, chn);
 		break;
 
+#ifdef SDLC_LOCALTALK_ENABLE
+	case 0x01:
+		val = e8530_get_rr1 (scc, chn);
+		break;
+#endif
+
 	case 0x02:
 		val = e8530_get_rr2 (scc, chn);
 		break;
@@ -707,9 +851,18 @@ void e8530_set_wr0 (e8530_t *scc, unsigned chn, unsigned char val)
 		break;
 
 	case 0x03: /* send abort */
+#ifdef SDLC_LOCALTALK_ENABLE
+		fprintf (stderr, "SCC %c: Send abort\n", scc_get_chn (chn));
+		e8530_set_tx_underrun(scc, chn);
+#endif
 		break;
 
 	case 0x04: /* enable interrupt on next rx character */
+#ifdef SDLC_LOCALTALK_ENABLE
+		if((scc->chn[chn].wr[1] & 0x18) == 0x08) {
+			scc->chn[chn].int_on_1st_rx = 1;
+		}
+#endif
 		break;
 
 	case 0x05: /* reset tx interrupt pending */
@@ -717,11 +870,39 @@ void e8530_set_wr0 (e8530_t *scc, unsigned chn, unsigned char val)
 		break;
 
 	case 0x06: /* error reset */
+#ifdef SDLC_LOCALTALK_ENABLE
+#ifdef SDLC_DEBUG
+		fprintf (stderr, "SCC %c: Error reset\n", scc_get_chn (chn));
+#endif
+		/* Clear End of Frame (SDLC) bit in RR1 */
+		scc->chn[chn].rr[1] &= ~0x80;
+#endif
 		break;
 
 	case 0x07: /* reset highest ius */
 		break;
 	}
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	switch ((val >> 6) & 0x03) {
+		case 0x00: /* Null command */
+			break;
+		case 0x01: /* Reset Rx CRC Checker */
+			break;
+		case 0x10: /* Reset Tx CRC Generator */
+			break;
+		case 0x11: /* Reset Tx Underrun/EOM Latch */
+			fprintf (stderr, "SCC %c: Reset Tx Underrun/EOM Latch\n", scc_get_chn (chn));
+			/* Michael Fort's vMac code uses this condition to detect the end of an SDLC frame,
+			 * but at least under System 6.0 this condition never seems to get triggered.
+			 * I will leave this check here, but I also do the same when the transmitter is
+			 * disabled, which seems to be a better condition. */
+			if(scc->chn[chn].sdlc_frame_in_progress) {
+				e8530_send_sdlc_trailer(scc, chn);
+			}
+			break;
+	}
+#endif
 }
 
 /*
@@ -731,6 +912,22 @@ static
 void e8530_set_wr1 (e8530_t *scc, unsigned chn, unsigned char val)
 {
 	scc->chn[chn].wr[1] = val;
+
+#ifdef SDLC_LOCALTALK_ENABLE
+#ifdef SDLC_DEBUG
+	char *msg;
+	switch((scc->chn[chn].wr[1] >> 3) & 0x03) {
+		case 0x00: msg = "SCC %c: Rx Int Disable\n"; break;
+		case 0x01: msg = "SCC %c: Rx Int On First Character or Special Condition\n"; break;
+		case 0x10: msg = "SCC %c: Int On All Rx Characters or Special Condition\n"; break;
+		case 0x11: msg = "SCC %c: Int On Special Condition Only\n"; break;
+	};
+	fprintf (stderr, msg, scc_get_chn (chn));
+#endif
+	if((scc->chn[chn].wr[1] & 0x18) == 0x08) {
+		scc->chn[chn].int_on_1st_rx = 1;
+	}
+#endif
 
 	e8530_set_int_cond (scc, chn, 0x00);
 }
@@ -754,14 +951,35 @@ void e8530_set_wr2 (e8530_t *scc, unsigned char val)
 static
 void e8530_set_wr3 (e8530_t *scc, unsigned chn, unsigned char val)
 {
-	scc->chn[chn].wr[3] = val;
-
 	if (val & 0x10) {
-#if DEBUG_SCC
-		fprintf (stderr, "SCC %c: sync/hunt mode\n", scc_get_chn (chn));
+#if defined DEBUG_SCC || defined SDLC_DEBUG
+		fprintf (stderr, "SCC %c: Enter hunt mode\n", scc_get_chn (chn));
 #endif
-		scc->chn[chn].rr[0] |= 0x10;
+		scc->chn[chn].rr[0] |= 0x10; // Set hunt bit
 	}
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	if((scc->chn[chn].wr[4] & 0x30) == 0x20) {
+		// In SDLC mode
+
+#ifdef SDLC_DEBUG
+		if((val ^ scc->chn[chn].wr[3]) & 0x04) {
+			// Address Search Mode bit changed
+			fprintf (stderr, "SCC %c: Address Search Mode = %c\n", scc_get_chn (chn), (val & 0x04) ? '1' : '0');
+		}
+#endif
+
+		if ((val ^ scc->chn[chn].wr[3]) & 0x01) {
+#ifdef SDLC_DEBUG
+			fprintf (stderr, "SCC %c: Rx Enable = %c\n", scc_get_chn (chn), (val & 0x01) ? '1' : '0');
+#endif
+			/* Automatically enter hunt mode when Rx is enabled or disabled */
+			scc->chn[chn].rr[0] |= 0x10;
+		}
+	}
+#endif
+
+	scc->chn[chn].wr[3] = val;
 }
 
 /*
@@ -771,6 +989,27 @@ static
 void e8530_set_wr4 (e8530_t *scc, unsigned chn, unsigned char val)
 {
 	scc->chn[chn].wr[4] = val;
+
+#ifdef SDLC_LOCALTALK_ENABLE
+#ifdef SDLC_DEBUG
+	char *msg;
+	switch((val >> 4) & 0x03) {
+		case 0x00: msg = "SCC %c: 8-Bit Sync Character\n"; break;
+		case 0x01: msg = "SCC %c: 16-Bit Sync Character\n"; break;
+		case 0x10: msg = "SCC %c: SDLC Mode (01111110 Flag)\n"; break;
+		case 0x11: msg = "SCC %c: External Sync Mode\n"; break;
+	};
+	fprintf (stderr, msg, scc_get_chn (chn));
+#endif
+
+	if(((val >> 4) & 0x03) != 0x10) {
+#ifdef SDLC_DEBUG
+		fprintf (stderr, "SCC %c: resetting End of Frame bit\n", scc_get_chn (chn));
+#endif
+		/* Clear End of Frame (SDLC) bit in RR1 on any mode other than SDLC */
+		scc->chn[chn].rr[1] &= ~0x80;
+	}
+#endif
 
 	e8530_set_params (scc, chn);
 }
@@ -793,8 +1032,37 @@ void e8530_set_wr5 (e8530_t *scc, unsigned chn, unsigned char val)
 		e8530_set_rts (scc, chn, (val & 0x02) != 0);
 	}
 
+#ifdef SDLC_LOCALTALK_ENABLE
+	if ((old ^ val) & 0x08) {
+#ifdef SDLC_DEBUG
+		fprintf (stderr, "SCC %c: Tx Enable = %c\n", scc_get_chn (chn), (val & 0x08) ? '1' : '0');
+#endif
+		if((val & 0x08) == 0) {
+			/* On of the last things AppleTalk under System 6.0 does after transmitting a
+			 * packet is turn off the transmitter. There seems to be no other indication, so
+			 * this is a good place to write our SDLC frame trailer */
+			if(c->sdlc_frame_in_progress) {
+				e8530_send_sdlc_trailer(scc, chn);
+			}
+		}
+	}
+#endif
+
 	e8530_set_params (scc, chn);
 }
+
+#ifdef SDLC_LOCALTALK_ENABLE
+/*
+ * WR6: sync characters of SDLC Address Field
+ */
+static
+void e8530_set_wr6 (e8530_t *scc, unsigned chn, unsigned char val)
+{
+	fprintf (stderr, "SCC %c: SDLC address is %d\n", scc_get_chn (chn), val);
+
+	scc->chn[chn].wr[6] = val;
+}
+#endif
 
 /*
  * WR8: transmit buffer
@@ -907,6 +1175,15 @@ void e8530_set_wr15 (e8530_t *scc, unsigned chn, unsigned char val)
 {
 	scc->chn[chn].wr[15] = val;
 	scc->chn[chn].rr[15] = val;
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	if(val & 0x10) {
+		fprintf (stderr, "SCC %c: Sync/Hunt IE set in WR15\n", scc_get_chn (chn));
+	}
+	if(val & 0x40) {
+		fprintf (stderr, "SCC %c: Tx Underrun/EOM IE set in WR15\n", scc_get_chn (chn));
+	}
+#endif
 }
 
 void e8530_set_reg (e8530_t *scc, unsigned chn, unsigned reg, unsigned char val)
@@ -943,6 +1220,12 @@ void e8530_set_reg (e8530_t *scc, unsigned chn, unsigned reg, unsigned char val)
 	case 0x05:
 		e8530_set_wr5 (scc, chn, val);
 		break;
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	case 0x06:
+		e8530_set_wr6 (scc, chn, val);
+		break;
+#endif
 
 	case 0x08:
 		e8530_set_wr8 (scc, chn, val);
@@ -1259,11 +1542,6 @@ void e8530_chn_clock (e8530_t *scc, unsigned chn, unsigned n)
 
 void e8530_clock (e8530_t *scc, unsigned n)
 {
-#ifdef __EMSCRIPTEN__
-	EM_ASM_({
-		e8530_chn_clock_js($0)
-	},n);
-#endif
 	e8530_chn_clock (scc, 0, n);
 	e8530_chn_clock (scc, 1, n);
 }

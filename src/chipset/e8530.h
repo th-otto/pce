@@ -26,6 +26,8 @@
 #ifndef PCE_CHIPSET_E8530_H
 #define PCE_CHIPSET_E8530_H 1
 
+#define SDLC_LOCALTALK_ENABLE
+//#define SDLC_DEBUG
 
 #define E8530_BUF_MAX 256
 
@@ -39,6 +41,11 @@ typedef struct {
 
 	unsigned char txd_empty;
 	unsigned char rxd_empty;
+
+#ifdef SDLC_LOCALTALK_ENABLE
+	unsigned char int_on_1st_rx;
+	unsigned char sdlc_frame_in_progress;
+#endif
 
 	unsigned long bps;
 	unsigned      parity;
