@@ -27,9 +27,15 @@
 #define PCE_CHIPSET_E8530_H 1
 
 #define SDLC_LOCALTALK_ENABLE
-//#define SDLC_DEBUG
+#define nSDLC_DEBUG
 
+#ifdef SDLC_LOCALTALK_ENABLE
+/* When in SDLC mode, make buffer long enough for a full network packet.
+   For LocalTalk, 603 bytes plus frame check byte and flag */
+#define E8530_BUF_MAX 610
+#else
 #define E8530_BUF_MAX 256
+#endif
 
 
 typedef struct {
