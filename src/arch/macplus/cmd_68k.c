@@ -43,6 +43,7 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#include <html5.h>
 #endif
 
 mon_cmd_t par_cmd[] = {
@@ -453,13 +454,21 @@ void mac_run_emscripten_step ()
 	int screenw = videoinfo->current_w;
 	int screenh = videoinfo->current_h;
 #endif
+	int i;
+ 
+	/* If pointer lock is enabled, then the mouse hack will not work */
+	EmscriptenPointerlockChangeEvent pointerLockEvent;
+	if(emscripten_get_pointerlock_status(&pointerLockEvent) == EMSCRIPTEN_RESULT_SUCCESS) {
+		if(pointerLockEvent.isActive) {
+			mousehack_interval = 0;
+		}
+	}
  
 	// for each 'emscripten step' we'll run a bunch of actual cycles
 	// to minimise overhead from emscripten's main loop management
-	int i;
 	for (i = 0; i < 10000; ++i) {
 		// gross hacks to set mouse position in browser
-		if (i % mousehack_interval == 0) {
+		if (mousehack_interval && (i % mousehack_interval == 0)) {
 			SDL_GetMouseState (&mousex, &mousey);
 			// clamp mouse pos to screen bounds
 			mousex = mousex > screenw ? screenw : (mousex < 0 ? 0 : mousex);
