@@ -43,7 +43,7 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
-#include <html5.h>
+#include <emscripten/html5.h>
 #endif
 
 mon_cmd_t par_cmd[] = {
