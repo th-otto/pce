@@ -425,7 +425,7 @@ void mac_run_emscripten (macplus_t *sim)
 	mac_clock_discontinuity (sim);
 
 #ifdef __EMSCRIPTEN__
-	emscripten_set_main_loop(mac_run_emscripten_step, 100, 1);
+	emscripten_set_main_loop(mac_run_emscripten_step, 0, 1);
 #else
 	while (!sim->brk) {
 		mac_run_emscripten_step();

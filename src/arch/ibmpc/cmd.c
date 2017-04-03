@@ -576,7 +576,7 @@ void pc_run_emscripten (ibmpc_t *pc)
 	pc_clock_discontinuity (pc);
 
 #ifdef __EMSCRIPTEN__
-	emscripten_set_main_loop(pc_run_emscripten_step, 100, 1);
+	emscripten_set_main_loop(pc_run_emscripten_step, 0, 1);
 #else
 	while (!pc->brk) {
 		pc_run_emscripten_step();

@@ -566,7 +566,7 @@ void st_run_emscripten (atari_st_t *sim)
 
 
 #ifdef __EMSCRIPTEN__
-	emscripten_set_main_loop(st_run_emscripten_step, 100, 1);
+	emscripten_set_main_loop(st_run_emscripten_step, 0, 1);
 #else
 	while (!sim->brk) {
 		st_run_emscripten_step();
