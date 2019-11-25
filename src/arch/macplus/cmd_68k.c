@@ -390,8 +390,8 @@ void mac_run (macplus_t *sim)
 	mac_clock_discontinuity (sim);
 
 	while (1) {
-		mac_clock (par_sim, 0);
-		mac_clock (par_sim, 0);
+		mac_clock (sim, 0);
+		mac_clock (sim, 0);
 
 		if (sim->brk) {
 			break;
@@ -440,6 +440,7 @@ void mac_run_emscripten (macplus_t *sim)
  */
 void mac_run_emscripten_step ()
 {
+	macplus_t *sim = par_sim;
 	int mousex;
 	int mousey;
 	int mousehack_interval = 100;
@@ -459,18 +460,18 @@ void mac_run_emscripten_step ()
 			mousex = mousex > screenw ? screenw : (mousex < 0 ? 0 : mousex);
 			mousey = mousey > screenh ? screenh : (mousey < 0 ? 0 : mousey);
 			// internal raw mouse coords
-			e68_set_mem16 (par_sim->cpu, 0x0828, (unsigned) mousey);
-			e68_set_mem16 (par_sim->cpu, 0x082a, (unsigned) mousex);
+			e68_set_mem16 (sim->cpu, 0x0828, (unsigned) mousey);
+			e68_set_mem16 (sim->cpu, 0x082a, (unsigned) mousex);
 			// raw mouse coords
-			e68_set_mem16 (par_sim->cpu, 0x082c, (unsigned) mousey);
-			e68_set_mem16 (par_sim->cpu, 0x082e, (unsigned) mousex);
+			e68_set_mem16 (sim->cpu, 0x082c, (unsigned) mousey);
+			e68_set_mem16 (sim->cpu, 0x082e, (unsigned) mousex);
 			// smoothed mouse coords
-			e68_set_mem16 (par_sim->cpu, 0x0830, (unsigned) mousey);
-			e68_set_mem16 (par_sim->cpu, 0x0832, (unsigned) mousex);
+			e68_set_mem16 (sim->cpu, 0x0830, (unsigned) mousey);
+			e68_set_mem16 (sim->cpu, 0x0832, (unsigned) mousex);
 		}
-		mac_clock (par_sim, 0);
+		mac_clock (sim, 0);
 
-		if (par_sim->brk) {
+		if (sim->brk) {
 			pce_stop();
 #ifdef __EMSCRIPTEN__
 			emscripten_cancel_main_loop();
@@ -478,13 +479,13 @@ void mac_run_emscripten_step ()
 			return;
 		}
 
-		while (par_sim->pause) {
+		while (sim->pause) {
 			pce_usleep (50UL * 1000UL);
-			trm_check (par_sim->trm);
+			trm_check (sim->trm);
 		}
 	}
 	// print state
-	// mac_prt_state_cpu(par_sim);
+	// mac_prt_state_cpu(sim);
 }
 /*
  * end emscripten specific main loop

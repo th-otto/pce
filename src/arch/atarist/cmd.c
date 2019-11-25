@@ -533,7 +533,7 @@ void st_run (atari_st_t *sim)
 	st_clock_discontinuity (sim);
 
 	while (1) {
-		st_clock (par_sim, 0);
+		st_clock (sim, 0);
 
 		if (sim->brk) {
 			break;
@@ -554,20 +554,12 @@ void st_run (atari_st_t *sim)
  * emscripten specific main loop
  */
 
-/*
- * store global reference to simulation state struct
- * so that st_run_emscripten_step doesn't require it as a parameter
- */
-atari_st_t  *atari_st_sim = NULL;
-
 #ifdef __EMSCRIPTEN__
 /*
  * setup and run the simulation
  */
 void st_run_emscripten (atari_st_t *sim)
 {
-	atari_st_sim = sim;
-
 	pce_start (&sim->brk);
 
 	st_clock_discontinuity (sim);
@@ -590,14 +582,16 @@ void st_run_emscripten (atari_st_t *sim)
  */
 void st_run_emscripten_step ()
 {
+	atari_st_t *sim = par_sim;
+
 	// for each 'emscripten step' we'll run a bunch of actual cycles
 	// to minimise overhead from emscripten's main loop management
 	int i;
 	for (i = 0; i < 10000; ++i)
 	{	
-		st_clock (atari_st_sim, 0);
+		st_clock (sim, 0);
 
-		if (atari_st_sim->brk) {
+		if (sim->brk) {
 			pce_stop();
 #ifdef __EMSCRIPTEN__
 			emscripten_cancel_main_loop();
