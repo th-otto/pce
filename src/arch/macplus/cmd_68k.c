@@ -39,7 +39,7 @@
 
 #include <SDL.h>
 
-// #include <emscripten.h>
+#include <emscripten.h>
 
 mon_cmd_t par_cmd[] = {
 	{ "c", "[cnt]", "clock" },
