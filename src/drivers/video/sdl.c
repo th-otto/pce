@@ -596,7 +596,9 @@ int sdl_set_msg_trm (sdl_t *sdl, const char *msg, const char *val)
 		return (0);
 	}
 	else if (strcmp (msg, "term.title") == 0) {
+#ifndef __EMSCRIPTEN__
 		SDL_WM_SetCaption (val, val);
+#endif
 		return (0);
 	}
 	else if (strcmp (msg, "term.set_border_x") == 0) {
@@ -661,7 +663,9 @@ int sdl_open (sdl_t *sdl, unsigned w, unsigned h)
 	sdl->dsp_bpp = inf->vfmt->BytesPerPixel;
 	sdl->scr_bpp = 0;
 
+#ifndef __EMSCRIPTEN__
 	SDL_WM_SetCaption ("pce", "pce");
+#endif
 	SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	SDL_EventState (SDL_MOUSEMOTION, SDL_ENABLE);
 
