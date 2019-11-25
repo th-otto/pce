@@ -8,6 +8,8 @@ atarist({
   'arguments': ['-c','pce-config.cfg','-r'],
   autoloadFiles: [
     'tos-1.00-us.rom',
+    'tos-1.04-us.rom',
+    'etos256us.img',
     'pce-config.cfg',
     'fd0.st',
     'fd1.psi',
