@@ -622,6 +622,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+EMSCRIPTEN
 PCE_DIR_DATA
 PCE_DIR_ETC
 PCE_READLINE_LIBS
@@ -741,6 +742,7 @@ ac_user_opts='
 enable_option_checking
 with_x
 with_sdl
+enable_static_sdl
 enable_largefile
 enable_atari_st
 enable_cpm80
@@ -1389,6 +1391,7 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-static-sdl     Link to static SDL [no]
   --disable-largefile     Disable large file support [no]
   --enable-atari-st       Enable the Atari ST emulator [yes]
   --enable-cpm80          Enable the CPM-80 emulator [yes]
@@ -4590,15 +4593,17 @@ if test "x$no_x" = "xyes" ; then
 	PCE_X11_LIBS=""
 else
 	PCE_ENABLE_X11=1
-	if test -n "$x_includes" ; then
-		PCE_X11_CFLAGS="-I$x_includes"
-	else
-		PCE_X11_CFLAGS=""
-	fi
-	if test -n "$x_libraries" ; then
-		PCE_X11_LIBS="-L$x_libraries -lX11"
-	else
-		PCE_X11_LIBS="-lX11"
+	if test "x$EMSCRIPTEN" != "xyes" ; then
+		if test -n "$x_includes" ; then
+			PCE_X11_CFLAGS="-I$x_includes"
+		else
+			PCE_X11_CFLAGS=""
+		fi
+		if test -n "$x_libraries" ; then
+			PCE_X11_LIBS="-L$x_libraries -lX11"
+		else
+			PCE_X11_LIBS="-lX11"
+		fi
 	fi
 	$as_echo "#define PCE_ENABLE_X11 1" >>confdefs.h
 
@@ -4677,6 +4682,34 @@ fi
 
 
 
+if test "x$PCE_ENABLE_SDL1" != "x0" ; then
+	if test "x$EMSCRIPTEN" != "xyes" ; then
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for static SDL" >&5
+$as_echo_n "checking for static SDL... " >&6; }
+		# Check whether --enable-static-sdl was given.
+if test "${enable_static_sdl+set}" = set; then :
+  enableval=$enable_static_sdl;
+			if test "x$enableval" = "xyes" ; then
+				PCE_SDL_LIBS=`sdl-config --static-libs`
+				{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes (forced)" >&5
+$as_echo "yes (forced)" >&6; }
+			else
+				{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (forced)" >&5
+$as_echo "no (forced)" >&6; }
+			fi
+
+else
+
+			{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (default)" >&5
+$as_echo "no (default)" >&6; }
+
+
+fi
+
+
+		PCE_SDL_CFLAGS=`sdl-config --cflags`
+	fi
+fi
 
 #-----------------------------------------------------------------------------
 # Checks for options
@@ -5629,6 +5662,8 @@ _ACEOF
 cat >>confdefs.h <<_ACEOF
 #define PCE_DIR_DATA "$pce_datdir"
 _ACEOF
+
+
 
 
 
@@ -7114,3 +7149,5 @@ echo "  Sound drivers built:    $sound1"
 echo "  Sound drivers not built:$sound2"
 echo "  Enabled options:        $option1"
 echo "  Disabled options:       $option2"
+echo
+echo "  EMSCRIPTEN:             $EMSCRIPTEN"
