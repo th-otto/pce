@@ -13,7 +13,7 @@ atarist({
     'pce-config.cfg',
     'fd0.st',
     'fd1.psi',
-    'hd0.qed',
+    'hd0.img',
   ],
 
   print: console.log.bind(console),
