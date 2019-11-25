@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<title>pce.js Atari ST in the browser | atari st emulator</title>
     <style type="text/css">
     * {
       font-family: sans-serif;
@@ -8,39 +10,76 @@
     p {
       font-size: 14px;
       margin: 8px 0;
-      color: #888;
+      color: #000;
     }
     .pcejs {
-      padding-right: 0;
       margin-left: auto;
       margin-right: auto;
-      display: block;
       text-align: center;
+      font-family: sans-serif;
+      display: block;
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      border: 0px none;
+      padding: 0;
     }
     div.pcejs-border {
       border: none;
     }
-    /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
     .pcejs-canvas {
-      border: 0px none;
+      cursor: none;
     }
     .pcejs-container {
       margin-top: 32px;
       text-align: center;
     }
-
+    h1 { font-weight: normal; }
+    h1 small { color: #999; font-size: 80% }
     </style>
   </head>
   <body>
     <div class="pcejs pcejs-container">
+      <h1>Atari ST</h1>
       <div class="pcejs pcejs-loading-status">Downloading...</div>
-      <div class="pcejs-border">
-        <canvas class="pcejs pcejs-canvas" oncontextmenu="event.preventDefault()"></canvas>
+      <div class="pcejs">
+        <canvas class="pcejs pcejs-canvas" id="pcejs-canvas" oncontextmenu="event.preventDefault()"></canvas>
       </div>
+      <p>This is an Atari ST running in the <a href="https://github.com/jsdf/pce">pce.js emulator</a>.</p>
+      <p>It is using EmuTOS.</p>
     </div>
 
     <p class="pcejs">press esc + &uarr; to zoom in, esc + &darr; to zoom out</p>
-    </script>
     <script type="text/javascript" src="bundle.js"></script>
+<!--
+<script type="text/javascript">
+    // retarget mouse events on body
+    (function(){
+      var pcejsCanvas = document.getElementById('pcejs-canvas')
+
+      function retriggerEvent(event) {
+        if (event.pcejsRetriggered) return
+
+        var retriggeredEvent = new MouseEvent(event.type, event)
+        retriggeredEvent.pcejsRetriggered = true
+
+        pcejsCanvas.dispatchEvent(retriggeredEvent)
+      }
+
+      [
+        'mousedown',
+        'mouseenter',
+        'mouseleave',
+        'mousemove',
+        'mouseout',
+        'mouseover',
+        'mouseup',
+        'click',
+        'dblclick',
+      ].forEach(function(eventType) {
+        document.addEventListener(eventType, retriggerEvent)
+      })
+
+    })()
+    </script>
+-->
   </body>
 </html>

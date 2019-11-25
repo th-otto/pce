@@ -23,9 +23,17 @@
     "clean": "./pcejs_build clean"
   },
   "homepage": "https://github.com/jsdf/pce",
-  "bugs": "https://github.com/jsdf/pce/issues",
+  "bugs": {
+    "url": "https://github.com/jsdf/pce/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/jsdf/pce.git"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "example": "example"
+  },
+  "license": "ISC"
 }

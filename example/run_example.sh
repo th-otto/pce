@@ -38,10 +38,10 @@ if ! (ls "${PCEJS_ARCH_EXAMPLE_DIR}"/*.rom >/dev/null 2>&1); then
   exit 1
 fi
 
-"$PCEJS_ARCH_MODULE_DIR"/prepublish.sh $1
+"$PCEJS_ARCH_MODULE_DIR"/prepublish.sh $PCEJS_ARCH
 
-NODE_PATH="$PCEJS_MODULES_DIR:$PCEJS_DIR/node_modules" \
-  "$PCEJS_NODE_BIN_DIR/browserify" "$PCEJS_ARCH_EXAMPLE_DIR/$PCEJS_ARCH.js" \
+NODE_PATH="$PCEJS_MODULES_DIR:$PCEJS_DIR/node_modules:"$(dirname $EMSDK_NODE)"/../lib/node_modules/" \
+  "browserify" "$PCEJS_ARCH_EXAMPLE_DIR/$PCEJS_ARCH.js" \
     --noparse="$PCEJS_ARCH_MODULE_DIR/lib/pcejs-${PCEJS_ARCH}.js" \
     > "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js"
 echo "bundle.js built"
@@ -68,4 +68,4 @@ copy_if_present "$PCEJS_ARCH_MODULE_DIR/pce-${PCEJS_ARCH}.wasm" "${PCEJS_ARCH_EX
 copy_if_present "$PCEJS_ARCH_MODULE_DIR/pce-${PCEJS_ARCH}.js.mem" "${PCEJS_ARCH_EXAMPLE_DIR}/pce-${PCEJS_ARCH}.js.mem"
 copy_if_present "$PCEJS_ARCH_MODULE_DIR/${PCEJS_ARCH}-pcex.rom" "${PCEJS_ARCH_EXAMPLE_DIR}/${PCEJS_ARCH}-pcex.rom"
  
-node "$PCEJS_DIR/example/webserver.js" "$PCEJS_DIR/example/$PCEJS_ARCH"
+# node "$PCEJS_DIR/example/webserver.js" "$PCEJS_DIR/example/$PCEJS_ARCH"

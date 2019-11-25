@@ -1,7 +1,7 @@
 var Module = opts || {};
 
 // hide node/commonjs globals so emscripten doesn't get confused
-var process = null; 
+// var process = null; 
 var require = null; 
 
 var pathGetFilenameRegex = /\/([^\/]+)$/;
