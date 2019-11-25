@@ -131,6 +131,7 @@ case "$taskname" in
       pcejs_init_env_from_config
       $pcejs_build remake
       $pcejs_build afterbuild "$PCEJS_conf_target"
+      example/run_example.sh "$PCEJS_conf_target"
     else
       $pcejs_build remake
       for arch in "${ARCHS[@]}"; do
