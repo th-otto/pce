@@ -45,7 +45,6 @@
 struct macplus_s;
 typedef struct macplus_s macplus_t;
 
-
 extern int        par_verbose;
 
 extern const char *par_terminal;
@@ -55,7 +54,6 @@ extern unsigned   par_disk_boot;
 extern macplus_t  *par_sim;
 
 extern unsigned   par_sig_int;
-
 
 void mac_log_deb (const char *msg, ...);
 
