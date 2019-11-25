@@ -61,6 +61,8 @@ void e68_init (e68000_t *c)
 	c->log_exception = NULL;
 	c->log_mem = NULL;
 
+	c->sleep_until_interrupt = 0;
+
 	c->hook_ext = NULL;
 	c->hook = NULL;
 
@@ -566,7 +568,7 @@ void e68_exception (e68000_t *c, unsigned vct, unsigned fmt, const char *name)
 	sr2 |= E68_SR_S;
 	e68_set_sr (c, sr2);
 
-	if (c->flags & E68_FLAG_68010) {
+	if (c->flags & (E68_FLAG_68010|E68_FLAG_68020)) {
 		e68_push16 (c, ((fmt & 15) << 12) | (vct << 2));
 	}
 
@@ -826,6 +828,12 @@ void e68_execute (e68000_t *c)
 	else {
 		e68_set_clk (c, 4);
 
+		if (c->halt & 4)
+		{
+			if (c->sleep_until_interrupt)
+				c->sleep_until_interrupt(c);
+			c->halt &= ~4;
+		}
 		if (c->halt & ~1U) {
 			return;
 		}

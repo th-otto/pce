@@ -81,8 +81,9 @@ void null_update (null_t *vt)
 }
 
 static
-void null_check (null_t *vt)
+int null_check (null_t *vt)
 {
+	return 1;
 }
 
 static

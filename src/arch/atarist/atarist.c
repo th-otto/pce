@@ -348,6 +348,18 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 	}
 }
 
+static void st_sleep_until_interrupt(e68000_t *c)
+{
+	int i;
+
+	i = 0;
+	while (i < 10 && c->int_ipl <= 0 && !c->int_nmi && !trm_check(par_sim->trm))
+	{
+		i++;
+		pce_usleep(1000);
+	}
+}
+
 static
 void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 {
@@ -384,6 +396,8 @@ void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 	e68_set_flags (sim->cpu, E68_FLAG_NORESET, 1);
 
 	sim->speed_factor = speed;
+
+	sim->cpu->sleep_until_interrupt = st_sleep_until_interrupt;
 }
 
 static

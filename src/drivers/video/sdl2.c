@@ -586,10 +586,12 @@ void sdl2_event_window (sdl2_t *sdl, SDL_WindowEvent *evt)
 }
 
 static
-void sdl2_check (sdl2_t *sdl)
+int sdl2_check (sdl2_t *sdl)
 {
+	unsigned int i;
 	SDL_Event evt;
 
+	i = 0;
 	while (SDL_PollEvent (&evt)) {
 		switch (evt.type) {
 		case SDL_KEYDOWN:
@@ -631,6 +633,8 @@ void sdl2_check (sdl2_t *sdl)
 			fprintf (stderr, "sdl2: event %u\n", evt.type);
 			break;
 		}
+
+		i += 1;
 	}
 
 	if (sdl->update) {
@@ -640,6 +644,7 @@ void sdl2_check (sdl2_t *sdl)
 	if (sdl->ignore_keys) {
 		sdl->ignore_keys = 0;
 	}
+	return i > 0;
 }
 
 static

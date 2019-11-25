@@ -599,7 +599,6 @@ void st_run_emscripten_step ()
 	for (i = 0; i < 10000; ++i)
 	{	
 		st_clock (atari_st_sim, 0);
-		st_clock (atari_st_sim, 0);
 
 		if (atari_st_sim->brk) {
 			pce_stop();

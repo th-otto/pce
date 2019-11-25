@@ -758,10 +758,12 @@ void xt_event_motion (xterm_t *xt, XEvent *event)
 }
 
 static
-void xt_check (xterm_t *xt)
+int xt_check (xterm_t *xt)
 {
+	unsigned int i;
 	XEvent event;
 
+	i = 0;
 	while (XPending (xt->display) > 0) {
 		XNextEvent (xt->display, &event);
 
@@ -797,7 +799,10 @@ void xt_check (xterm_t *xt)
 		default:
 			break;
 		}
+
+		i += 1;
 	}
+	return i > 0;
 }
 
 static

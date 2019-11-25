@@ -535,9 +535,9 @@ void sdl_event_mouse_motion (sdl_t *sdl, int dx, int dy)
 }
 
 static
-void sdl_check (sdl_t *sdl)
+int sdl_check (sdl_t *sdl)
 {
-	unsigned  i;
+	unsigned int i;
 	SDL_Event evt;
 
 	i = 0;
@@ -577,6 +577,7 @@ void sdl_check (sdl_t *sdl)
 
 		i += 1;
 	}
+	return i > 0;
 }
 
 static

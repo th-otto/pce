@@ -407,11 +407,12 @@ void trm_update (terminal_t *trm)
 	trm->update_h = 0;
 }
 
-void trm_check (terminal_t *trm)
+int trm_check (terminal_t *trm)
 {
 	if (trm->check != NULL) {
-		trm->check (trm->ext);
+		return trm->check (trm->ext);
 	}
+	return 1;
 }
 
 

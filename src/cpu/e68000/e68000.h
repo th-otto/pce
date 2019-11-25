@@ -140,6 +140,8 @@ typedef struct e68000_s {
 	void           (*log_exception) (void *ext, unsigned tn);
 	void           (*log_mem) (void *ext, unsigned long addr, unsigned type);
 
+	void           (*sleep_until_interrupt) (struct e68000_s *c);
+
 	uint32_t       dreg[8];
 	uint32_t       areg[8];
 	uint32_t       pc;

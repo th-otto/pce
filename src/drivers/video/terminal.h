@@ -56,7 +56,7 @@ typedef struct {
 
 	void (*update) (void *ext);
 
-	void (*check) (void *ext);
+	int (*check) (void *ext);
 
 	int           is_open;
 
@@ -221,7 +221,7 @@ void trm_update (terminal_t *trm);
  *
  * This function must be called periodically.
  *****************************************************************************/
-void trm_check (terminal_t *trm);
+int trm_check (terminal_t *trm);
 
 
 /*!***************************************************************************

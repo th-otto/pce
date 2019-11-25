@@ -1069,7 +1069,7 @@ static void op40c0 (e68000_t *c)
 {
 	uint16_t s;
 
-	if (c->flags & E68_FLAG_68010) {
+	if (c->flags & (E68_FLAG_68010|E68_FLAG_68020)) {
 		e68_op_supervisor (c);
 	}
 
@@ -1986,7 +1986,7 @@ static void op4e72 (e68000_t *c)
 	e68_op_prefetch (c);
 	e68_set_sr (c, c->ir[1]);
 	e68_set_clk (c, 4);
-	c->halt |= 1;
+	c->halt |= 1 | 4;
 	e68_op_prefetch (c);
 }
 
@@ -2002,7 +2002,7 @@ static void op4e73 (e68000_t *c)
 	sr = e68_get_mem16 (c, sp);
 	pc = e68_get_mem32 (c, sp + 2);
 
-	if (c->flags & E68_FLAG_68010) {
+	if (c->flags & (E68_FLAG_68010|E68_FLAG_68020)) {
 		fmt = e68_get_mem16 (c, sp + 6);
 
 		switch ((fmt >> 12) & 0x0f) {
@@ -2020,7 +2020,7 @@ static void op4e73 (e68000_t *c)
 	e68_set_pc (c, pc);
 	e68_set_ir_pc (c, pc);
 
-	if (c->flags & E68_FLAG_68010) {
+	if (c->flags & (E68_FLAG_68010|E68_FLAG_68020)) {
 		e68_set_ssp (c, sp + 8);
 	}
 	else {
