@@ -135,8 +135,8 @@ static st_keymap_t keymap[] = {
 	{ PCE_KEY_INS,       1, { 0x52 }, 1, { 0xd2 }, 0 },
 	{ PCE_KEY_DEL,       1, { 0x53 }, 1, { 0xd3 }, 0 },
 	{ PCE_KEY_LESS,      1, { 0x60 }, 1, { 0xe0 }, 0 },
-	{ PCE_KEY_PAGEDN,    1, { 0x61 }, 1, { 0xe1 }, 0 },
-	{ PCE_KEY_END,       1, { 0x62 }, 1, { 0xe2 }, 0 },
+	{ PCE_KEY_F12,       1, { 0x61 }, 1, { 0xc4 }, 0 }, /* Undo */
+	{ PCE_KEY_F11,       1, { 0x62 }, 1, { 0xc3 }, 0 }, /* Help */
 
 	{ PCE_KEY_KP_SLASH,  1, { 0x65 }, 1, { 0xe5 }, 0 },
 	{ PCE_KEY_KP_STAR,   1, { 0x66 }, 1, { 0xe6 }, 0 },
