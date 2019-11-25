@@ -37,7 +37,9 @@
 #ifndef DEBUG_BIOS
 #define DEBUG_BIOS 1
 #endif
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
 
 
 mon_cmd_t par_cmd[] = {
@@ -561,6 +563,7 @@ void st_run (atari_st_t *sim)
  */
 atari_st_t  *atari_st_sim = NULL;
 
+#ifdef __EMSCRIPTEN__
 /*
  * setup and run the simulation
  */
@@ -573,13 +576,13 @@ void st_run_emscripten (atari_st_t *sim)
 	st_clock_discontinuity (sim);
 
 
-	#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(st_run_emscripten_step, 100, 1);
-	#else
+#else
 	while (!sim->brk) {
 		st_run_emscripten_step();
 	}
-	#endif
+#endif
 
 	// pce_stop();
 }
@@ -600,9 +603,9 @@ void st_run_emscripten_step ()
 
 		if (atari_st_sim->brk) {
 			pce_stop();
-			#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 			emscripten_cancel_main_loop();
-			#endif
+#endif
 			return;
 		}
 	}
@@ -611,6 +614,8 @@ void st_run_emscripten_step ()
 /*
  * end emscripten specific main loop
  */
+#endif
+
 
 static
 void st_log_trap_bios (atari_st_t *sim, unsigned iw)

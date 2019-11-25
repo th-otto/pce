@@ -39,7 +39,9 @@
 
 #include <SDL.h>
 
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
 
 mon_cmd_t par_cmd[] = {
 	{ "c", "[cnt]", "clock" },
@@ -404,6 +406,7 @@ void mac_run (macplus_t *sim)
 	pce_stop();
 }
 
+#ifdef __EMSCRIPTEN__
 /*
  * emscripten specific main loop
  */
@@ -420,13 +423,13 @@ void mac_run_emscripten (macplus_t *sim)
 
 	mac_clock_discontinuity (sim);
 
-	#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(mac_run_emscripten_step, 100, 1);
-	#else
+#else
 	while (!sim->brk) {
 		mac_run_emscripten_step();
 	}
-	#endif
+#endif
 
 	// pce_stop();
 }
@@ -469,9 +472,9 @@ void mac_run_emscripten_step ()
 
 		if (par_sim->brk) {
 			pce_stop();
-			#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 			emscripten_cancel_main_loop();
-			#endif
+#endif
 			return;
 		}
 
@@ -486,6 +489,7 @@ void mac_run_emscripten_step ()
 /*
  * end emscripten specific main loop
  */
+#endif
 
 #if 0
 static

@@ -228,14 +228,14 @@ int main (int argc, char *argv[])
 
 	ini_str_init (&par_ini_str);
 
+#ifdef __EMSCRIPTEN__
 	int emscripten;
 	emscripten = 0;
-	#ifdef EMSCRIPTEN
 		// arg defaults
 		pce_log_set_level (stderr, MSG_DEB);
 		cfg = "pce-config.cfg";
 		emscripten = 1;
-	#endif
+#endif
 
 	while (1) {
 		r = pce_getopt (argc, argv, &optarg, opts);
@@ -370,10 +370,12 @@ int main (int argc, char *argv[])
 
 	st_reset (par_sim);
 
+#ifdef __EMSCRIPTEN__
 	if (emscripten) {
 		st_run_emscripten(par_sim);
 		exit(1);
 	}
+#endif
 	if (nomon) {
 		while (par_sim->brk != PCE_BRK_ABORT) {
 			st_run (par_sim);

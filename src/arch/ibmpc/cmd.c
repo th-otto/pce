@@ -35,7 +35,9 @@
 #include <lib/msgdsk.h>
 #include <lib/sysdep.h>
 
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
 
 
 static mon_cmd_t par_cmd[] = {
@@ -561,6 +563,7 @@ void pc_run (ibmpc_t *pc)
  */
 ibmpc_t *ibmpc_sim = NULL;
 
+#ifdef __EMSCRIPTEN__
 /*
  * setup and run the simulation
  */
@@ -572,13 +575,13 @@ void pc_run_emscripten (ibmpc_t *pc)
 
 	pc_clock_discontinuity (pc);
 
-	#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(pc_run_emscripten_step, 100, 1);
-	#else
+#else
 	while (!pc->brk) {
 		pc_run_emscripten_step();
 	}
-	#endif
+#endif
 
 	pc->current_int &= 0xff;
 	// pce_stop();
@@ -599,9 +602,9 @@ void pc_run_emscripten_step ()
 
 		if (ibmpc_sim->brk) {
 			pce_stop();
-			#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 			emscripten_cancel_main_loop();
-			#endif
+#endif
 			return;
 		}
 	}
@@ -609,6 +612,7 @@ void pc_run_emscripten_step ()
 /*
  * end emscripten specific main loop
  */
+#endif
 
 
 
