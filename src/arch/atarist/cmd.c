@@ -34,9 +34,6 @@
 #include <lib/sysdep.h>
 
 
-#ifndef DEBUG_BIOS
-#define DEBUG_BIOS 1
-#endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -622,17 +619,20 @@ void st_log_trap_bios (atari_st_t *sim, unsigned iw)
 	unsigned       i;
 	unsigned short par[8];
 
-#if (DEBUG_BIOS == 0)
-	return;
-#endif
+	if (sim->debug.trace_bios == 0)
+		return;
 
 	for (i = 0; i < 8; i++) {
 		par[i] = mem_get_uint16_be (sim->mem, e68_get_areg32 (sim->cpu, 7) + 2 * i);
 	}
 
 	switch (par[0]) {
+	case 0:
+		st_log_deb ("bios_getmpb (0x%08lx)\n", ((unsigned long) par[1] << 16) | par[2]);
+		break;
+
 	case 1:
-		//st_log_deb ("bios_constat (%u)\n", par[1]);
+		st_log_deb ("bios_constat (%u)\n", par[1]);
 		break;
 
 	case 2:
@@ -656,8 +656,28 @@ void st_log_trap_bios (atari_st_t *sim, unsigned iw)
 		);
 		break;
 
+	case 6:
+		st_log_deb ("bios_tickcal ()\n");
+		break;
+
+	case 7:
+		st_log_deb ("bios_getbpb (%d)\n", par[1]);
+		break;
+
+	case 8:
+		st_log_deb ("bios_bcostat (%d)\n", par[1]);
+		break;
+
 	case 9:
-		st_log_deb ("bios_media_change (%u)\n", par[1]);
+		st_log_deb ("bios_mediach (%u)\n", par[1]);
+		break;
+
+	case 10:
+		st_log_deb ("bios_drvmap ()\n");
+		break;
+
+	case 11:
+		st_log_deb ("bios_kbshift (%d)\n", par[1]);
 		break;
 
 	default:

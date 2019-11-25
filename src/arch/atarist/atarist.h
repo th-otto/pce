@@ -123,6 +123,10 @@ struct atari_st_s {
 	unsigned      ser_buf_i;
 	unsigned      ser_buf_n;
 	unsigned char ser_buf[128];
+
+	struct {
+		int trace_bios;
+	} debug;
 };
 
 

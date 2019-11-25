@@ -265,3 +265,8 @@ disk {
 	file     = "hd3.qed"
 	optional = 1
 }
+
+# trace/debug options
+debug {
+	trace_bios = 0
+}

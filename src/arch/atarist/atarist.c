@@ -350,6 +350,7 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 
 static void st_sleep_until_interrupt(e68000_t *c)
 {
+#if 0
 	int i;
 
 	i = 0;
@@ -358,6 +359,7 @@ static void st_sleep_until_interrupt(e68000_t *c)
 		i++;
 		pce_usleep(1000);
 	}
+#endif
 }
 
 static
@@ -685,6 +687,14 @@ void st_setup_viking (atari_st_t *sim, ini_sct_t *ini)
 
 	st_viking_set_memory (sim->viking, sim->mem);
 	st_viking_set_input_clock (sim->viking, ST_CPU_CLOCK);
+}
+
+void st_setup_debug (atari_st_t *sim, ini_sct_t *ini)
+{
+	ini_sct_t *sct;
+
+	sct = ini_next_sct (ini, NULL, "debug");
+	ini_get_bool (sct, "trace_bios", &sim->debug.trace_bios, 0);
 }
 
 void st_init (atari_st_t *sim, ini_sct_t *ini)
