@@ -24,15 +24,20 @@ config.log
 config.status
 Makefile
 Makefile.inc
+autom4te.cache
 pram.dat
 src/arch/atarist/pce-atarist
 src/arch/ibmpc/pce-ibmpc
 src/arch/macplus/pce-macplus
+src/arch/cpm80/pce-cpm80
+src/arch/dos/pce-dos
 src/config.h
 src/config.inc
 src/utils/pce-img/pce-img
 src/utils/pri/pri
 src/utils/psi/psi
+src/utils/aym/aym
+src/utils/pfi/pfi
 
 # examples system files
 example/**/*.rom

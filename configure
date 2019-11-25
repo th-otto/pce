@@ -2256,6 +2256,10 @@ fi
 
 
 
+
+
+
+
 cat >>confdefs.h <<_ACEOF
 #define PCE_VERSION_MAJ $PCE_VERSION_MAJ
 _ACEOF
@@ -2274,6 +2278,9 @@ _ACEOF
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PCE_VERSION_STR ($PCE_VERSION_MAJ.$PCE_VERSION_MIN.$PCE_VERSION_MIC)" >&5
 $as_echo "$PCE_VERSION_STR ($PCE_VERSION_MAJ.$PCE_VERSION_MIN.$PCE_VERSION_MIC)" >&6; }
+
+
+$as_echo "#define PCE_DIR_SEP '/'" >>confdefs.h
 
 
 #-----------------------------------------------------------------------------
@@ -2380,6 +2387,10 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
 
+
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking host OS" >&5
 $as_echo_n "checking host OS... " >&6; }
 PCE_HOST_LINUX=0
@@ -2420,6 +2431,9 @@ $as_echo "NetBSD" >&6; }
 $as_echo "unknown ($host_os)" >&6; }
 	;;
 esac
+
+
+
 
 
 
@@ -4587,6 +4601,7 @@ else
 $as_echo "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
+
 if test "x$no_x" = "xyes" ; then
 	PCE_ENABLE_X11=0
 	PCE_X11_CFLAGS=""
@@ -4608,6 +4623,9 @@ else
 	$as_echo "#define PCE_ENABLE_X11 1" >>confdefs.h
 
 fi
+
+
+
 
 
 
@@ -4714,6 +4732,7 @@ fi
 #-----------------------------------------------------------------------------
 # Checks for options
 
+
 # Check whether --enable-largefile was given.
 if test "${enable_largefile+set}" = set; then :
   enableval=$enable_largefile; opt_large=$enableval
@@ -4737,6 +4756,7 @@ if test -d "$srcdir/src/arch/sim405"; then have_sim405=1; else have_sim405=0; fi
 if test -d "$srcdir/src/arch/sim6502"; then have_sim6502=1; else have_sim6502=0; fi
 if test -d "$srcdir/src/arch/simarm"; then have_simarm=1; else have_simarm=0; fi
 if test -d "$srcdir/src/arch/sims32"; then have_sims32=1; else have_sims32=0; fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the Atari ST emulator" >&5
@@ -4770,6 +4790,7 @@ if test $PCE_BUILD_ATARIST -eq 1 ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the CPM-80 emulator" >&5
 $as_echo_n "checking whether to build the CPM-80 emulator... " >&6; }
 # Check whether --enable-cpm80 was given.
@@ -4799,6 +4820,7 @@ if test "x$PCE_BUILD_CPM80" = "x1" ; then
 	$as_echo "#define PCE_BUILD_CPM80 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the IBM PC emulator" >&5
@@ -4838,6 +4860,7 @@ if test $PCE_BUILD_IBMPC -eq 1 ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the IBM PC ROM" >&5
 $as_echo_n "checking whether to build the IBM PC ROM... " >&6; }
 # Check whether --enable-ibmpc-rom was given.
@@ -4862,6 +4885,11 @@ $as_echo "no (default)" >&6; }
 
 fi
 
+
+if test $PCE_BUILD_IBMPC_ROM -eq 1 ; then
+	$as_echo "#define PCE_BUILD_IBMPC_ROM 1" >>confdefs.h
+
+fi
 
 
 
@@ -4929,6 +4957,7 @@ fi
 
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the RC759 Piccoline" >&5
 $as_echo_n "checking whether to build the RC759 Piccoline... " >&6; }
 if test "x$have_rc759" != "x1" ; then
@@ -4964,6 +4993,7 @@ if test $PCE_BUILD_RC759 -eq 1 ; then
 	$as_echo "#define PCE_BUILD_RC759 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the PPC405 simulator" >&5
@@ -5003,6 +5033,7 @@ if test "x$PCE_BUILD_SIM405" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the 6502 simulator" >&5
 $as_echo_n "checking whether to build the 6502 simulator... " >&6; }
 if test "x$have_sim6502" != "x1" ; then
@@ -5038,6 +5069,7 @@ if test "x$PCE_BUILD_SIM6502" = "x1" ; then
 	$as_echo "#define PCE_BUILD_SIM6502 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the sparc32 simulator" >&5
@@ -5077,6 +5109,7 @@ if test "x$PCE_BUILD_SIMS32" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the arm simulator" >&5
 $as_echo_n "checking whether to build the arm simulator... " >&6; }
 if test "x$have_simarm" != "x1" ; then
@@ -5112,6 +5145,7 @@ if test "x$PCE_BUILD_SIMARM" = "x1" ; then
 	$as_echo "#define PCE_BUILD_SIMARM 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable tun" >&5
@@ -5155,6 +5189,7 @@ if test "x$PCE_ENABLE_TUN" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the posix file character driver" >&5
 $as_echo_n "checking whether to enable the posix file character driver... " >&6; }
 # Check whether --enable-char-posix was given.
@@ -5195,6 +5230,7 @@ if test "x$PCE_ENABLE_CHAR_POSIX" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the PPP character driver" >&5
 $as_echo_n "checking whether to enable the PPP character driver... " >&6; }
 # Check whether --enable-char-ppp was given.
@@ -5230,6 +5266,7 @@ if test "x$PCE_ENABLE_CHAR_PPP" = "x1" ; then
 	$as_echo "#define PCE_ENABLE_CHAR_PPP 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the pty character driver" >&5
@@ -5271,6 +5308,7 @@ if test "x$PCE_ENABLE_CHAR_PTY" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the SLIP character driver" >&5
 $as_echo_n "checking whether to enable the SLIP character driver... " >&6; }
 # Check whether --enable-char-slip was given.
@@ -5306,6 +5344,7 @@ if test "x$PCE_ENABLE_CHAR_SLIP" = "x1" ; then
 	$as_echo "#define PCE_ENABLE_CHAR_SLIP 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the TCP character driver" >&5
@@ -5351,6 +5390,7 @@ if test "x$PCE_ENABLE_CHAR_TCP" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the termios character driver" >&5
 $as_echo_n "checking whether to enable the termios character driver... " >&6; }
 # Check whether --enable-char-termios was given.
@@ -5392,6 +5432,7 @@ if test "x$PCE_ENABLE_CHAR_TIOS" = "x1" ; then
 fi
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the windows COM character driver" >&5
 $as_echo_n "checking whether to enable the windows COM character driver... " >&6; }
 # Check whether --enable-char-wincom was given.
@@ -5427,6 +5468,7 @@ if test "x$PCE_ENABLE_CHAR_WINCOM" = "x1" ; then
 	$as_echo "#define PCE_ENABLE_CHAR_WINCOM 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable the OSS sound driver" >&5
@@ -5466,6 +5508,7 @@ if test "x$PCE_ENABLE_SOUND_OSS" = "x1" ; then
 	$as_echo "#define PCE_ENABLE_SOUND_OSS 1" >>confdefs.h
 
 fi
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable readline" >&5
@@ -5655,6 +5698,8 @@ PCE_DIR_DATA=$pce_datdir
 
 
 
+
+
 cat >>confdefs.h <<_ACEOF
 #define PCE_DIR_ETC "$pce_etcdir"
 _ACEOF
@@ -5840,6 +5885,11 @@ if test "x$PCE_ENABLE_TUN" = "x1" ; then
 else
 	option2="$option2 tun"
 fi
+
+
+
+
+
 
 
 ac_config_files="$ac_config_files Makefile Makefile.inc src/config.inc"

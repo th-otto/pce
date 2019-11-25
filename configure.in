@@ -20,7 +20,7 @@
 #*****************************************************************************
 
 
-AC_PREREQ(2.50)
+AC_PREREQ(2.59)
 
 AC_INIT(pce)
 AC_CONFIG_SRCDIR(Makefile.in)
@@ -61,6 +61,10 @@ if test "x$dstr" = "xscm" ; then
 elif test "x$dstr" = "x" ; then
 	PCE_VERSION_STR="$PCE_VERSION_MAJ.$PCE_VERSION_MIN.$PCE_VERSION_MIC"
 fi
+AH_TEMPLATE([PCE_VERSION_MAJ], [major version of PCE])
+AH_TEMPLATE([PCE_VERSION_MIN], [minor version of PCE])
+AH_TEMPLATE([PCE_VERSION_MIC], [micro version of PCE])
+AH_TEMPLATE([PCE_VERSION_STR], [version string of PCE])
 AC_SUBST(PCE_VERSION_MAJ)
 AC_SUBST(PCE_VERSION_MIN)
 AC_SUBST(PCE_VERSION_MIC)
@@ -71,12 +75,18 @@ AC_DEFINE_UNQUOTED(PCE_VERSION_MIC, $PCE_VERSION_MIC)
 AC_DEFINE_UNQUOTED(PCE_VERSION_STR, "$PCE_VERSION_STR")
 AC_MSG_RESULT([$PCE_VERSION_STR ($PCE_VERSION_MAJ.$PCE_VERSION_MIN.$PCE_VERSION_MIC)])
 
+AH_TEMPLATE([PCE_DIR_SEP], [directory separator])
+AC_DEFINE([PCE_DIR_SEP], '/')
 
 #-----------------------------------------------------------------------------
 # host
 
 AC_CANONICAL_HOST
 
+AH_TEMPLATE([PCE_HOST_LINUX], [Linux host])
+AH_TEMPLATE([PCE_HOST_WINDOWS], [Windows host])
+AH_TEMPLATE([PCE_HOST_SUNOS], [SunOS host])
+AH_TEMPLATE([PCE_HOST_NETBSD], [NetBSD host])
 AC_MSG_CHECKING([host OS])
 PCE_HOST_LINUX=0
 PCE_HOST_WINDOWS=0
@@ -112,6 +122,9 @@ AC_SUBST(PCE_HOST_WINDOWS)
 AC_SUBST(PCE_HOST_SUNOS)
 AC_SUBST(PCE_HOST_NETBSD)
 
+AH_TEMPLATE([PCE_HOST_IA32], [IA32 cpu])
+AH_TEMPLATE([PCE_HOST_PPC], [powerpc cpu])
+AH_TEMPLATE([PCE_HOST_SPARC], [sparc cpu])
 AC_MSG_CHECKING([host cpu])
 PCE_HOST_IA32=0
 PCE_HOST_PPC=0
@@ -226,6 +239,7 @@ AC_SEARCH_LIBS(gethostbyname, nsl resolv socket)
 AC_SEARCH_LIBS(inet_aton, nsl resolv socket)
 
 AC_PATH_X
+AH_TEMPLATE([PCE_ENABLE_X11], [whether to enable X11 video driver])
 if test "x$no_x" = "xyes" ; then
 	PCE_ENABLE_X11=0
 	PCE_X11_CFLAGS=""
@@ -251,6 +265,9 @@ AC_SUBST(PCE_X11_CFLAGS)
 AC_SUBST(PCE_X11_LIBS)
 
 
+AH_TEMPLATE([PCE_ENABLE_SDL], [whether to enable SDL video driver])
+AH_TEMPLATE([PCE_ENABLE_SDL1], [whether to use SDL1])
+AH_TEMPLATE([PCE_ENABLE_SDL2], [whether to use SDL2])
 PCE_ENABLE_SDL=0
 PCE_ENABLE_SDL1=0
 PCE_ENABLE_SDL2=0
@@ -330,6 +347,7 @@ fi
 #-----------------------------------------------------------------------------
 # Checks for options
 
+AH_TEMPLATE([PCE_LARGE_FILE], [enable large file support])
 AC_ARG_ENABLE(largefile,
   [AS_HELP_STRING([--disable-largefile], [Disable large file support [no]])],
   opt_large=$enableval
@@ -352,6 +370,7 @@ if test -d "$srcdir/src/arch/simarm"; then have_simarm=1; else have_simarm=0; fi
 if test -d "$srcdir/src/arch/sims32"; then have_sims32=1; else have_sims32=0; fi
 
 
+AH_TEMPLATE([PCE_BUILD_ATARIST], [whether to build the Atari ST emulator])
 AC_MSG_CHECKING([whether to build the Atari ST emulator])
 AC_ARG_ENABLE(atari-st,
 	[AS_HELP_STRING([--enable-atari-st], [Enable the Atari ST emulator [yes]])],
@@ -375,6 +394,7 @@ if test $PCE_BUILD_ATARIST -eq 1 ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_CPM80], [whether to build the CPM-80 emulator])
 AC_MSG_CHECKING([whether to build the CPM-80 emulator])
 AC_ARG_ENABLE(cpm80,
   [AS_HELP_STRING([--enable-cpm80], [Enable the CPM-80 emulator [yes]])],
@@ -398,6 +418,7 @@ if test "x$PCE_BUILD_CPM80" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_IBMPC], [whether to build the IBM PC emulator])
 AC_MSG_CHECKING([whether to build the IBM PC emulator])
 if test "x$have_ibmpc" != "x1" ; then
 	PCE_BUILD_IBMPC=0
@@ -426,6 +447,7 @@ if test $PCE_BUILD_IBMPC -eq 1 ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_IBMPC_ROM], [whether to build the IBM PC ROM])
 AC_MSG_CHECKING([whether to build the IBM PC ROM])
 AC_ARG_ENABLE(ibmpc-rom,
 	[AS_HELP_STRING([--enable-ibmpc-rom], [Build the IBM PC ROM from source [no]])],
@@ -444,8 +466,12 @@ AC_ARG_ENABLE(ibmpc-rom,
 	]
 )
 AC_SUBST(PCE_BUILD_IBMPC_ROM)
+if test $PCE_BUILD_IBMPC_ROM -eq 1 ; then
+	AC_DEFINE(PCE_BUILD_IBMPC_ROM)
+fi
 
 
+AH_TEMPLATE([PCE_BUILD_MACPLUS], [whether to build the Mac Plus emulator])
 AC_MSG_CHECKING([whether to build the Mac Plus emulator])
 if test "x$have_macplus" != "x1" ; then
 	PCE_BUILD_MACPLUS=0
@@ -494,6 +520,7 @@ AC_ARG_ENABLE(macplus-rom,
 AC_SUBST(PCE_BUILD_MACPLUS_ROM)
 
 
+AH_TEMPLATE([PCE_BUILD_RC759], [whether to build the RC759 Piccoline])
 AC_MSG_CHECKING([whether to build the RC759 Piccoline])
 if test "x$have_rc759" != "x1" ; then
 	PCE_BUILD_RC759=0
@@ -522,6 +549,7 @@ if test $PCE_BUILD_RC759 -eq 1 ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_SIM405], [whether to build the PPC405 simulator])
 AC_MSG_CHECKING([whether to build the PPC405 simulator])
 if test "x$have_sim405" != "x1" ; then
 	PCE_BUILD_SIM405=0
@@ -550,6 +578,7 @@ if test "x$PCE_BUILD_SIM405" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_SIM6502], [whether to build the 6502 simulator])
 AC_MSG_CHECKING([whether to build the 6502 simulator])
 if test "x$have_sim6502" != "x1" ; then
 	PCE_BUILD_SIM6502=0
@@ -578,6 +607,7 @@ if test "x$PCE_BUILD_SIM6502" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_SIMS32], [whether to build the sparc32 simulator])
 AC_MSG_CHECKING([whether to build the sparc32 simulator])
 if test "x$have_sims32" != "x1" ; then
 	PCE_BUILD_SIMS32=0
@@ -606,6 +636,7 @@ if test "x$PCE_BUILD_SIMS32" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_BUILD_SIMARM], [whether to build the arm simulator])
 AC_MSG_CHECKING([whether to build the arm simulator])
 if test "x$have_simarm" != "x1" ; then
 	PCE_BUILD_SIMARM=0
@@ -634,6 +665,7 @@ if test "x$PCE_BUILD_SIMARM" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_TUN], [whether to enable tun])
 AC_MSG_CHECKING([whether to enable tun])
 AC_ARG_ENABLE(tun,
   [AS_HELP_STRING([--enable-tun], [Enable tun networking [guessed]])],
@@ -666,6 +698,7 @@ if test "x$PCE_ENABLE_TUN" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_POSIX], [whether to enable the posix file character driver])
 AC_MSG_CHECKING([whether to enable the posix file character driver])
 AC_ARG_ENABLE(char-posix,
   [AS_HELP_STRING([--enable-char-posix], [Enable the posix file character driver [guessed]])],
@@ -696,6 +729,7 @@ if test "x$PCE_ENABLE_CHAR_POSIX" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_PPP], [whether to enable the PPP character driver])
 AC_MSG_CHECKING([whether to enable the PPP character driver])
 AC_ARG_ENABLE(char-ppp,
   [AS_HELP_STRING([--enable-char-ppp], [Enable the PPP character driver [guessed]])],
@@ -723,6 +757,7 @@ if test "x$PCE_ENABLE_CHAR_PPP" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_PTY], [whether to enable the pty character driver])
 AC_MSG_CHECKING([whether to enable the pty character driver])
 AC_ARG_ENABLE(char-pty,
   [AS_HELP_STRING([--enable-char-pty], [Enable the pty character driver [guessed]])],
@@ -752,6 +787,7 @@ if test "x$PCE_ENABLE_CHAR_PTY" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_SLIP], [whether to enable the SLIP character driver])
 AC_MSG_CHECKING([whether to enable the SLIP character driver])
 AC_ARG_ENABLE(char-slip,
   [AS_HELP_STRING([--enable-char-slip], [Enable the SLIP character driver [guessed]])],
@@ -779,6 +815,7 @@ if test "x$PCE_ENABLE_CHAR_SLIP" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_TCP], [whether to enable the TCP character driver])
 AC_MSG_CHECKING([whether to enable the TCP character driver])
 AC_ARG_ENABLE(char-tcp,
   [AS_HELP_STRING([--enable-char-tcp], [Enable the TCP character driver [guessed]])],
@@ -812,6 +849,7 @@ if test "x$PCE_ENABLE_CHAR_TCP" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_TIOS], [whether to enable the trmios character driver])
 AC_MSG_CHECKING([whether to enable the termios character driver])
 AC_ARG_ENABLE(char-termios,
   [AS_HELP_STRING([--enable-char-termios], [Enable the termios character driver [guessed]])],
@@ -843,6 +881,7 @@ if test "x$PCE_ENABLE_CHAR_TIOS" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_CHAR_WINCOM], [whether to enable the windows COM character driver])
 AC_MSG_CHECKING([whether to enable the windows COM character driver])
 AC_ARG_ENABLE(char-wincom,
   [AS_HELP_STRING([--enable-char-wincom], [Enable the windows COM character driver [guessed]])],
@@ -870,6 +909,7 @@ if test "x$PCE_ENABLE_CHAR_WINCOM" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_SOUND_OSS], [whether to enable the OSS sound driver])
 AC_MSG_CHECKING([whether to enable the OSS sound driver])
 AC_ARG_ENABLE(sound-oss,
   [AS_HELP_STRING([--enable-sound-oss], [Enable the OSS sound driver driver [guessed]])],
@@ -899,6 +939,7 @@ if test "x$PCE_ENABLE_SOUND_OSS" = "x1" ; then
 fi
 
 
+AH_TEMPLATE([PCE_ENABLE_READLINE], [whether to enable readline])
 AC_MSG_CHECKING([whether to enable readline])
 AC_ARG_ENABLE(readline,
   [AS_HELP_STRING([--enable-readline], [Enable readline [guessed]])],
@@ -952,6 +993,8 @@ PCE_DIR_DATA=$pce_datdir
 
 AC_SUBST(PCE_DIR_ETC)
 AC_SUBST(PCE_DIR_DATA)
+AH_TEMPLATE([PCE_DIR_ETC], [directory for configuration files])
+AH_TEMPLATE([PCE_DIR_DATA], [directory for data files])
 AC_DEFINE_UNQUOTED(PCE_DIR_ETC, "$pce_etcdir")
 AC_DEFINE_UNQUOTED(PCE_DIR_DATA, "$pce_datdir")
 
@@ -1132,6 +1175,31 @@ if test "x$PCE_ENABLE_TUN" = "x1" ; then
 else
 	option2="$option2 tun"
 fi
+
+
+AH_TOP([
+#ifndef PCE_CONFIG_H
+#define PCE_CONFIG_H 1
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+
+
+#ifndef _NETBSD_SOURCE
+#define _NETBSD_SOURCE 1
+#endif
+])
+
+AH_BOTTOM([
+#ifdef PCE_LARGE_FILE
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
+#endif
+
+#endif
+])
 
 
 AC_OUTPUT(Makefile Makefile.inc src/config.inc)
