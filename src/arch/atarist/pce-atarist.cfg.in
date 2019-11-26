@@ -98,12 +98,6 @@ rom {
 	# The file from which the rom code is loaded
 	file = "tos-1.04-us.rom"
 
-	# The base address
-	address = 0xfc0000
-
-	# The rom size
-	size = 192K
-
 	# The memory block is initialized with this value.
 	default = 0xff
 }

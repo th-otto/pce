@@ -54,6 +54,7 @@
 #include <lib/load.h>
 #include <lib/log.h>
 #include <lib/sysdep.h>
+#include <lib/path.h>
 
 #include <libini/libini.h>
 
@@ -318,6 +319,77 @@ void st_setup_system (atari_st_t *sim, ini_sct_t *ini)
 	}
 }
 
+static int st_get_rom (atari_st_t *sim, ini_sct_t *ini)
+{
+	memory_t *mem = sim->mem;
+	ini_sct_t     *sct;
+	mem_blk_t     *rom;
+	const char    *fname;
+	char          *path;
+	unsigned      val;
+	unsigned long base, size;
+	unsigned char    *data;
+
+	sct = NULL;
+	sim->rom_addr = 0;
+	while ((sct = ini_next_sct (ini, sct, "rom")) != NULL) {
+		ini_get_string (sct, "file", &fname, NULL);
+		if (ini_get_uint32 (sct, "address", &base, 0)) {
+			ini_get_uint32 (sct, "base", &base, 0);
+		}
+
+		if (ini_get_uint32 (sct, "sizem", &size, 0) == 0) {
+			size *= 1024UL * 1024UL;
+		}
+		else if (ini_get_uint32 (sct, "sizek", &size, 0) == 0) {
+			size *= 1024UL;
+		}
+		else {
+			ini_get_uint32 (sct, "size", &size, 512 * 1024L);
+		}
+
+		ini_get_uint16 (sct, "default", &val, 0);
+
+		path = pce_path_get (fname);
+
+		if (path == NULL ||
+			(data = pce_load_file_bin (path, size, &size)) == NULL ||
+			(sim->rom_addr == 0 && size < (192 * 1024L)))
+		{
+			pce_log (MSG_ERR, "*** loading rom failed (%s)\n", (path != NULL) ? path : "<none>");
+			free (path);
+			return (1);
+		}
+
+		free (path);
+		if (sim->rom_addr == 0)
+		{
+			sim->rom_addr = buf_get_uint32_be(data, 4) & 0xffff00UL;
+			base = sim->rom_addr;
+			if (sim->rom_addr != 0xfc0000 && sim->rom_addr != 0xe00000) {
+				pce_log (MSG_ERR, "*** unsupported ROM address\n");
+			}
+		}
+		pce_log_tag (MSG_INF, "ROM:", "addr=0x%08lx size=%lu file=%s\n", base, size, path);
+
+		rom = mem_blk_new (base, size, 1);
+		if (rom == NULL) {
+			pce_log (MSG_ERR, "*** memory block creation failed\n");
+			free(data);
+			free (path);
+			return (1);
+		}
+
+		mem_blk_clear (rom, val);
+		memcpy(rom->data, data, size);
+		free(data);
+		mem_blk_set_readonly (rom, 1);
+		mem_add_blk (mem, rom, 1);
+	}
+
+	return (0);
+}
+
 static
 void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 {
@@ -329,7 +401,7 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 	);
 
 	ini_get_ram (sim->mem, ini, &sim->ram);
-	ini_get_rom (sim->mem, ini);
+	st_get_rom (sim, ini);
 
 	sim->ram = mem_get_blk (sim->mem, 0);
 
@@ -337,13 +409,7 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 		pce_log (MSG_ERR, "*** RAM not found at address 0\n");
 	}
 
-	if (mem_get_blk (sim->mem, 0xfc0000) != NULL) {
-		sim->rom_addr = 0xfc0000;
-	}
-	else if (mem_get_blk (sim->mem, 0xe00000) != NULL) {
-		sim->rom_addr = 0xe00000;
-	}
-	else {
+	if (sim->rom_addr == 0) {
 		pce_log (MSG_ERR, "*** can't determine ROM address\n");
 	}
 }
@@ -701,6 +767,7 @@ void st_init (atari_st_t *sim, ini_sct_t *ini)
 {
 	unsigned i;
 
+	memset(sim, 0, sizeof(*sim));
 	sim->trm = NULL;
 	sim->video = NULL;
 
@@ -918,6 +985,12 @@ void st_reset (atari_st_t *sim)
 		st_viking_reset (sim->viking);
 	}
 
+	if (sim->rom_addr == 0)
+	{
+		pce_log (MSG_ERR, "*** cannot run without ROM\n");
+		sim->reset = 0;
+		return;
+	}
 	mem_set_uint32_be (sim->mem, 0, mem_get_uint32_be (sim->mem, sim->rom_addr));
 	mem_set_uint32_be (sim->mem, 4, mem_get_uint32_be (sim->mem, sim->rom_addr + 4));
 

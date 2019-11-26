@@ -50,6 +50,25 @@ int pce_load_blk_bin (mem_blk_t *blk, const char *fname)
 	return (0);
 }
 
+unsigned char *pce_load_file_bin (const char *fname, unsigned long maxsize, unsigned long *size)
+{
+	FILE   *fp;
+	unsigned char *data;
+
+	fp = fopen (fname, "rb");
+
+	if (fp == NULL) {
+		return NULL;
+	}
+	data = malloc(maxsize);
+	if (data != NULL)
+		*size = fread (data, 1, maxsize, fp);
+
+	fclose (fp);
+
+	return data;
+}
+
 int pce_load_mem_ihex (memory_t *mem, const char *fname)
 {
 	int  r;

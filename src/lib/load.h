@@ -30,6 +30,7 @@
 
 
 int pce_load_blk_bin (mem_blk_t *blk, const char *fname);
+unsigned char *pce_load_file_bin (const char *fname, unsigned long maxsize, unsigned long *size);
 
 int pce_load_mem_ihex (memory_t *mem, const char *fname);
 int pce_load_mem_srec (memory_t *mem, const char *fname);
