@@ -670,13 +670,22 @@ void st_setup_acsi (atari_st_t *sim, ini_sct_t *ini)
 static
 void st_setup_dma (atari_st_t *sim, ini_sct_t *ini)
 {
+	unsigned long mask;
+
 	pce_log_tag (MSG_INF, "DMA:", "initialized\n");
 
 	st_dma_init (&sim->dma);
 	st_dma_set_memory (&sim->dma, sim->mem);
 	st_dma_set_fdc (&sim->dma, &sim->fdc.wd179x);
 	st_dma_set_acsi (&sim->dma, &sim->acsi);
-	st_dma_set_address_mask (&sim->dma, mem_blk_get_size (sim->ram) - 1);
+	mask = mem_blk_get_size (sim->ram) - 1;
+	/* round it up to next larger power-of-two - 1 */
+	mask |= mask >> 1;
+	mask |= mask >> 2;
+	mask |= mask >> 4;
+	mask |= mask >> 8;
+	mask |= mask >> 16;
+	st_dma_set_address_mask (&sim->dma, mask);
 }
 
 static
@@ -960,6 +969,8 @@ void st_set_parport_drv (atari_st_t *sim, char_drv_t *drv)
 
 void st_reset (atari_st_t *sim)
 {
+	unsigned long ramsize;
+
 	if (sim->reset) {
 		return;
 	}
@@ -996,13 +1007,29 @@ void st_reset (atari_st_t *sim)
 
 	e68_reset (sim->cpu);
 
+	ramsize = mem_blk_get_size (sim->ram);
+	if (ramsize == 256 * 1024L)
+		sim->memcfg = 0x00; /* both banks 128K */
+	else if (ramsize == 512 * 1024L)
+		sim->memcfg = 0x04; /* bank 0 = 512k, bank 1 empty */
+	else if (ramsize == 1024L * 1024L)
+		sim->memcfg = 0x05; /* both banks 512K */
+	else if (ramsize == 2 * 1024L * 1024L)
+		sim->memcfg = 0x08; /* bank 0 = 2M, bank 1 empty */
+	else if (ramsize == 2 * 1024L * 1024L + 512 * 1024L)
+		sim->memcfg = 0x09; /* bank 0 = 2M, bank 1 512K */
+	else if (ramsize == 4 * 1024L * 1024L)
+		sim->memcfg = 0x0a; /* both banks 2M */
+	else
+		sim->memcfg = 0x0f;
+
 	if (sim->fastboot) {
 		mem_set_uint32_be (sim->mem, 0x0420, 0x752019f3);
 		mem_set_uint32_be (sim->mem, 0x043a, 0x237698aa);
 		mem_set_uint32_be (sim->mem, 0x051a, 0x5555aaaa);
 
-		mem_set_uint8 (sim->mem, 0x0424, 5);
-		mem_set_uint32_be (sim->mem, 0x042e, mem_blk_get_size (sim->ram));
+		mem_set_uint8 (sim->mem, 0x0424, sim->memcfg);
+		mem_set_uint32_be (sim->mem, 0x042e, ramsize);
 		mem_set_uint32_be (sim->mem, 0x04ba, 16000);
 	}
 
