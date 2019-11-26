@@ -722,7 +722,7 @@ void st_setup_video (atari_st_t *sim, ini_sct_t *ini)
 		sim->mono, skip
 	);
 
-	if ((sim->video = st_video_new (0xff8200, sim->mono)) == NULL) {
+	if ((sim->video = st_video_new (sim, 0xff8200)) == NULL) {
 		return;
 	}
 

@@ -417,8 +417,6 @@ void mac_run (macplus_t *sim)
  */
 void mac_run_emscripten (macplus_t *sim)
 {
-	int brk = 0;
-
 	pce_start (&sim->brk);
 
 	mac_clock_discontinuity (sim);

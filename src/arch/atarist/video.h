@@ -27,8 +27,11 @@
 #include <devices/memory.h>
 #include <drivers/video/terminal.h>
 
+typedef struct _st_video_t st_video_t;
 
-typedef struct {
+#include "atarist.h"
+
+struct _st_video_t {
 	memory_t            *mem;
 	unsigned long       base;
 	unsigned long       addr;
@@ -73,13 +76,12 @@ typedef struct {
 	unsigned char       vb_val;
 	void                *vb_ext;
 	void                (*set_vb) (void *ext, unsigned char val);
-} st_video_t;
+};
 
 
-int st_video_init (st_video_t *vid, unsigned long addr, int mono);
 void st_video_free (st_video_t *vid);
 
-st_video_t *st_video_new (unsigned long addr, int mono);
+st_video_t *st_video_new (atari_st_t *sim, unsigned long addr);
 void st_video_del (st_video_t *vid);
 
 void st_video_set_memory (st_video_t *vid, memory_t *mem);
