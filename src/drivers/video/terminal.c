@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include <drivers/video/terminal.h>
+#include "lib/log.h"
 
 
 #define TRM_ESC_ESC  1
@@ -179,6 +180,7 @@ int trm_screenshot (terminal_t *trm, const char *fname)
 	fp = fopen (fname, "wb");
 
 	if (fp == NULL) {
+		pce_log (MSG_ERR, "*** creating screenshot failed (%s)\n", fname);
 		return (1);
 	}
 
@@ -188,11 +190,13 @@ int trm_screenshot (terminal_t *trm, const char *fname)
 
 	if (fwrite (trm->buf, 1, cnt, fp) != cnt) {
 		fclose (fp);
+		pce_log (MSG_ERR, "*** creating screenshot failed (%s)\n", fname);
 		return (1);
 	}
 
 	fclose (fp);
 
+	pce_log (MSG_INF, "created screenshot %s\n", fname);
 	return (0);
 }
 
