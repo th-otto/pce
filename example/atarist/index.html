@@ -54,17 +54,24 @@
       <h1>Atari ST</h1>
       <div class="pcejs pcejs-loading-status" id="pcejs-loading-status">Downloading...</div>
 
+      <table><tr><td>
       <div class="pcejs">
         <canvas class="pcejs pcejs-canvas" id="pcejs-canvas" oncontextmenu="event.preventDefault()"></canvas>
       </div>
-
+      </td><td>
 <div id='controls' class="pcejs-controls">
-  <span><input type="checkbox" id="resize">Resize canvas</span>
-  <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
+  <table><tr><td align="left">
+  <span><input type="checkbox" id="toggleconsole" onclick="toggleconsole();">Show log</span><br />
+  </td></tr><tr><td align="left">
   <span><input type="button" value="Fullscreen"
-         onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, document.getElementById('resize').checked)">
-        </span>
+         onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, false)">
+        </span><br />
+  </td><td align="left">
+  <!-- <span><input type="checkbox" id="resize">Resize canvas</span><br /> -->
+  <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
+  </td></tr></table>
 </div>
+      </td></tr></table>
 
       <div class="pcejs">
       <p>This is an Atari ST running in the <a href="https://github.com/jsdf/pce" target="_blank">pce.js emulator</a>.</p>
@@ -72,10 +79,21 @@
     <p class="pcejs">press esc + &uarr; to zoom in, esc + &darr; to zoom out</p>
       </div>
 
-      <div><textarea class="emscripten" id="output" rows="8" spellcheck="false"></textarea></div>
+      <div><textarea class="emscripten" id="output" rows="8" spellcheck="false" style="display:none"></textarea></div>
       <script type="text/javascript" src="bundle.js"></script>
 
     </div>
+
+<script type="text/javascript">
+function toggleconsole() {
+   var toggle = document.getElementById('toggleconsole');
+   var output = document.getElementById('output');
+   output.style.display = toggle.checked ? "block" : "none";
+   output.scrollTop = 99999;
+}
+toggleconsole();
+document.getElementById('output').value = '';
+</script>
 
 <!--
 <script type="text/javascript">
