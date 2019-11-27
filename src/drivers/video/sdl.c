@@ -463,10 +463,10 @@ void sdl_event_keyup (sdl_t *sdl, SDLKey key, SDLMod mod)
 
 	if (pcekey != PCE_KEY_NONE) {
 		if (key == SDLK_NUMLOCK) {
-			trm_set_key (&sdl->trm, 1, pcekey);
+			trm_set_key (&sdl->trm, PCE_KEY_EVENT_DOWN, pcekey);
 		}
 
-		trm_set_key (&sdl->trm, 2, pcekey);
+		trm_set_key (&sdl->trm, PCE_KEY_EVENT_UP, pcekey);
 	}
 }
 
