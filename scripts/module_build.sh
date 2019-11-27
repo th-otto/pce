@@ -40,9 +40,7 @@ output_module_file="${pkg_dir}/lib/pcejs-${arch}.js"
 mkdir -p "$pkg_dir"
 
 {
-  printf "module.exports = function(deps, opts) {\n"
   cat "$prelude_file" "$input_module_file" "$epilogue_file"
-  printf "\nreturn Module;\n}"
 } > "$output_module_file"
 
 # emscripten proxy-to-worker js

@@ -2,7 +2,7 @@ var atarist = require('pcejs-atarist')
 var utils = require('pcejs-util')
 
 // add a load progress bar. not required, but good ux
-var loadingStatus = utils.loadingStatus(document.querySelector('.pcejs-loading-status'))
+var loadingStatus = utils.loadingStatus(document.getElementById('pcejs-loading-status'))
 
 atarist({
   'arguments': ['-c','pce-config.cfg','-r'],
@@ -20,7 +20,7 @@ atarist({
   
   printErr: console.warn.bind(console),
   
-  canvas: document.querySelector('.pcejs-canvas'),
+  canvas: document.getElementById('pcejs-canvas'),
 
   monitorRunDependencies: function (remainingDependencies) {
     loadingStatus.update(remainingDependencies)

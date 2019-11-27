@@ -1,3 +1,4 @@
+module.exports = function(deps, opts) {
 var Module = opts || {};
 
 // hide node/commonjs globals so emscripten doesn't get confused

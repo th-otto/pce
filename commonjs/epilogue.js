@@ -6,3 +6,7 @@ typeof NODEFS !== 'undefined' && (Module.NODEFS = NODEFS);
 typeof PATH !== 'undefined' && (Module.PATH = PATH);
 typeof ERRNO_CODES !== 'undefined' && (Module.ERRNO_CODES = ERRNO_CODES);
 typeof ERRNO_MESSAGES !== 'undefined' && (Module.ERRNO_MESSAGES = ERRNO_MESSAGES);
+
+window.Module = Module;
+return Module;
+}

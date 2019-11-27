@@ -27,10 +27,15 @@
     }
     .pcejs-canvas {
       cursor: none;
+      width: 640px;
+      height: 400px;
     }
     .pcejs-container {
       margin-top: 32px;
       text-align: center;
+    }
+    .pcejs-controls {
+      padding-bottom: 10px;
     }
     h1 { font-weight: normal; }
     h1 small { color: #999; font-size: 80% }
@@ -39,16 +44,31 @@
   <body>
     <div class="pcejs pcejs-container">
       <h1>Atari ST</h1>
-      <div class="pcejs pcejs-loading-status">Downloading...</div>
+      <div class="pcejs pcejs-loading-status" id="pcejs-loading-status">Downloading...</div>
+
       <div class="pcejs">
         <canvas class="pcejs pcejs-canvas" id="pcejs-canvas" oncontextmenu="event.preventDefault()"></canvas>
       </div>
-      <p>This is an Atari ST running in the <a href="https://github.com/jsdf/pce">pce.js emulator</a>.</p>
+
+<div id='controls' class="pcejs-controls">
+  <span><input type="checkbox" id="resize">Resize canvas</span>
+  <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
+  <span><input type="button" value="Fullscreen"
+         onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, document.getElementById('resize').checked)">
+        </span>
+</div>
+
+      <div class="pcejs">
+      <p>This is an Atari ST running in the <a href="https://github.com/jsdf/pce" target="_blank">pce.js emulator</a>.</p>
       <p>It is using EmuTOS.</p>
+    <p class="pcejs">press esc + &uarr; to zoom in, esc + &darr; to zoom out</p>
+      </div>
+
+<textarea class="emscripten" id="output" rows="8" style="display:block"></textarea>
+    <script type="text/javascript" src="bundle.js"></script>
+
     </div>
 
-    <p class="pcejs">press esc + &uarr; to zoom in, esc + &darr; to zoom out</p>
-    <script type="text/javascript" src="bundle.js"></script>
 <!--
 <script type="text/javascript">
     // retarget mouse events on body
