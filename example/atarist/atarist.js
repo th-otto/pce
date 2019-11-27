@@ -16,9 +16,19 @@ atarist({
     'hd0.img',
   ],
 
-  print: console.log.bind(console),
+  print: function(text) {
+            var element = document.getElementById('output');
+            text = Array.prototype.slice.call(arguments).join(' ');
+            element.value += text + "\n";
+            element.scrollTop = 99999; // focus on bottom
+         },
   
-  printErr: console.warn.bind(console),
+  printErr: function(text) {
+            var element = document.getElementById('output');
+            text = Array.prototype.slice.call(arguments).join(' ');
+            element.value += text + "\n";
+            element.scrollTop = 99999; // focus on bottom
+          },
   
   canvas: document.getElementById('pcejs-canvas'),
 

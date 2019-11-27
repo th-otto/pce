@@ -39,6 +39,14 @@
     }
     h1 { font-weight: normal; }
     h1 small { color: #999; font-size: 80% }
+    textarea.emscripten {
+      font-family:monospace;
+      width:80%;
+      border:none;
+      background:0 0;
+      margin-top:20px;
+    }
+
     </style>
   </head>
   <body>
@@ -64,8 +72,8 @@
     <p class="pcejs">press esc + &uarr; to zoom in, esc + &darr; to zoom out</p>
       </div>
 
-<textarea class="emscripten" id="output" rows="8" style="display:block"></textarea>
-    <script type="text/javascript" src="bundle.js"></script>
+      <div><textarea class="emscripten" id="output" rows="8" spellcheck="false"></textarea></div>
+      <script type="text/javascript" src="bundle.js"></script>
 
     </div>
 
