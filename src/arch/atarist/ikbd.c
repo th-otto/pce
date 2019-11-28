@@ -37,11 +37,7 @@
 typedef struct {
 	pce_key_t      pcekey;
 
-	unsigned short down_cnt;
-	unsigned char  down[4];
-
-	unsigned short up_cnt;
-	unsigned char  up[4];
+	unsigned char  down;
 
 	char           isdown;
 } st_keymap_t;
@@ -54,106 +50,108 @@ typedef struct {
 
 
 static st_keymap_t keymap[] = {
-	{ PCE_KEY_ESC,       1, { 0x01 }, 1, { 0x81 }, 0 },
-	{ PCE_KEY_1,         1, { 0x02 }, 1, { 0x82 }, 0 },
-	{ PCE_KEY_2,         1, { 0x03 }, 1, { 0x83 }, 0 },
-	{ PCE_KEY_3,         1, { 0x04 }, 1, { 0x84 }, 0 },
-	{ PCE_KEY_4,         1, { 0x05 }, 1, { 0x85 }, 0 },
-	{ PCE_KEY_5,         1, { 0x06 }, 1, { 0x86 }, 0 },
-	{ PCE_KEY_6,         1, { 0x07 }, 1, { 0x87 }, 0 },
-	{ PCE_KEY_7,         1, { 0x08 }, 1, { 0x88 }, 0 },
-	{ PCE_KEY_8,         1, { 0x09 }, 1, { 0x89 }, 0 },
-	{ PCE_KEY_9,         1, { 0x0a }, 1, { 0x8a }, 0 },
-	{ PCE_KEY_0,         1, { 0x0b }, 1, { 0x8b }, 0 },
-	{ PCE_KEY_MINUS,     1, { 0x0c }, 1, { 0x8c }, 0 },
-	{ PCE_KEY_EQUAL,     1, { 0x0d }, 1, { 0x8d }, 0 },
-	{ PCE_KEY_BACKSPACE, 1, { 0x0e }, 1, { 0x8e }, 0 },
-	{ PCE_KEY_TAB,       1, { 0x0f }, 1, { 0x8f }, 0 },
-	{ PCE_KEY_Q,         1, { 0x10 }, 1, { 0x90 }, 0 },
-	{ PCE_KEY_W,         1, { 0x11 }, 1, { 0x91 }, 0 },
-	{ PCE_KEY_E,         1, { 0x12 }, 1, { 0x92 }, 0 },
-	{ PCE_KEY_R,         1, { 0x13 }, 1, { 0x93 }, 0 },
-	{ PCE_KEY_T,         1, { 0x14 }, 1, { 0x94 }, 0 },
-	{ PCE_KEY_Y,         1, { 0x15 }, 1, { 0x95 }, 0 },
-	{ PCE_KEY_U,         1, { 0x16 }, 1, { 0x96 }, 0 },
-	{ PCE_KEY_I,         1, { 0x17 }, 1, { 0x97 }, 0 },
-	{ PCE_KEY_O,         1, { 0x18 }, 1, { 0x98 }, 0 },
-	{ PCE_KEY_P,         1, { 0x19 }, 1, { 0x99 }, 0 },
-	{ PCE_KEY_LBRACKET,  1, { 0x1a }, 1, { 0x9a }, 0 },
-	{ PCE_KEY_RBRACKET,  1, { 0x1b }, 1, { 0x9b }, 0 },
-	{ PCE_KEY_RETURN,    1, { 0x1c }, 1, { 0x9c }, 0 },
-	{ PCE_KEY_LCTRL,     1, { 0x1d }, 1, { 0x9d }, 0 },
-	{ PCE_KEY_RCTRL,     1, { 0x1d }, 1, { 0x9d }, 0 },
-	{ PCE_KEY_A,         1, { 0x1e }, 1, { 0x9e }, 0 },
-	{ PCE_KEY_S,         1, { 0x1f }, 1, { 0x9f }, 0 },
-	{ PCE_KEY_D,         1, { 0x20 }, 1, { 0xa0 }, 0 },
-	{ PCE_KEY_F,         1, { 0x21 }, 1, { 0xa1 }, 0 },
-	{ PCE_KEY_G,         1, { 0x22 }, 1, { 0xa2 }, 0 },
-	{ PCE_KEY_H,         1, { 0x23 }, 1, { 0xa3 }, 0 },
-	{ PCE_KEY_J,         1, { 0x24 }, 1, { 0xa4 }, 0 },
-	{ PCE_KEY_K,         1, { 0x25 }, 1, { 0xa5 }, 0 },
-	{ PCE_KEY_L,         1, { 0x26 }, 1, { 0xa6 }, 0 },
-	{ PCE_KEY_SEMICOLON, 1, { 0x27 }, 1, { 0xa7 }, 0 },
-	{ PCE_KEY_QUOTE,     1, { 0x28 }, 1, { 0xa8 }, 0 },
-	{ PCE_KEY_BACKQUOTE, 1, { 0x29 }, 1, { 0xa9 }, 0 },
-	{ PCE_KEY_LSHIFT,    1, { 0x2a }, 1, { 0xaa }, 0 },
-	{ PCE_KEY_BACKSLASH, 1, { 0x2b }, 1, { 0xab }, 0 },
-	{ PCE_KEY_Z,         1, { 0x2c }, 1, { 0xac }, 0 },
-	{ PCE_KEY_X,         1, { 0x2d }, 1, { 0xad }, 0 },
-	{ PCE_KEY_C,         1, { 0x2e }, 1, { 0xae }, 0 },
-	{ PCE_KEY_V,         1, { 0x2f }, 1, { 0xaf }, 0 },
-	{ PCE_KEY_B,         1, { 0x30 }, 1, { 0xb0 }, 0 },
-	{ PCE_KEY_N,         1, { 0x31 }, 1, { 0xb1 }, 0 },
-	{ PCE_KEY_M,         1, { 0x32 }, 1, { 0xb2 }, 0 },
-	{ PCE_KEY_COMMA,     1, { 0x33 }, 1, { 0xb3 }, 0 },
-	{ PCE_KEY_PERIOD,    1, { 0x34 }, 1, { 0xb4 }, 0 },
-	{ PCE_KEY_SLASH,     1, { 0x35 }, 1, { 0xb5 }, 0 },
-	{ PCE_KEY_RSHIFT,    1, { 0x36 }, 1, { 0xb6 }, 0 },
-	{ PCE_KEY_LALT,      1, { 0x38 }, 1, { 0xb8 }, 0 },
-	{ PCE_KEY_SPACE,     1, { 0x39 }, 1, { 0xb9 }, 0 },
-	{ PCE_KEY_CAPSLOCK,  1, { 0x3a }, 1, { 0xba }, 0 },
-	{ PCE_KEY_F1,        1, { 0x3b }, 1, { 0xbb }, 0 },
-	{ PCE_KEY_F2,        1, { 0x3c }, 1, { 0xbc }, 0 },
-	{ PCE_KEY_F3,        1, { 0x3d }, 1, { 0xbd }, 0 },
-	{ PCE_KEY_F4,        1, { 0x3e }, 1, { 0xbe }, 0 },
-	{ PCE_KEY_F5,        1, { 0x3f }, 1, { 0xbf }, 0 },
-	{ PCE_KEY_F6,        1, { 0x40 }, 1, { 0xc0 }, 0 },
-	{ PCE_KEY_F7,        1, { 0x41 }, 1, { 0xc1 }, 0 },
-	{ PCE_KEY_F8,        1, { 0x42 }, 1, { 0xc2 }, 0 },
-	{ PCE_KEY_F9,        1, { 0x43 }, 1, { 0xc3 }, 0 },
-	{ PCE_KEY_F10,       1, { 0x44 }, 1, { 0xc4 }, 0 },
-/*	{ PCE_KEY_NUMLOCK,   1, { 0x45 }, 1, { 0xc5 }, 0 }, */
-/*	{ PCE_KEY_SCRLK,     1, { 0x46 }, 1, { 0xc6 }, 0 }, */
+	{ PCE_KEY_ESC,       0x01, 0 },
+	{ PCE_KEY_1,         0x02, 0 },
+	{ PCE_KEY_2,         0x03, 0 },
+	{ PCE_KEY_3,         0x04, 0 },
+	{ PCE_KEY_4,         0x05, 0 },
+	{ PCE_KEY_5,         0x06, 0 },
+	{ PCE_KEY_6,         0x07, 0 },
+	{ PCE_KEY_7,         0x08, 0 },
+	{ PCE_KEY_8,         0x09, 0 },
+	{ PCE_KEY_9,         0x0a, 0 },
+	{ PCE_KEY_0,         0x0b, 0 },
+	{ PCE_KEY_MINUS,     0x0c, 0 },
+	{ PCE_KEY_EQUAL,     0x0d, 0 },
+	{ PCE_KEY_BACKSPACE, 0x0e, 0 },
+	{ PCE_KEY_TAB,       0x0f, 0 },
+	{ PCE_KEY_Q,         0x10, 0 },
+	{ PCE_KEY_W,         0x11, 0 },
+	{ PCE_KEY_E,         0x12, 0 },
+	{ PCE_KEY_R,         0x13, 0 },
+	{ PCE_KEY_T,         0x14, 0 },
+	{ PCE_KEY_Y,         0x15, 0 },
+	{ PCE_KEY_U,         0x16, 0 },
+	{ PCE_KEY_I,         0x17, 0 },
+	{ PCE_KEY_O,         0x18, 0 },
+	{ PCE_KEY_P,         0x19, 0 },
+	{ PCE_KEY_LBRACKET,  0x1a, 0 },
+	{ PCE_KEY_RBRACKET,  0x1b, 0 },
+	{ PCE_KEY_RETURN,    0x1c, 0 },
+	{ PCE_KEY_LCTRL,     0x1d, 0 },
+	{ PCE_KEY_RCTRL,     0x1d, 0 },
+	{ PCE_KEY_A,         0x1e, 0 },
+	{ PCE_KEY_S,         0x1f, 0 },
+	{ PCE_KEY_D,         0x20, 0 },
+	{ PCE_KEY_F,         0x21, 0 },
+	{ PCE_KEY_G,         0x22, 0 },
+	{ PCE_KEY_H,         0x23, 0 },
+	{ PCE_KEY_J,         0x24, 0 },
+	{ PCE_KEY_K,         0x25, 0 },
+	{ PCE_KEY_L,         0x26, 0 },
+	{ PCE_KEY_SEMICOLON, 0x27, 0 },
+	{ PCE_KEY_QUOTE,     0x28, 0 },
+	{ PCE_KEY_BACKQUOTE, 0x29, 0 },
+	{ PCE_KEY_LSHIFT,    0x2a, 0 },
+	{ PCE_KEY_BACKSLASH, 0x2b, 0 },
+	{ PCE_KEY_Z,         0x2c, 0 },
+	{ PCE_KEY_X,         0x2d, 0 },
+	{ PCE_KEY_C,         0x2e, 0 },
+	{ PCE_KEY_V,         0x2f, 0 },
+	{ PCE_KEY_B,         0x30, 0 },
+	{ PCE_KEY_N,         0x31, 0 },
+	{ PCE_KEY_M,         0x32, 0 },
+	{ PCE_KEY_COMMA,     0x33, 0 },
+	{ PCE_KEY_PERIOD,    0x34, 0 },
+	{ PCE_KEY_SLASH,     0x35, 0 },
+	{ PCE_KEY_RSHIFT,    0x36, 0 },
+	{ PCE_KEY_LALT,      0x38, 0 },
+	{ PCE_KEY_SPACE,     0x39, 0 },
+	{ PCE_KEY_CAPSLOCK,  0x3a, 0 },
+	{ PCE_KEY_F1,        0x3b, 0 },
+	{ PCE_KEY_F2,        0x3c, 0 },
+	{ PCE_KEY_F3,        0x3d, 0 },
+	{ PCE_KEY_F4,        0x3e, 0 },
+	{ PCE_KEY_F5,        0x3f, 0 },
+	{ PCE_KEY_F6,        0x40, 0 },
+	{ PCE_KEY_F7,        0x41, 0 },
+	{ PCE_KEY_F8,        0x42, 0 },
+	{ PCE_KEY_F9,        0x43, 0 },
+	{ PCE_KEY_F10,       0x44, 0 },
+/*	{ PCE_KEY_NUMLOCK,   0x45, 0 }, */
+/*	{ PCE_KEY_SCRLK,     0x46, 0 }, */
 
-	{ PCE_KEY_HOME,      1, { 0x47 }, 1, { 0xc7 }, 0 },
-	{ PCE_KEY_UP,        1, { 0x48 }, 1, { 0xc8 }, 0 },
-	{ PCE_KEY_KP_MINUS,  1, { 0x4a }, 1, { 0xca }, 0 },
-	{ PCE_KEY_LEFT,      1, { 0x4b }, 1, { 0xcb }, 0 },
-	{ PCE_KEY_RIGHT,     1, { 0x4d }, 1, { 0xcd }, 0 },
-	{ PCE_KEY_KP_PLUS,   1, { 0x4e }, 1, { 0xce }, 0 },
-	{ PCE_KEY_DOWN,      1, { 0x50 }, 1, { 0xd0 }, 0 },
-	{ PCE_KEY_INS,       1, { 0x52 }, 1, { 0xd2 }, 0 },
-	{ PCE_KEY_DEL,       1, { 0x53 }, 1, { 0xd3 }, 0 },
-	{ PCE_KEY_LESS,      1, { 0x60 }, 1, { 0xe0 }, 0 },
-	{ PCE_KEY_F12,       1, { 0x61 }, 1, { 0xc4 }, 0 }, /* Undo */
-	{ PCE_KEY_F11,       1, { 0x62 }, 1, { 0xc3 }, 0 }, /* Help */
+	{ PCE_KEY_HOME,      0x47, 0 },
+	{ PCE_KEY_UP,        0x48, 0 },
+	{ PCE_KEY_KP_MINUS,  0x4a, 0 },
+	{ PCE_KEY_LEFT,      0x4b, 0 },
+	{ PCE_KEY_RIGHT,     0x4d, 0 },
+	{ PCE_KEY_KP_PLUS,   0x4e, 0 },
+	{ PCE_KEY_DOWN,      0x50, 0 },
+	{ PCE_KEY_INS,       0x52, 0 },
+	{ PCE_KEY_DEL,       0x53, 0 },
+	{ PCE_KEY_LESS,      0x60, 0 },
+	{ PCE_KEY_F12,       0x61, 0 }, /* Undo */
+	{ PCE_KEY_F11,       0x62, 0 }, /* Help */
+	{ PCE_KEY_KP_LPAREN, 0x63, 0 },
+	{ PCE_KEY_KP_RPAREN, 0x64, 0 },
 
-	{ PCE_KEY_KP_SLASH,  1, { 0x65 }, 1, { 0xe5 }, 0 },
-	{ PCE_KEY_KP_STAR,   1, { 0x66 }, 1, { 0xe6 }, 0 },
-	{ PCE_KEY_KP_7,      1, { 0x67 }, 1, { 0xe7 }, 0 },
-	{ PCE_KEY_KP_8,      1, { 0x68 }, 1, { 0xe8 }, 0 },
-	{ PCE_KEY_KP_9,      1, { 0x69 }, 1, { 0xe9 }, 0 },
-	{ PCE_KEY_KP_4,      1, { 0x6a }, 1, { 0xea }, 0 },
-	{ PCE_KEY_KP_5,      1, { 0x6b }, 1, { 0xeb }, 0 },
-	{ PCE_KEY_KP_6,      1, { 0x6c }, 1, { 0xec }, 0 },
-	{ PCE_KEY_KP_1,      1, { 0x6d }, 1, { 0xed }, 0 },
-	{ PCE_KEY_KP_2,      1, { 0x6e }, 1, { 0xee }, 0 },
-	{ PCE_KEY_KP_3,      1, { 0x6f }, 1, { 0xef }, 0 },
-	{ PCE_KEY_KP_0,      1, { 0x70 }, 1, { 0xf0 }, 0 },
-	{ PCE_KEY_KP_PERIOD, 1, { 0x71 }, 1, { 0xf1 }, 0 },
-	{ PCE_KEY_KP_ENTER,  1, { 0x72 }, 1, { 0xf2 }, 0 },
+	{ PCE_KEY_KP_SLASH,  0x65, 0 },
+	{ PCE_KEY_KP_STAR,   0x66, 0 },
+	{ PCE_KEY_KP_7,      0x67, 0 },
+	{ PCE_KEY_KP_8,      0x68, 0 },
+	{ PCE_KEY_KP_9,      0x69, 0 },
+	{ PCE_KEY_KP_4,      0x6a, 0 },
+	{ PCE_KEY_KP_5,      0x6b, 0 },
+	{ PCE_KEY_KP_6,      0x6c, 0 },
+	{ PCE_KEY_KP_1,      0x6d, 0 },
+	{ PCE_KEY_KP_2,      0x6e, 0 },
+	{ PCE_KEY_KP_3,      0x6f, 0 },
+	{ PCE_KEY_KP_0,      0x70, 0 },
+	{ PCE_KEY_KP_PERIOD, 0x71, 0 },
+	{ PCE_KEY_KP_ENTER,  0x72, 0 },
 
-	{ PCE_KEY_NONE,      0, { 0x00 }, 0, { 0x00 }, 0 }
+	{ PCE_KEY_NONE,      0x00, 0 }
 };
 
 static st_joymap_t joymap[] = {
@@ -477,8 +475,7 @@ int st_kbd_set_joy (st_kbd_t *kbd, unsigned idx, unsigned event, pce_key_t key)
 /*
  * write a key code sequence into the key buffer
  */
-static
-void st_kbd_set_sequence (st_kbd_t *kbd, unsigned char *buf, unsigned cnt)
+static void st_kbd_set_sequence (st_kbd_t *kbd, const unsigned char *buf, unsigned cnt)
 {
 	unsigned i;
 
@@ -546,13 +543,16 @@ void st_kbd_set_key (st_kbd_t *kbd, unsigned event, pce_key_t key)
 	switch (event) {
 	case PCE_KEY_EVENT_DOWN:
 		map->isdown = 1;
-		st_kbd_set_sequence (kbd, map->down, map->down_cnt);
+		st_kbd_buf_put (kbd, map->down);
+#if DEBUG_KBD
+		pce_log (MSG_INF, "send key $%02x\n", map->down);
+#endif
 		break;
 
 	case PCE_KEY_EVENT_UP:
 		if (map->isdown) {
 			map->isdown = 0;
-			st_kbd_set_sequence (kbd, map->up, map->up_cnt);
+			st_kbd_buf_put (kbd, map->down | 0x80);
 		}
 		break;
 	}

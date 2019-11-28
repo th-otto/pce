@@ -32,6 +32,10 @@
 #include <drivers/video/keys.h>
 #include <drivers/video/sdl.h>
 
+#ifndef SDLK_PERCENT
+#define SDLK_PERCENT 37
+#endif
+
 static int sdl_set_window_size (sdl_t *sdl, unsigned w, unsigned h, int force);
 
 
