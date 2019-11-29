@@ -153,10 +153,69 @@ void trm_set_msg_fct (terminal_t *trm, void *ext, void *fct)
 	trm->set_msg_emu = fct;
 }
 
-void trm_set_key_fct (terminal_t *trm, void *ext, void *fct)
+void trm_set_key_fct (terminal_t *trm, void *ext, void (*fct) (void *ext, unsigned event, pce_key_t key, unsigned int scancode))
 {
 	trm->set_key_ext = ext;
 	trm->set_key = fct;
+}
+
+int trm_is_modifier (pce_key_t key)
+{
+	switch (key)
+	{
+	case PCE_KEY_LCTRL:
+	case PCE_KEY_RCTRL:
+	case PCE_KEY_LSHIFT:
+	case PCE_KEY_RSHIFT:
+	case PCE_KEY_LALT:
+	case PCE_KEY_RALT:
+	case PCE_KEY_LSUPER:
+	case PCE_KEY_RSUPER:
+	case PCE_KEY_LMETA:
+	case PCE_KEY_RMETA:
+	case PCE_KEY_MODE:
+		return 1;
+	default:
+		break;
+	}
+	return 0;
+}
+
+int trm_is_alpha (pce_key_t key)
+{
+	switch (key)
+	{
+	case PCE_KEY_A:
+	case PCE_KEY_B:
+	case PCE_KEY_C:
+	case PCE_KEY_D:
+	case PCE_KEY_E:
+	case PCE_KEY_F:
+	case PCE_KEY_G:
+	case PCE_KEY_H:
+	case PCE_KEY_I:
+	case PCE_KEY_J:
+	case PCE_KEY_K:
+	case PCE_KEY_L:
+	case PCE_KEY_M:
+	case PCE_KEY_N:
+	case PCE_KEY_O:
+	case PCE_KEY_P:
+	case PCE_KEY_Q:
+	case PCE_KEY_R:
+	case PCE_KEY_S:
+	case PCE_KEY_T:
+	case PCE_KEY_U:
+	case PCE_KEY_V:
+	case PCE_KEY_W:
+	case PCE_KEY_X:
+	case PCE_KEY_Y:
+	case PCE_KEY_Z:
+		return 1;
+	default:
+		break;
+	}
+	return 0;
 }
 
 void trm_set_mouse_fct (terminal_t *trm, void *ext, void *fct)
@@ -556,7 +615,7 @@ int trm_set_key_magic (terminal_t *trm, pce_key_t key)
 }
 
 static
-void trm_set_key_emu (terminal_t *trm, unsigned event, pce_key_t key)
+void trm_set_key_emu (terminal_t *trm, unsigned event, pce_key_t key, unsigned int scancode)
 {
 	if (event == PCE_KEY_EVENT_MAGIC) {
 		if (trm_set_key_magic (trm, key) == 0) {
@@ -565,11 +624,11 @@ void trm_set_key_emu (terminal_t *trm, unsigned event, pce_key_t key)
 	}
 
 	if (trm->set_key != NULL) {
-		trm->set_key (trm->set_key_ext, event, key);
+		trm->set_key (trm->set_key_ext, event, key, scancode);
 	}
 }
 
-void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key)
+void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key, unsigned int scancode)
 {
 	if (event == PCE_KEY_EVENT_DOWN) {
 		if (key == trm->escape_key) {
@@ -603,7 +662,7 @@ void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key)
 	else if (event == PCE_KEY_EVENT_UP) {
 		if (trm->escape & TRM_ESC_ESC) {
 			if (key != trm->escape_key) {
-				trm_set_key_emu (trm, PCE_KEY_EVENT_MAGIC, key);
+				trm_set_key_emu (trm, PCE_KEY_EVENT_MAGIC, key, scancode);
 				trm->escape &= ~TRM_ESC_ESC;
 			}
 			return;
@@ -620,7 +679,7 @@ void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key)
 		}
 	}
 
-	trm_set_key_emu (trm, event, key);
+	trm_set_key_emu (trm, event, key, scancode);
 }
 
 void trm_set_mouse (terminal_t *trm, int dx, int dy, unsigned but)

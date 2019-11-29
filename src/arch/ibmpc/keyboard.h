@@ -74,7 +74,7 @@ void pc_kbd_set_enable (pc_kbd_t *kbd, unsigned char val);
 /*!***************************************************************************
  * @short Send a key event to the PC
  *****************************************************************************/
-void pc_kbd_set_key (pc_kbd_t *kbd, unsigned event, unsigned key);
+void pc_kbd_set_key (void *ext, unsigned event, unsigned key, unsigned int scancode);
 
 /*!***************************************************************************
  * @short Send a key code to the PC (deprecated)

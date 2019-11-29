@@ -10,6 +10,7 @@ atarist({
     'tos-1.00-us.rom',
     'tos-1.04-us.rom',
     'etos256us.img',
+    'etos256de.img',
     'pce-config.cfg',
     'fd0.st',
     'fd1.psi',

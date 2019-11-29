@@ -36,7 +36,7 @@ typedef struct {
  * This table maps key names to key symbols and vice versa
  */
 static
-pce_key_name_t keyname[] = {
+pce_key_name_t const keyname[] = {
 	{ PCE_KEY_ESC, "ESC", },
 
 	{ PCE_KEY_F1, "F1" },
@@ -60,20 +60,47 @@ pce_key_name_t keyname[] = {
 
 	{ PCE_KEY_BACKQUOTE, "Backquote" },
 	{ PCE_KEY_BACKQUOTE, "`" },
+	{ PCE_KEY_ASCIITILDE, "Asciitilde" },
+	{ PCE_KEY_ASCIITILDE, "~" },
 	{ PCE_KEY_1, "1" },
+	{ PCE_KEY_EXCLAM, "Exclam" },
+	{ PCE_KEY_EXCLAM, "!" },
 	{ PCE_KEY_2, "2" },
+	{ PCE_KEY_AT, "At" },
+	{ PCE_KEY_AT, "@" },
 	{ PCE_KEY_3, "3" },
+	{ PCE_KEY_HASH, "Numbersign" },
+	{ PCE_KEY_HASH, "Hash" },
+	{ PCE_KEY_HASH, "#" },
 	{ PCE_KEY_4, "4" },
+	{ PCE_KEY_DOLLAR, "Dollar" },
+	{ PCE_KEY_DOLLAR, "$" },
 	{ PCE_KEY_5, "5" },
+	{ PCE_KEY_PERCENT, "Percent" },
+	{ PCE_KEY_PERCENT, "%" },
 	{ PCE_KEY_6, "6" },
+	{ PCE_KEY_ASCIICIRCUM, "Asciicircum" },
+	{ PCE_KEY_ASCIICIRCUM, "^" },
 	{ PCE_KEY_7, "7" },
+	{ PCE_KEY_AMPERSAND, "Ampercent" },
+	{ PCE_KEY_AMPERSAND, "&" },
 	{ PCE_KEY_8, "8" },
+	{ PCE_KEY_ASTERISK, "Asterisk" },
+	{ PCE_KEY_ASTERISK, "*" },
 	{ PCE_KEY_9, "9" },
+	{ PCE_KEY_LPAREN, "LeftParen" },
+	{ PCE_KEY_LPAREN, "(" },
 	{ PCE_KEY_0, "0" },
+	{ PCE_KEY_RPAREN, "RightParen" },
+	{ PCE_KEY_RPAREN, ")" },
 	{ PCE_KEY_MINUS, "Minus" },
 	{ PCE_KEY_MINUS, "-" },
+	{ PCE_KEY_UNDERSCORE, "Underscore" },
+	{ PCE_KEY_UNDERSCORE, "_" },
 	{ PCE_KEY_EQUAL, "Equal" },
 	{ PCE_KEY_EQUAL, "=" },
+	{ PCE_KEY_PLUS, "Plus" },
+	{ PCE_KEY_PLUS, "+" },
 	{ PCE_KEY_BACKSPACE, "Backspace" },
 
 	{ PCE_KEY_TAB, "Tab" },
@@ -91,6 +118,10 @@ pce_key_name_t keyname[] = {
 	{ PCE_KEY_LBRACKET, "[" },
 	{ PCE_KEY_RBRACKET, "RightBracket" },
 	{ PCE_KEY_RBRACKET, "]" },
+	{ PCE_KEY_LBRACE, "LeftBrace" },
+	{ PCE_KEY_LBRACE, "{" },
+	{ PCE_KEY_RBRACE, "RightBrace" },
+	{ PCE_KEY_RBRACE, "}" },
 	{ PCE_KEY_RETURN, "Return" },
 
 	{ PCE_KEY_CAPSLOCK, "CapsLock" },
@@ -105,16 +136,24 @@ pce_key_name_t keyname[] = {
 	{ PCE_KEY_L, "l" },
 	{ PCE_KEY_SEMICOLON, "Semicolon" },
 	{ PCE_KEY_SEMICOLON, ";" },
+	{ PCE_KEY_COLON, "Colon" },
+	{ PCE_KEY_COLON, ":" },
 	{ PCE_KEY_QUOTE, "Quote" },
 	{ PCE_KEY_QUOTE, "Apostrophe" },
 	{ PCE_KEY_QUOTE, "'" },
+	{ PCE_KEY_QUOTEDBL, "Quotedbl" },
+	{ PCE_KEY_QUOTEDBL, "\"" },
 	{ PCE_KEY_BACKSLASH, "Backslash" },
 	{ PCE_KEY_BACKSLASH, "\\" },
+	{ PCE_KEY_BAR, "Bar" },
+	{ PCE_KEY_BAR, "|" },
 
 	{ PCE_KEY_LSHIFT, "ShiftLeft" },
 	{ PCE_KEY_LSHIFT, "Shift" },
 	{ PCE_KEY_LESS, "Less" },
 	{ PCE_KEY_LESS, "<" },
+	{ PCE_KEY_GREATER, "Greater" },
+	{ PCE_KEY_GREATER, ">" },
 	{ PCE_KEY_Z, "z" },
 	{ PCE_KEY_X, "x" },
 	{ PCE_KEY_C, "c" },
@@ -128,6 +167,8 @@ pce_key_name_t keyname[] = {
 	{ PCE_KEY_PERIOD, "." },
 	{ PCE_KEY_SLASH, "Slash" },
 	{ PCE_KEY_SLASH, "/" },
+	{ PCE_KEY_QUESTION, "Question" },
+	{ PCE_KEY_QUESTION, "?" },
 
 	{ PCE_KEY_LCTRL, "CtrlLeft" },
 	{ PCE_KEY_LCTRL, "Ctrl" },
@@ -141,6 +182,7 @@ pce_key_name_t keyname[] = {
 	{ PCE_KEY_LALT, "Alt" },
 	{ PCE_KEY_SPACE, "Space" },
 	{ PCE_KEY_RALT, "AltRight" },
+	{ PCE_KEY_RALT, "AltGr" },
 	{ PCE_KEY_RMETA, "MetaRight" },
 	{ PCE_KEY_RSUPER, "SuperRight" },
 	{ PCE_KEY_RSUPER, "StartRight" },
@@ -176,6 +218,8 @@ pce_key_name_t keyname[] = {
 	{ PCE_KEY_LEFT, "Left" },
 	{ PCE_KEY_DOWN, "Down" },
 	{ PCE_KEY_RIGHT, "Right" },
+	{ PCE_KEY_UNDO, "Undo" },
+	{ PCE_KEY_HELP, "Help" },
 
 	{ PCE_KEY_EXTRA1, "Extra1" },
 	{ PCE_KEY_EXTRA2, "Extra2" },
@@ -200,7 +244,7 @@ pce_key_name_t keyname[] = {
 
 pce_key_t pce_key_from_string (const char *str)
 {
-	pce_key_name_t *el;
+	const pce_key_name_t *el;
 
 	el = keyname;
 
@@ -217,7 +261,7 @@ pce_key_t pce_key_from_string (const char *str)
 
 const char *pce_key_to_string (pce_key_t key)
 {
-	pce_key_name_t *el;
+	const pce_key_name_t *el;
 
 	el = keyname;
 

@@ -24,6 +24,7 @@
 #include "ikbd.h"
 
 #include <drivers/video/keys.h>
+#include <drivers/video/terminal.h>
 #include <lib/log.h>
 
 #include <string.h>
@@ -35,124 +36,17 @@
 
 
 typedef struct {
-	pce_key_t      pcekey;
-
-	unsigned char  down;
-
-	char           isdown;
-} st_keymap_t;
-
-
-typedef struct {
 	pce_key_t     key;
 	unsigned char msk;
 } st_joymap_t;
 
 
-static st_keymap_t keymap[] = {
-	{ PCE_KEY_ESC,       0x01, 0 },
-	{ PCE_KEY_1,         0x02, 0 },
-	{ PCE_KEY_2,         0x03, 0 },
-	{ PCE_KEY_3,         0x04, 0 },
-	{ PCE_KEY_4,         0x05, 0 },
-	{ PCE_KEY_5,         0x06, 0 },
-	{ PCE_KEY_6,         0x07, 0 },
-	{ PCE_KEY_7,         0x08, 0 },
-	{ PCE_KEY_8,         0x09, 0 },
-	{ PCE_KEY_9,         0x0a, 0 },
-	{ PCE_KEY_0,         0x0b, 0 },
-	{ PCE_KEY_MINUS,     0x0c, 0 },
-	{ PCE_KEY_EQUAL,     0x0d, 0 },
-	{ PCE_KEY_BACKSPACE, 0x0e, 0 },
-	{ PCE_KEY_TAB,       0x0f, 0 },
-	{ PCE_KEY_Q,         0x10, 0 },
-	{ PCE_KEY_W,         0x11, 0 },
-	{ PCE_KEY_E,         0x12, 0 },
-	{ PCE_KEY_R,         0x13, 0 },
-	{ PCE_KEY_T,         0x14, 0 },
-	{ PCE_KEY_Y,         0x15, 0 },
-	{ PCE_KEY_U,         0x16, 0 },
-	{ PCE_KEY_I,         0x17, 0 },
-	{ PCE_KEY_O,         0x18, 0 },
-	{ PCE_KEY_P,         0x19, 0 },
-	{ PCE_KEY_LBRACKET,  0x1a, 0 },
-	{ PCE_KEY_RBRACKET,  0x1b, 0 },
-	{ PCE_KEY_RETURN,    0x1c, 0 },
-	{ PCE_KEY_LCTRL,     0x1d, 0 },
-	{ PCE_KEY_RCTRL,     0x1d, 0 },
-	{ PCE_KEY_A,         0x1e, 0 },
-	{ PCE_KEY_S,         0x1f, 0 },
-	{ PCE_KEY_D,         0x20, 0 },
-	{ PCE_KEY_F,         0x21, 0 },
-	{ PCE_KEY_G,         0x22, 0 },
-	{ PCE_KEY_H,         0x23, 0 },
-	{ PCE_KEY_J,         0x24, 0 },
-	{ PCE_KEY_K,         0x25, 0 },
-	{ PCE_KEY_L,         0x26, 0 },
-	{ PCE_KEY_SEMICOLON, 0x27, 0 },
-	{ PCE_KEY_QUOTE,     0x28, 0 },
-	{ PCE_KEY_BACKQUOTE, 0x29, 0 },
-	{ PCE_KEY_LSHIFT,    0x2a, 0 },
-	{ PCE_KEY_BACKSLASH, 0x2b, 0 },
-	{ PCE_KEY_Z,         0x2c, 0 },
-	{ PCE_KEY_X,         0x2d, 0 },
-	{ PCE_KEY_C,         0x2e, 0 },
-	{ PCE_KEY_V,         0x2f, 0 },
-	{ PCE_KEY_B,         0x30, 0 },
-	{ PCE_KEY_N,         0x31, 0 },
-	{ PCE_KEY_M,         0x32, 0 },
-	{ PCE_KEY_COMMA,     0x33, 0 },
-	{ PCE_KEY_PERIOD,    0x34, 0 },
-	{ PCE_KEY_SLASH,     0x35, 0 },
-	{ PCE_KEY_RSHIFT,    0x36, 0 },
-	{ PCE_KEY_LALT,      0x38, 0 },
-	{ PCE_KEY_SPACE,     0x39, 0 },
-	{ PCE_KEY_CAPSLOCK,  0x3a, 0 },
-	{ PCE_KEY_F1,        0x3b, 0 },
-	{ PCE_KEY_F2,        0x3c, 0 },
-	{ PCE_KEY_F3,        0x3d, 0 },
-	{ PCE_KEY_F4,        0x3e, 0 },
-	{ PCE_KEY_F5,        0x3f, 0 },
-	{ PCE_KEY_F6,        0x40, 0 },
-	{ PCE_KEY_F7,        0x41, 0 },
-	{ PCE_KEY_F8,        0x42, 0 },
-	{ PCE_KEY_F9,        0x43, 0 },
-	{ PCE_KEY_F10,       0x44, 0 },
-/*	{ PCE_KEY_NUMLOCK,   0x45, 0 }, */
-/*	{ PCE_KEY_SCRLK,     0x46, 0 }, */
+#define ST_KEY_LSHIFT   0x2a
+#define ST_KEY_RSHIFT   0x36
+#define ST_KEY_CONTROL  0x1d
+#define ST_KEY_LALT     0x38
+#define ST_KEY_CAPSLOCK 0x3a
 
-	{ PCE_KEY_HOME,      0x47, 0 },
-	{ PCE_KEY_UP,        0x48, 0 },
-	{ PCE_KEY_KP_MINUS,  0x4a, 0 },
-	{ PCE_KEY_LEFT,      0x4b, 0 },
-	{ PCE_KEY_RIGHT,     0x4d, 0 },
-	{ PCE_KEY_KP_PLUS,   0x4e, 0 },
-	{ PCE_KEY_DOWN,      0x50, 0 },
-	{ PCE_KEY_INS,       0x52, 0 },
-	{ PCE_KEY_DEL,       0x53, 0 },
-	{ PCE_KEY_LESS,      0x60, 0 },
-	{ PCE_KEY_F12,       0x61, 0 }, /* Undo */
-	{ PCE_KEY_F11,       0x62, 0 }, /* Help */
-	{ PCE_KEY_KP_LPAREN, 0x63, 0 },
-	{ PCE_KEY_KP_RPAREN, 0x64, 0 },
-
-	{ PCE_KEY_KP_SLASH,  0x65, 0 },
-	{ PCE_KEY_KP_STAR,   0x66, 0 },
-	{ PCE_KEY_KP_7,      0x67, 0 },
-	{ PCE_KEY_KP_8,      0x68, 0 },
-	{ PCE_KEY_KP_9,      0x69, 0 },
-	{ PCE_KEY_KP_4,      0x6a, 0 },
-	{ PCE_KEY_KP_5,      0x6b, 0 },
-	{ PCE_KEY_KP_6,      0x6c, 0 },
-	{ PCE_KEY_KP_1,      0x6d, 0 },
-	{ PCE_KEY_KP_2,      0x6e, 0 },
-	{ PCE_KEY_KP_3,      0x6f, 0 },
-	{ PCE_KEY_KP_0,      0x70, 0 },
-	{ PCE_KEY_KP_PERIOD, 0x71, 0 },
-	{ PCE_KEY_KP_ENTER,  0x72, 0 },
-
-	{ PCE_KEY_NONE,      0x00, 0 }
-};
 
 static st_joymap_t joymap[] = {
 	{ PCE_KEY_KP_7, 0x05 },
@@ -486,9 +380,9 @@ static void st_kbd_set_sequence (st_kbd_t *kbd, const unsigned char *buf, unsign
 	}
 }
 
-void st_kbd_set_key (st_kbd_t *kbd, unsigned event, pce_key_t key)
+void st_kbd_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scancode)
 {
-	st_keymap_t *map;
+	st_kbd_t *kbd = (st_kbd_t *)ext;
 
 	if (event == PCE_KEY_EVENT_MAGIC) {
 		if (key == PCE_KEY_KP_5) {
@@ -523,38 +417,20 @@ void st_kbd_set_key (st_kbd_t *kbd, unsigned event, pce_key_t key)
 		}
 	}
 
-	map = keymap;
-
-	while (map->pcekey != PCE_KEY_NONE) {
-		if (map->pcekey == key) {
+	if (scancode > 0 && scancode < 0x78)
+	{
+		switch (event) {
+		case PCE_KEY_EVENT_DOWN:
+			st_kbd_buf_put (kbd, scancode);
+#if DEBUG_KBD
+			pce_log (MSG_INF, "send key $%02x\n", scancode);
+#endif
+			break;
+	
+		case PCE_KEY_EVENT_UP:
+			st_kbd_buf_put (kbd, scancode | 0x80);
 			break;
 		}
-
-		map += 1;
-	}
-
-	if (map->pcekey == PCE_KEY_NONE) {
-		if (event == PCE_KEY_EVENT_DOWN) {
-			pce_log (MSG_INF, "unknown key code (%u)\n", key);
-		}
-		return;
-	}
-
-	switch (event) {
-	case PCE_KEY_EVENT_DOWN:
-		map->isdown = 1;
-		st_kbd_buf_put (kbd, map->down);
-#if DEBUG_KBD
-		pce_log (MSG_INF, "send key $%02x\n", map->down);
-#endif
-		break;
-
-	case PCE_KEY_EVENT_UP:
-		if (map->isdown) {
-			map->isdown = 0;
-			st_kbd_buf_put (kbd, map->down | 0x80);
-		}
-		break;
 	}
 }
 
@@ -640,7 +516,7 @@ void st_kbd_cmd_0a (st_kbd_t *kbd)
 		return;
 	}
 
-#if DEBUG_KBD >= 0
+#if DEBUG_KBD >= 1
 	st_log_deb ("IKBD: SET MOUSE KEYCODE MODE: %u / %u\n", kbd->cmd[1], kbd->cmd[2]);
 #endif
 

@@ -32,6 +32,22 @@
 
 #include <SDL.h>
 
+#ifndef SDLK_PERCENT
+#define SDLK_PERCENT 0x25
+#endif
+#ifndef SDLK_LEFTBRACE
+#define SDLK_LEFTBRACE 0x7b
+#endif
+#ifndef SDLK_BAR
+#define SDLK_BAR 0x7c
+#endif
+#ifndef SDLK_RIGHTBRACE
+#define SDLK_RIGHTBRACE 0x7d
+#endif
+#ifndef SDLK_TILDE
+#define SDLK_TILDE 0x7e
+#endif
+
 
 typedef struct {
 	SDLKey    sdlkey;

@@ -376,7 +376,7 @@ void mac_set_mouse (void *ext, int dx, int dy, unsigned but)
 }
 
 static
-void mac_set_key (void *ext, unsigned event, pce_key_t key)
+void mac_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scancode)
 {
 	macplus_t *sim = ext;
 
@@ -386,11 +386,11 @@ void mac_set_key (void *ext, unsigned event, pce_key_t key)
 	}
 
 	if (sim->kbd != NULL) {
-		mac_kbd_set_key (sim->kbd, event, key);
+		mac_kbd_set_key (sim->kbd, event, key, scancode);
 	}
 
 	if (sim->adb_kbd != NULL) {
-		adb_kbd_set_key (sim->adb_kbd, event, key);
+		adb_kbd_set_key (sim->adb_kbd, event, key, scancode);
 	}
 }
 

@@ -37,7 +37,9 @@
 #include <lib/monitor.h>
 #include <lib/sysdep.h>
 
+#ifdef PCE_ENABLE_SDL
 #include <SDL.h>
+#endif
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -443,9 +445,14 @@ void mac_run_emscripten_step ()
 	int mousey;
 	int mousehack_interval = 100;
  
+#if defined(PCE_ENABLE_SDL2) || !defined(PCE_ENABLE_SDL)
+	int screenw = sim->trm->w;
+	int screenh = sim->trm->h;
+#else
 	const SDL_VideoInfo* videoinfo = SDL_GetVideoInfo();
 	int screenw = videoinfo->current_w;
 	int screenh = videoinfo->current_h;
+#endif
  
 	// for each 'emscripten step' we'll run a bunch of actual cycles
 	// to minimise overhead from emscripten's main loop management

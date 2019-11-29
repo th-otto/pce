@@ -414,8 +414,9 @@ void mac_kbd_set_sequence (mac_kbd_t *kbd, unsigned char *buf, unsigned cnt)
 	}
 }
 
-void mac_kbd_set_key (mac_kbd_t *kbd, unsigned event, pce_key_t key)
+void mac_kbd_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scancode)
 {
+	mac_kbd_t *kbd = (mac_kbd_t *)ext;
 	mac_kbd_map_t *map;
 
 #ifdef DEBUG_KBD

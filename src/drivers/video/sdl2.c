@@ -30,6 +30,7 @@
 #include <drivers/video/terminal.h>
 #include <drivers/video/keys.h>
 #include <drivers/video/sdl2.h>
+#include <lib/log.h>
 
 
 static sdl2_keymap_t keymap[] = {
@@ -378,8 +379,147 @@ void sdl2_update (sdl2_t *sdl)
 	SDL_RenderPresent (sdl->render);
 }
 
+
+static unsigned int sdl2_map_sym(SDL_Keysym *keysym)
+{
+	unsigned int scancode = 0;
+
+	switch ((unsigned int) keysym->scancode)
+	{
+		case SDL_SCANCODE_ESCAPE: scancode = 0x01; break;
+		case SDL_SCANCODE_1: scancode = 0x02; break;
+		case SDL_SCANCODE_2: scancode = 0x03; break;
+		case SDL_SCANCODE_3: scancode = 0x04; break;
+		case SDL_SCANCODE_4: scancode = 0x05; break;
+		case SDL_SCANCODE_5: scancode = 0x06; break;
+		case SDL_SCANCODE_6: scancode = 0x07; break;
+		case SDL_SCANCODE_7: scancode = 0x08; break;
+		case SDL_SCANCODE_8: scancode = 0x09; break;
+		case SDL_SCANCODE_9: scancode = 0x0a; break;
+		case SDL_SCANCODE_0: scancode = 0x0b; break;
+		case SDL_SCANCODE_MINUS: scancode = 0x0c; break;
+		case SDL_SCANCODE_EQUALS: scancode = 0x0d; break;
+		case SDL_SCANCODE_BACKSPACE: scancode = 0x0e; break;
+		case SDL_SCANCODE_TAB: scancode = 0x0f; break;
+		case SDL_SCANCODE_Q: scancode = 0x10; break;
+		case SDL_SCANCODE_W: scancode = 0x11; break;
+		case SDL_SCANCODE_E: scancode = 0x12; break;
+		case SDL_SCANCODE_R: scancode = 0x13; break;
+		case SDL_SCANCODE_T: scancode = 0x14; break;
+		case SDL_SCANCODE_Y: scancode = 0x15; break;
+		case SDL_SCANCODE_U: scancode = 0x16; break;
+		case SDL_SCANCODE_I: scancode = 0x17; break;
+		case SDL_SCANCODE_O: scancode = 0x18; break;
+		case SDL_SCANCODE_P: scancode = 0x19; break;
+		case SDL_SCANCODE_LEFTBRACKET: scancode = 0x1a; break;
+		case SDL_SCANCODE_RIGHTBRACKET: scancode = 0x1b; break;
+		case SDL_SCANCODE_RETURN: scancode = 0x1c; break;
+		case SDL_SCANCODE_LCTRL: scancode = 0x1d; break;
+		case SDL_SCANCODE_A: scancode = 0x1e; break;
+		case SDL_SCANCODE_S: scancode = 0x1f; break;
+		case SDL_SCANCODE_D: scancode = 0x20; break;
+		case SDL_SCANCODE_F: scancode = 0x21; break;
+		case SDL_SCANCODE_G: scancode = 0x22; break;
+		case SDL_SCANCODE_H: scancode = 0x23; break;
+		case SDL_SCANCODE_J: scancode = 0x24; break;
+		case SDL_SCANCODE_K: scancode = 0x25; break;
+		case SDL_SCANCODE_L: scancode = 0x26; break;
+		case SDL_SCANCODE_SEMICOLON: scancode = 0x27; break;
+		case SDL_SCANCODE_APOSTROPHE: scancode = 0x28; break;
+		case SDL_SCANCODE_GRAVE: scancode = 0x29; break;
+		case SDL_SCANCODE_LSHIFT: scancode = 0x2a; break;
+		case SDL_SCANCODE_BACKSLASH: scancode = 0x2b; break;
+		case SDL_SCANCODE_Z: scancode = 0x2c; break;
+		case SDL_SCANCODE_X: scancode = 0x2d; break;
+		case SDL_SCANCODE_C: scancode = 0x2e; break;
+		case SDL_SCANCODE_V: scancode = 0x2f; break;
+		case SDL_SCANCODE_B: scancode = 0x30; break;
+		case SDL_SCANCODE_N: scancode = 0x31; break;
+		case SDL_SCANCODE_M: scancode = 0x32; break;
+		case SDL_SCANCODE_COMMA: scancode = 0x33; break;
+		case SDL_SCANCODE_PERIOD: scancode = 0x34; break;
+		case SDL_SCANCODE_SLASH: scancode = 0x35; break;
+		case SDL_SCANCODE_RSHIFT: scancode = 0x36; break;
+		case SDL_SCANCODE_PRINTSCREEN: scancode = 0x37; break;
+		case SDL_SCANCODE_LALT: scancode = 0x38; break;
+		case SDL_SCANCODE_SPACE: scancode = 0x39; break;
+		case SDL_SCANCODE_CAPSLOCK: scancode = 0x3a; break;
+		case SDL_SCANCODE_F1: scancode = 0x3b; break;
+		case SDL_SCANCODE_F2: scancode = 0x3c; break;
+		case SDL_SCANCODE_F3: scancode = 0x3d; break;
+		case SDL_SCANCODE_F4: scancode = 0x3e; break;
+		case SDL_SCANCODE_F5: scancode = 0x3f; break;
+		case SDL_SCANCODE_F6: scancode = 0x40; break;
+		case SDL_SCANCODE_F7: scancode = 0x41; break;
+		case SDL_SCANCODE_F8: scancode = 0x42; break;
+		case SDL_SCANCODE_F9: scancode = 0x43; break;
+		case SDL_SCANCODE_F10: scancode = 0x44; break;
+
+		case SDL_SCANCODE_NONUSBACKSLASH: scancode = 0x60; break;
+		case SDL_SCANCODE_KP_LEFTPAREN: scancode = 0x63; break;
+		case SDL_SCANCODE_KP_RIGHTPAREN: scancode = 0x64; break;
+		
+		case SDL_SCANCODE_SCROLLLOCK: scancode = 0x00; break;
+		case SDL_SCANCODE_PAUSE: scancode = 0x00; break;
+	}
+	if (scancode != 0)
+	{
+		keysym->scancode = scancode;
+		return scancode;
+	}
+
+	switch ((unsigned int) keysym->sym)
+	{
+		/* Numeric Pad */
+		case SDLK_KP_DIVIDE: scancode = 0x65; break;	/* Numpad / */
+		case SDLK_KP_MULTIPLY: scancode = 0x66; break;	/* NumPad * */
+		case SDLK_KP_7: scancode = 0x67; break;	/* NumPad 7 */
+		case SDLK_KP_8: scancode = 0x68; break;	/* NumPad 8 */
+		case SDLK_KP_9: scancode = 0x69; break;	/* NumPad 9 */
+		case SDLK_KP_4: scancode = 0x6a; break;	/* NumPad 4 */
+		case SDLK_KP_5: scancode = 0x6b; break;	/* NumPad 5 */
+		case SDLK_KP_6: scancode = 0x6c; break;	/* NumPad 6 */
+		case SDLK_KP_1: scancode = 0x6d; break;	/* NumPad 1 */
+		case SDLK_KP_2: scancode = 0x6e; break;	/* NumPad 2 */
+		case SDLK_KP_3: scancode = 0x6f; break;	/* NumPad 3 */
+		case SDLK_KP_0: scancode = 0x70; break;	/* NumPad 0 */
+		case SDLK_KP_PERIOD: scancode = 0x71; break;	/* NumPad . */
+		case SDLK_KP_ENTER: scancode = 0x72; break;	/* NumPad Enter */
+		case SDLK_KP_MINUS: scancode = 0x4a; break;	/* NumPad - */
+		case SDLK_KP_PLUS: scancode = 0x4e; break;	/* NumPad + */
+
+		/* Special Keys */
+		case SDLK_F11: scancode = 0x62; break;	/* F11 => Help */
+		case SDLK_F12: scancode = 0x61; break;	/* F12 => Undo */
+		case SDLK_HOME: scancode = 0x47; break;	/* Home */
+		case SDLK_UP: scancode = 0x48; break;	/* Arrow Up */
+		case SDLK_PAGEUP: scancode = 0x49; break;	/* Page Up */
+		case SDLK_LEFT: scancode = 0x4b; break;	/* Arrow Left */
+		case SDLK_RIGHT: scancode = 0x4d; break;	/* Arrow Right */
+		case SDLK_END: scancode = 0x4f; break;	/* Milan's scancode for End */
+		case SDLK_DOWN: scancode = 0x50; break;	/* Arrow Down */
+		case SDLK_PAGEDOWN: scancode = 0x51; break;	/* Page Down */
+		case SDLK_INSERT: scancode = 0x52; break;	/* Insert */
+		case SDLK_DELETE: scancode = 0x53; break;	/* Delete */
+
+		case SDLK_NUMLOCKCLEAR: scancode = 0x63; break;
+		
+		case SDLK_BACKQUOTE:
+		case SDLK_LESS: scancode = 0x60; break;	/* a '<>' key next to short left Shift */
+
+		/* keys not found on some keyboards */
+		case SDLK_RCTRL: scancode = 0x1d; break;
+		case SDLK_MODE: /* passthru */ /* Alt Gr key according to SDL docs */
+		case SDLK_RALT: scancode = 0x4c; break;
+	}
+
+	keysym->scancode = scancode;
+	return scancode;
+}
+
+
 static
-void sdl2_event_keydown (sdl2_t *sdl, SDL_Scancode key, SDL_Keymod mod)
+void sdl2_event_keydown (sdl2_t *sdl, SDL_Keysym *sym)
 {
 	pce_key_t pcekey;
 
@@ -387,11 +527,11 @@ void sdl2_event_keydown (sdl2_t *sdl, SDL_Scancode key, SDL_Keymod mod)
 		return;
 	}
 
-	if (key == SDL_SCANCODE_GRAVE) {
+	if (sym->scancode == SDL_SCANCODE_GRAVE) {
 		if (sdl->grave_down) {
 			return;
 		}
-		else if (mod & KMOD_LCTRL) {
+		else if (sym->mod & KMOD_LCTRL) {
 			sdl->grave_down = 1;
 			sdl2_grab_mouse (sdl, 0);
 			sdl2_set_fullscreen (sdl, 0);
@@ -399,30 +539,33 @@ void sdl2_event_keydown (sdl2_t *sdl, SDL_Scancode key, SDL_Keymod mod)
 			return;
 		}
 	}
-	else if (key == SDL_SCANCODE_PRINTSCREEN) {
+	else if (sym->scancode == SDL_SCANCODE_PRINTSCREEN) {
 		trm_screenshot (&sdl->trm, NULL);
 		return;
 	}
 
-	pcekey = sdl2_map_key (sdl, key);
+	sdl2_map_sym(sym);
+
+	pcekey = sdl2_map_key (sdl, sym->scancode);
 
 	if (sdl->report_keys || (pcekey == PCE_KEY_NONE)) {
-		fprintf (stderr, "sdl: key = 0x%04x\n", (unsigned) key);
+		const char *keyname = pce_key_to_string(pcekey);
+		fprintf (stderr, "sdl: scancode=0x%x, key=0x%04x, unicode=0x%04x -> %d (%s)\n", sym->scancode, sym->sym, sym->unused, pcekey, keyname ? keyname : "<unknown>");
 	}
 
 	if (pcekey == PCE_KEY_NONE) {
 		return;
 	}
 
-	trm_set_key (&sdl->trm, PCE_KEY_EVENT_DOWN, pcekey);
+	trm_set_key (&sdl->trm, PCE_KEY_EVENT_DOWN, pcekey, sym->scancode);
 
-	if (key == SDL_SCANCODE_NUMLOCKCLEAR) {
-		trm_set_key (&sdl->trm, PCE_KEY_EVENT_UP, pcekey);
+	if (sym->scancode == SDL_SCANCODE_NUMLOCKCLEAR) {
+		trm_set_key (&sdl->trm, PCE_KEY_EVENT_UP, pcekey, sym->scancode);
 	}
 }
 
 static
-void sdl2_event_keyup (sdl2_t *sdl, SDL_Scancode key, SDL_Keymod mod)
+void sdl2_event_keyup (sdl2_t *sdl, SDL_Keysym *sym)
 {
 	pce_key_t pcekey;
 
@@ -430,24 +573,26 @@ void sdl2_event_keyup (sdl2_t *sdl, SDL_Scancode key, SDL_Keymod mod)
 		return;
 	}
 
-	pcekey = sdl2_map_key (sdl, key);
+	sdl2_map_sym(sym);
 
-	if (key == SDL_SCANCODE_GRAVE) {
+	pcekey = sdl2_map_key (sdl, sym->scancode);
+
+	if (sym->scancode == SDL_SCANCODE_GRAVE) {
 		if (sdl->grave_down) {
 			sdl->grave_down = 0;
 			return;
 		}
 	}
-	else if (key == SDL_SCANCODE_PRINTSCREEN) {
+	else if (sym->scancode == SDL_SCANCODE_PRINTSCREEN) {
 		return;
 	}
 
 	if (pcekey != PCE_KEY_NONE) {
-		if (key == SDL_SCANCODE_NUMLOCKCLEAR) {
-			trm_set_key (&sdl->trm, PCE_KEY_EVENT_DOWN, pcekey);
+		if (sym->scancode == SDL_SCANCODE_NUMLOCKCLEAR) {
+			trm_set_key (&sdl->trm, PCE_KEY_EVENT_DOWN, pcekey, sym->scancode);
 		}
 
-		trm_set_key (&sdl->trm, PCE_KEY_EVENT_UP, pcekey);
+		trm_set_key (&sdl->trm, PCE_KEY_EVENT_UP, pcekey, sym->scancode);
 	}
 }
 
@@ -595,11 +740,11 @@ int sdl2_check (sdl2_t *sdl)
 	while (SDL_PollEvent (&evt)) {
 		switch (evt.type) {
 		case SDL_KEYDOWN:
-			sdl2_event_keydown (sdl, evt.key.keysym.scancode, evt.key.keysym.mod);
+			sdl2_event_keydown (sdl, &evt.key.keysym);
 			break;
 
 		case SDL_KEYUP:
-			sdl2_event_keyup (sdl, evt.key.keysym.scancode, evt.key.keysym.mod);
+			sdl2_event_keyup (sdl, &evt.key.keysym);
 			break;
 
 		case SDL_TEXTINPUT:
@@ -663,9 +808,11 @@ int sdl2_set_msg_trm (sdl2_t *sdl, const char *msg, const char *val)
 		return (0);
 	}
 	else if (strcmp (msg, "term.title") == 0) {
+#ifndef __EMSCRIPTEN__
 		if (sdl->window != NULL) {
 			SDL_SetWindowTitle (sdl->window, val);
 		}
+#endif
 		return (0);
 	}
 	else if (strcmp (msg, "term.fullscreen.toggle") == 0) {

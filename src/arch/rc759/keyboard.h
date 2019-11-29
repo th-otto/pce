@@ -58,7 +58,7 @@ void rc759_kbd_set_enable (rc759_kbd_t *kbd, unsigned char val);
 
 void rc759_kbd_set_mouse (rc759_kbd_t *kbd, int dx, int dy, unsigned but);
 
-void rc759_kbd_set_key (rc759_kbd_t *kbd, unsigned event, unsigned key);
+void rc759_kbd_set_key (void *ext, unsigned event, unsigned key, unsigned int scancode);
 
 void rc759_kbd_set_keycode (rc759_kbd_t *kbd, unsigned char val);
 

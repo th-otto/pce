@@ -341,8 +341,9 @@ void rc759_kbd_set_mouse (rc759_kbd_t *kbd, int dx, int dy, unsigned but)
 	rc759_kbd_check_mouse (kbd);
 }
 
-void rc759_kbd_set_key (rc759_kbd_t *kbd, unsigned event, unsigned key)
+void rc759_kbd_set_key (void *ext, unsigned event, unsigned key, unsigned int scancode)
 {
+	rc759_kbd_t *kbd = (rc759_kbd_t *)ext;
 	rc759_keymap_t *map;
 
 	if (event == PCE_KEY_EVENT_MAGIC) {

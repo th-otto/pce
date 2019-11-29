@@ -19,6 +19,10 @@ PCEJS_REPO_ROOT=$(git rev-parse --show-toplevel)
 
 cp "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.bc"
 # EMCC_DEBUG=2 
+echo "${PCEJS_EMSDK_PATH}/emcc" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.bc" \
+  -o "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}" \
+  $PCEJS_EMFLAGS \
+  $PCEJS_MAKE_CFLAGS
 "${PCEJS_EMSDK_PATH}/emcc" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.bc" \
   -o "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}" \
   $PCEJS_EMFLAGS \

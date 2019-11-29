@@ -53,7 +53,7 @@ typedef struct {
 } adb_kbd_t;
 
 
-void adb_kbd_set_key (adb_kbd_t *kbd, unsigned event, pce_key_t key);
+void adb_kbd_set_key (adb_kbd_t *kbd, unsigned event, pce_key_t key, unsigned int scancode);
 
 void adb_kbd_set_keypad_mode (adb_kbd_t *kbd, int motion);
 

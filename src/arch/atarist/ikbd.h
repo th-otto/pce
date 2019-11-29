@@ -60,6 +60,8 @@ typedef struct {
 
 	void          *magic_ext;
 	int           (*magic) (void *ext, pce_key_t key);
+	
+	char          keydown[0x80];
 } st_kbd_t;
 
 
@@ -71,7 +73,7 @@ int st_kbd_buf_put (st_kbd_t *kbd, unsigned char val);
 int st_kbd_buf_get (st_kbd_t *kbd, unsigned char *val);
 
 void st_kbd_set_mouse (st_kbd_t *kbd, int dx, int dy, unsigned but);
-void st_kbd_set_key (st_kbd_t *kbd, unsigned event, pce_key_t key);
+void st_kbd_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scancode);
 
 void st_kbd_set_uint8 (st_kbd_t *kbd, unsigned char val);
 int st_kbd_get_uint8 (st_kbd_t *kbd, unsigned char *val);

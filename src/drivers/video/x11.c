@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -31,6 +32,7 @@
 
 #include <drivers/video/terminal.h>
 #include <drivers/video/x11.h>
+#include <lib/log.h>
 
 
 static xt_keymap_t keymap[] = {
@@ -64,6 +66,7 @@ static xt_keymap_t keymap[] = {
 	{ XK_9,           PCE_KEY_9 },
 	{ XK_0,           PCE_KEY_0 },
 	{ XK_minus,       PCE_KEY_MINUS },
+	{ XK_underscore,  PCE_KEY_UNDERSCORE },
 	{ XK_equal,       PCE_KEY_EQUAL },
 	{ XK_BackSpace,   PCE_KEY_BACKSPACE },
 
@@ -78,8 +81,10 @@ static xt_keymap_t keymap[] = {
 	{ XK_i,           PCE_KEY_I },
 	{ XK_o,           PCE_KEY_O },
 	{ XK_p,           PCE_KEY_P },
-	{ XK_parenleft,   PCE_KEY_LBRACKET },
-	{ XK_parenright,  PCE_KEY_RBRACKET },
+	{ XK_bracketleft, PCE_KEY_LBRACKET },
+	{ XK_bracketright,PCE_KEY_RBRACKET },
+	{ XK_braceleft,   PCE_KEY_LBRACE },
+	{ XK_braceright,  PCE_KEY_RBRACE },
 	{ XK_Return,      PCE_KEY_RETURN },
 
 	{ XK_Caps_Lock,   PCE_KEY_CAPSLOCK },
@@ -92,12 +97,14 @@ static xt_keymap_t keymap[] = {
 	{ XK_j,           PCE_KEY_J },
 	{ XK_k,           PCE_KEY_K },
 	{ XK_l,           PCE_KEY_L },
+	{ XK_colon,       PCE_KEY_COLON },
 	{ XK_semicolon,   PCE_KEY_SEMICOLON },
 	{ XK_apostrophe,  PCE_KEY_QUOTE },
 	{ XK_backslash,   PCE_KEY_BACKSLASH },
 
 	{ XK_Shift_L,     PCE_KEY_LSHIFT },
 	{ XK_less,        PCE_KEY_LESS },
+	{ XK_greater,     PCE_KEY_GREATER },
 	{ XK_z,           PCE_KEY_Z },
 	{ XK_x,           PCE_KEY_X },
 	{ XK_c,           PCE_KEY_C },
@@ -160,6 +167,26 @@ static xt_keymap_t keymap[] = {
 	{ XK_Left,        PCE_KEY_LEFT },
 	{ XK_Down,        PCE_KEY_DOWN },
 	{ XK_Right,       PCE_KEY_RIGHT },
+
+	{ XK_Undo,        PCE_KEY_UNDO },
+	{ XK_Help,        PCE_KEY_HELP },
+
+	{ XK_exclam,      PCE_KEY_EXCLAM },
+	{ XK_quotedbl,    PCE_KEY_QUOTEDBL },
+	{ XK_numbersign,  PCE_KEY_HASH },
+	{ XK_dollar,      PCE_KEY_DOLLAR },
+	{ XK_percent,     PCE_KEY_PERCENT },
+	{ XK_ampersand,   PCE_KEY_AMPERSAND },
+	{ XK_parenleft,   PCE_KEY_LPAREN },
+	{ XK_parenright,  PCE_KEY_RPAREN },
+	{ XK_asterisk,    PCE_KEY_ASTERISK },
+	{ XK_plus,        PCE_KEY_PLUS },
+	{ XK_asciicircum, PCE_KEY_ASCIICIRCUM },
+	{ XK_bar,         PCE_KEY_BAR },
+	{ XK_asciitilde,  PCE_KEY_ASCIITILDE },
+	{ XK_question,    PCE_KEY_QUESTION },
+	{ XK_at,          PCE_KEY_AT },
+
 	{ 0,              PCE_KEY_NONE }
 };
 
@@ -617,29 +644,185 @@ pce_key_t xt_key_map (xterm_t *xt, KeySym sym)
 	return (PCE_KEY_NONE);
 }
 
+#define UNDEFINED_OFFSET    ((unsigned int)-1)
+static int findScanCodeOffset(KeySym sym, XKeyEvent *xkey)
+{
+	unsigned int scanPC = xkey->keycode;
+	int offset = UNDEFINED_OFFSET;
+
+	switch (sym)
+	{
+		case XK_Escape: offset = scanPC - 0x01; break;
+		case XK_1: offset = scanPC - 0x02; break;
+		case XK_2: offset = scanPC - 0x03; break;
+		case XK_3: offset = scanPC - 0x04; break;
+		case XK_4: offset = scanPC - 0x05; break;
+		case XK_5: offset = scanPC - 0x06; break;
+		case XK_6: offset = scanPC - 0x07; break;
+		case XK_7: offset = scanPC - 0x08; break;
+		case XK_8: offset = scanPC - 0x09; break;
+		case XK_9: offset = scanPC - 0x0a; break;
+		case XK_0: offset = scanPC - 0x0b; break;
+		case XK_BackSpace: offset = scanPC - 0x0e; break;
+		case XK_Tab: offset = scanPC - 0x0f; break;
+		case XK_Return: offset = scanPC - 0x1c; break;
+		case XK_space: offset = scanPC - 0x39; break;
+		case XK_q: offset = scanPC - 0x10; break;
+		case XK_w: offset = scanPC - 0x11; break;
+		case XK_e: offset = scanPC - 0x12; break;
+		case XK_r: offset = scanPC - 0x13; break;
+		case XK_t: offset = scanPC - 0x14; break;
+		case XK_y: offset = scanPC - 0x15; break;
+		case XK_u: offset = scanPC - 0x16; break;
+		case XK_i: offset = scanPC - 0x17; break;
+		case XK_o: offset = scanPC - 0x18; break;
+		case XK_p: offset = scanPC - 0x19; break;
+		case XK_a: offset = scanPC - 0x1e; break;
+		case XK_s: offset = scanPC - 0x1f; break;
+		case XK_d: offset = scanPC - 0x20; break;
+		case XK_f: offset = scanPC - 0x21; break;
+		case XK_g: offset = scanPC - 0x22; break;
+		case XK_h: offset = scanPC - 0x23; break;
+		case XK_j: offset = scanPC - 0x24; break;
+		case XK_k: offset = scanPC - 0x25; break;
+		case XK_l: offset = scanPC - 0x26; break;
+		case XK_z: offset = scanPC - 0x2c; break;
+		case XK_x: offset = scanPC - 0x2d; break;
+		case XK_c: offset = scanPC - 0x2e; break;
+		case XK_v: offset = scanPC - 0x2f; break;
+		case XK_b: offset = scanPC - 0x30; break;
+		case XK_n: offset = scanPC - 0x31; break;
+		case XK_m: offset = scanPC - 0x32; break;
+		case XK_Caps_Lock: offset = scanPC - 0x3a; break;
+		case XK_Shift_R: offset = scanPC - 0x36; break;
+		case XK_Shift_L: offset = scanPC - 0x2a; break;
+		case XK_Control_L: offset = scanPC - 0x1d; break;
+		case XK_Alt_L: offset = scanPC - 0x38; break;
+		case XK_F1: offset = scanPC - 0x3b; break;
+		case XK_F2: offset = scanPC - 0x3c; break;
+		case XK_F3: offset = scanPC - 0x3d; break;
+		case XK_F4: offset = scanPC - 0x3e; break;
+		case XK_F5: offset = scanPC - 0x3f; break;
+		case XK_F6: offset = scanPC - 0x40; break;
+		case XK_F7: offset = scanPC - 0x41; break;
+		case XK_F8: offset = scanPC - 0x42; break;
+		case XK_F9: offset = scanPC - 0x43; break;
+		case XK_F10: offset = scanPC - 0x44; break;
+		default: break;
+	}
+	if (offset < 0)
+		offset = UNDEFINED_OFFSET;
+	if (offset >= 0)
+	{
+		pce_log(MSG_DEB, "Detected scancode offset = %d (key: '%s' with scancode $%02x)\n", offset, XKeysymToString(sym), scanPC);
+	}
+
+	return offset;
+}
+
+
+static unsigned int xt_map_sym(KeySym sym, XKeyEvent *xkey)
+{
+	unsigned int scancode = 0;
+	static unsigned int offset = UNDEFINED_OFFSET;
+
+	switch ((unsigned int) sym)
+	{
+		/* Numeric Pad */
+		case XK_KP_Divide: scancode = 0x65; break;	/* Numpad / */
+		case XK_KP_Multiply: scancode = 0x66; break;	/* NumPad * */
+		case XK_KP_7: scancode = 0x67; break;	/* NumPad 7 */
+		case XK_KP_8: scancode = 0x68; break;	/* NumPad 8 */
+		case XK_KP_9: scancode = 0x69; break;	/* NumPad 9 */
+		case XK_KP_4: scancode = 0x6a; break;	/* NumPad 4 */
+		case XK_KP_5: scancode = 0x6b; break;	/* NumPad 5 */
+		case XK_KP_6: scancode = 0x6c; break;	/* NumPad 6 */
+		case XK_KP_1: scancode = 0x6d; break;	/* NumPad 1 */
+		case XK_KP_2: scancode = 0x6e; break;	/* NumPad 2 */
+		case XK_KP_3: scancode = 0x6f; break;	/* NumPad 3 */
+		case XK_KP_0: scancode = 0x70; break;	/* NumPad 0 */
+		case XK_KP_Decimal: scancode = 0x71; break;	/* NumPad . */
+		case XK_KP_Enter: scancode = 0x72; break;	/* NumPad Enter */
+		case XK_KP_Subtract: scancode = 0x4a; break;	/* NumPad - */
+		case XK_KP_Add: scancode = 0x4e; break;	/* NumPad + */
+
+		/* Special Keys */
+		case XK_F11: scancode = 0x62; break;	/* F11 => Help */
+		case XK_F12: scancode = 0x61; break;	/* F12 => Undo */
+		case XK_Home: scancode = 0x47; break;	/* Home */
+		case XK_Up: scancode = 0x48; break;	/* Arrow Up */
+		case XK_Page_Up: scancode = 0x49; break;	/* Page Up */
+		case XK_Left: scancode = 0x4b; break;	/* Arrow Left */
+		case XK_Right: scancode = 0x4d; break;	/* Arrow Right */
+		case XK_End: scancode = 0x4f; break;	/* Milan's scancode for End */
+		case XK_Down: scancode = 0x50; break;	/* Arrow Down */
+		case XK_Page_Down: scancode = 0x51; break;	/* Page Down */
+		case XK_Insert: scancode = 0x52; break;	/* Insert */
+		case XK_Delete: scancode = 0x53; break;	/* Delete */
+
+		case XK_Num_Lock: scancode = 0x63; break;
+		
+		case XK_grave:
+		case XK_less: scancode = 0x60; break;	/* a '<>' key next to short left Shift */
+
+		/* keys not found on some keyboards */
+		case XK_Control_R: scancode = 0x1d; break;
+		case XK_Mode_switch: /* passthru */
+		case XK_Alt_R: scancode = 0x4c; break;
+	}
+
+	if (scancode == 0)
+	{
+		/*
+		 * Process remaining keys: assume that it's PC101 keyboard
+		 * and that it is compatible with Atari ST keyboard (basically
+		 * same scancodes but on different platforms with different
+		 * base offset (framebuffer = 0, X11 = 8).
+		 * Try to detect the offset using a little bit of black magic.
+		 * If offset is known then simply pass the scancode.
+		 */
+		scancode = xkey->keycode;
+		if (offset == UNDEFINED_OFFSET)
+		{
+			offset = findScanCodeOffset(sym, xkey);
+		}
+
+		/* offset is defined so pass the scancode directly */
+		if (offset != UNDEFINED_OFFSET && scancode > offset)
+		{
+			scancode -= offset;
+		}
+	}
+	xkey->keycode = scancode;
+	return scancode;
+}
+
 /*
  * Send a key event to the emulator core
  */
 static
-void xt_key_send (xterm_t *xt, KeySym sym, int press)
+void xt_key_send (xterm_t *xt, KeySym sym, XKeyEvent *xkey, int press)
 {
-	pce_key_t key;
+	pce_key_t pcekey;
 
-	key = xt_key_map (xt, sym);
+	xt_map_sym(sym, xkey);
 
-	if (xt->report_keys || (key == PCE_KEY_NONE)) {
-		fprintf (stderr, "x11: key = 0x%04lx\n", (unsigned long) sym);
+	pcekey = xt_key_map (xt, sym);
+
+	if (xt->report_keys || (pcekey == PCE_KEY_NONE)) {
+		const char *keyname = pce_key_to_string(pcekey);
+		fprintf (stderr, "x11: keycode=0x%x, key=0x%04x (%s) -> %d (%s)\n", xkey->keycode, (unsigned long) sym, XKeysymToString(sym), pcekey, keyname ? keyname : "<unknown>");
 	}
 
-	if (key == PCE_KEY_NONE) {
+	if (pcekey == PCE_KEY_NONE) {
 		return;
 	}
 
 	if (press) {
-		trm_set_key (&xt->trm, PCE_KEY_EVENT_DOWN, key);
+		trm_set_key (&xt->trm, PCE_KEY_EVENT_DOWN, pcekey, xkey->keycode);
 	}
 	else {
-		trm_set_key (&xt->trm, PCE_KEY_EVENT_UP, key);
+		trm_set_key (&xt->trm, PCE_KEY_EVENT_UP, pcekey, xkey->keycode);
 	}
 }
 
@@ -660,7 +843,7 @@ void xt_event_keydown (xterm_t *xt, XEvent *evt)
 		return;
 	}
 
-	xt_key_send (xt, sym, 1);
+	xt_key_send (xt, sym, &evt->xkey, 1);
 }
 
 static
@@ -674,7 +857,7 @@ void xt_event_keyup (xterm_t *xt, XEvent *evt)
 		return;
 	}
 
-	xt_key_send (xt, sym, 0);
+	xt_key_send (xt, sym, &evt->xkey, 0);
 }
 
 static
@@ -701,9 +884,10 @@ void xt_event_button_press (xterm_t *xt, XEvent *event)
 	}
 
 	b = evt->state;
-	b = ((b & Button1Mask) ? 0x01 : 0) | ((b & Button3Mask) ? 0x02 : 0);
+	b = ((b & Button1Mask) ? 0x01 : 0) | ((b & Button3Mask) ? 0x02 : 0) | ((b & Button2Mask) ? 0x04 : 0);
 	b ^= (evt->button == Button1) ? 0x01 : 0x00;
 	b ^= (evt->button == Button3) ? 0x02 : 0x00;
+	b ^= (evt->button == Button2) ? 0x04 : 0x00;
 
 	trm_set_mouse (&xt->trm, 0, 0, b);
 }
@@ -715,9 +899,10 @@ void xt_event_button_release (xterm_t *xt, XEvent *event)
 	XButtonEvent *evt = (XButtonEvent *) event;
 
 	b = evt->state;
-	b = ((b & Button1Mask) ? 0x01 : 0) | ((b & Button3Mask) ? 0x02 : 0);
+	b = ((b & Button1Mask) ? 0x01 : 0) | ((b & Button3Mask) ? 0x02 : 0) | ((b & Button2Mask) ? 0x04 : 0);
 	b ^= (evt->button == Button1) ? 0x01 : 0x00;
 	b ^= (evt->button == Button3) ? 0x02 : 0x00;
+	b ^= (evt->button == Button2) ? 0x04 : 0x00;
 
 	trm_set_mouse (&xt->trm, 0, 0, b);
 }

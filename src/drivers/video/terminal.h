@@ -41,7 +41,7 @@ typedef struct {
 	int  (*set_msg_emu) (void *ext, const char *msg, const char *val);
 
 	void *set_key_ext;
-	void (*set_key) (void *ext, unsigned event, pce_key_t key);
+	void (*set_key) (void *ext, unsigned event, pce_key_t key, unsigned int scancode);
 
 	void *set_mouse_ext;
 	void (*set_mouse) (void *ext, int dx, int dy, unsigned but);
@@ -146,7 +146,7 @@ void trm_set_msg_fct (terminal_t *trm, void *ext, void *fct);
  *
  * The terminal calls the key function to send key events to the core.
  *****************************************************************************/
-void trm_set_key_fct (terminal_t *trm, void *ext, void *fct);
+void trm_set_key_fct (terminal_t *trm, void *ext, void (*fct) (void *ext, unsigned event, pce_key_t key, unsigned int scancode));
 
 /*!***************************************************************************
  * @short Set the terminal mouse function
@@ -242,7 +242,10 @@ void trm_set_escape_key (terminal_t *trm, pce_key_t key);
 /*!***************************************************************************
  * @short Send a key event to the emulator core
  *****************************************************************************/
-void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key);
+void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key, unsigned int scancode);
+
+int trm_is_modifier (pce_key_t key);
+int trm_is_alpha (pce_key_t key);
 
 /*!***************************************************************************
  * @short Send a mouse event to the emulator core

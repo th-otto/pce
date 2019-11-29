@@ -409,7 +409,7 @@ int adb_kbd_get_keypad_mode (const adb_kbd_t *kbd)
 	return (kbd->keypad_motion_mode);
 }
 
-void adb_kbd_set_key (adb_kbd_t *kbd, unsigned event, pce_key_t key)
+void adb_kbd_set_key (adb_kbd_t *kbd, unsigned event, pce_key_t key, unsigned int scancode)
 {
 	adb_kbd_map_t *map;
 

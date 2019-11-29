@@ -342,8 +342,9 @@ void pc_set_timer2_out (ibmpc_t *pc, unsigned char val)
 }
 
 static
-void pc_set_key (ibmpc_t *pc, unsigned event, unsigned key)
+void pc_set_key (void *ext, unsigned event, unsigned key, unsigned int scancode)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	if (event == PCE_KEY_EVENT_MAGIC) {
 		if (key == PCE_KEY_O) {
 			pc_set_msg (pc, "emu.video.composite.cycle", "");
@@ -357,7 +358,7 @@ void pc_set_key (ibmpc_t *pc, unsigned event, unsigned key)
 		return;
 	}
 
-	pc_kbd_set_key (&pc->kbd, event, key);
+	pc_kbd_set_key (&pc->kbd, event, key, scancode);
 }
 
 static

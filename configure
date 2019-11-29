@@ -4542,7 +4542,7 @@ if test "$ac_x_libraries" = no; then
 int
 main ()
 {
-XrmInitialize ()
+XOpenDisplay (0)
   ;
   return 0;
 }
@@ -4619,6 +4619,8 @@ else
 		else
 			PCE_X11_LIBS="-lX11"
 		fi
+	else
+		PCE_X11_LIBS="-lX11"
 	fi
 	$as_echo "#define PCE_ENABLE_X11 1" >>confdefs.h
 

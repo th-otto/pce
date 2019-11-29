@@ -963,7 +963,7 @@ void pc_cmd_key (cmd_t *cmd, ibmpc_t *pc)
 				str + i
 			);
 
-			pc_kbd_set_key (&pc->kbd, event, key);
+			pc_kbd_set_key (&pc->kbd, event, key, 0);
 		}
 	}
 
