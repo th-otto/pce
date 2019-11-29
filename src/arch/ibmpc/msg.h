@@ -27,7 +27,7 @@
 #include "ibmpc.h"
 
 
-int pc_set_msg (ibmpc_t *pc, const char *msg, const char *val);
+int pc_set_msg (void *pc, const char *msg, const char *val);
 
 
 #endif

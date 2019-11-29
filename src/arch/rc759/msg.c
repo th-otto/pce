@@ -234,8 +234,9 @@ static rc759_msg_list_t set_msg_list[] = {
 };
 
 
-int rc759_set_msg (rc759_t *sim, const char *msg, const char *val)
+int rc759_set_msg (void *ext, const char *msg, const char *val)
 {
+	rc759_t *sim = (rc759_t *)ext;
 	int              r;
 	rc759_msg_list_t *lst;
 

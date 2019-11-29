@@ -401,8 +401,9 @@ static mac_msg_list_t set_msg_list[] = {
 };
 
 
-int mac_set_msg (macplus_t *sim, const char *msg, const char *val)
+int mac_set_msg (void *ext, const char *msg, const char *val)
 {
+	macplus_t *sim = (macplus_t *)ext;
 	int            r;
 	mac_msg_list_t *lst;
 

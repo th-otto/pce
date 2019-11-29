@@ -69,6 +69,9 @@
   </td><td align="left">
   <!-- <span><input type="checkbox" id="resize">Resize canvas</span><br /> -->
   <!-- <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span> -->
+  </td></tr><tr><td align="left">
+  <span><input type="button" value="Reset" onclick="emu_msg('emu.reset', '1')"></span>
+  </td></tr>
   </td></tr></table>
 </div>
       </td></tr></table>
@@ -92,6 +95,7 @@ function toggleconsole() {
    output.scrollTop = 99999;
 }
 toggleconsole();
+var emu_msg = Module.cwrap('emu_msg', 'number', ['string', 'string']);
 document.getElementById('output').value = '';
 </script>
 

@@ -139,7 +139,7 @@ int trm_close (terminal_t *trm);
  * The terminal calls the message function when it wants to send a message
  * to the core.
  *****************************************************************************/
-void trm_set_msg_fct (terminal_t *trm, void *ext, void *fct);
+void trm_set_msg_fct (terminal_t *trm, void *ext, int (*fct)(void *ext, const char *msg, const char *val));
 
 /*!***************************************************************************
  * @short Set the terminal key function

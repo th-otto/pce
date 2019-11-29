@@ -27,7 +27,7 @@
 #include "rc759.h"
 
 
-int rc759_set_msg (rc759_t *sim, const char *msg, const char *val);
+int rc759_set_msg (void *ext, const char *msg, const char *val);
 
 
 #endif

@@ -169,8 +169,6 @@ void st_set_pause (atari_st_t *sim, int pause);
 
 void st_set_speed (atari_st_t *sim, unsigned factor);
 
-int st_set_msg_trm (atari_st_t *sim, const char *msg, const char *val);
-
 int st_set_cpu_model (atari_st_t *sim, const char *model);
 
 void st_set_parport_drv (atari_st_t *sim, char_drv_t *drv);

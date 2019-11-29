@@ -27,7 +27,7 @@
 #include "macplus.h"
 
 
-int mac_set_msg (macplus_t *sim, const char *msg, const char *val);
+int mac_set_msg (void *ext, const char *msg, const char *val);
 
 
 #endif

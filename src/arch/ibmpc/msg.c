@@ -486,8 +486,9 @@ static pc_msg_list_t set_msg_list[] = {
 };
 
 
-int pc_set_msg (ibmpc_t *pc, const char *msg, const char *val)
+int pc_set_msg (void *ext, const char *msg, const char *val)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	int           r;
 	pc_msg_list_t *lst;
 

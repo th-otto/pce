@@ -147,7 +147,7 @@ int trm_close (terminal_t *trm)
 	return (0);
 }
 
-void trm_set_msg_fct (terminal_t *trm, void *ext, void *fct)
+void trm_set_msg_fct (terminal_t *trm, void *ext, int (*fct)(void *ext, const char *msg, const char *val))
 {
 	trm->set_msg_emu_ext = ext;
 	trm->set_msg_emu = fct;
@@ -261,6 +261,12 @@ int trm_screenshot (terminal_t *trm, const char *fname)
 
 int trm_set_msg_trm (terminal_t *trm, const char *msg, const char *val)
 {
+	if (trm == 0)
+	{
+		pce_log(MSG_ERR, "trm_set_msg_trm: no terminal\n");
+		return 1;
+	}
+
 	if (strcmp (msg, "term.escape") == 0) {
 		trm_set_escape_str (trm, val);
 		return (0);

@@ -363,7 +363,7 @@ int st_set_msg_emu_ser_file (atari_st_t *sim, const char *msg, const char *val)
 static
 int st_set_msg_emu_stop (atari_st_t *sim, const char *msg, const char *val)
 {
-	st_set_msg_trm (sim, "term.release", "1");
+	trm_set_msg_trm (sim->trm, "term.release", "1");
 
 	sim->brk = PCE_BRK_STOP;
 
@@ -445,8 +445,22 @@ static st_msg_list_t set_msg_list[] = {
 };
 
 
-int st_set_msg (atari_st_t *sim, const char *msg, const char *val)
+int emu_msg(const char *msg, const char *val);
+__attribute__((used)) int emu_msg(const char *msg, const char *val)
 {
+	if (par_sim == 0)
+	{
+		pce_log(MSG_ERR, "emu_msg: no simulator\n");
+		return 1;
+	}
+	pce_log(MSG_DEB, "emu_msg: %s %s\n", msg, val);
+	return trm_set_msg_emu(par_sim->trm, msg, val);
+}
+
+
+int st_set_msg (void *ext, const char *msg, const char *val)
+{
+	atari_st_t *sim = (atari_st_t *)ext;
 	int           r;
 	st_msg_list_t *lst;
 

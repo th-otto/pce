@@ -921,15 +921,6 @@ void st_set_speed (atari_st_t *sim, unsigned factor)
 	st_clock_discontinuity (sim);
 }
 
-int st_set_msg_trm (atari_st_t *sim, const char *msg, const char *val)
-{
-	if (sim->trm == NULL) {
-		return (1);
-	}
-
-	return (trm_set_msg_trm (sim->trm, msg, val));
-}
-
 int st_set_cpu_model (atari_st_t *sim, const char *model)
 {
 	if (strcmp (model, "68000") == 0) {

@@ -991,8 +991,9 @@ int xt_check (xterm_t *xt)
 }
 
 static
-int xt_set_msg_trm (xterm_t *xt, const char *msg, const char *val)
+int xt_set_msg_trm (void *ext, const char *msg, const char *val)
 {
+	xterm_t *xt = (xterm_t *)ext;
 	if (val == NULL) {
 		val = "";
 	}

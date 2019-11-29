@@ -24,7 +24,7 @@
 #define PCE_ATARIST_MSG_H 1
 
 
-int st_set_msg (atari_st_t *sim, const char *msg, const char *val);
+int st_set_msg (void *ext, const char *msg, const char *val);
 
 
 #endif

@@ -54,8 +54,9 @@ int null_close (null_t *nt)
 }
 
 static
-int null_set_msg_trm (null_t *nt, const char *msg, const char *val)
+int null_set_msg_trm (void *ext, const char *msg, const char *val)
 {
+	null_t *nt = (null_t *)ext;
 	if (strcmp (msg, "term.grab") == 0) {
 		return (0);
 	}
@@ -94,7 +95,7 @@ void null_init (null_t *nt, ini_sct_t *ini)
 	nt->trm.del = (void *) null_del;
 	nt->trm.open = (void *) null_open;
 	nt->trm.close = (void *) null_close;
-	nt->trm.set_msg_trm = (void *) null_set_msg_trm;
+	nt->trm.set_msg_trm = null_set_msg_trm;
 	nt->trm.update = (void *) null_update;
 	nt->trm.check = (void *) null_check;
 }
