@@ -210,6 +210,26 @@ void st_video_set_timing (st_video_t *vid)
 	vid->frame_rate[1] = (unsigned long) vid->hb2 * vid->vb2;
 }
 
+static void st_video_set_rez(st_video_t *vid)
+{
+	switch (vid->shift_mode & 3)
+	{
+	case 0:
+		vid->w = 320;
+		vid->h = 200;
+		break;
+	case 1:
+		vid->w = 640;
+		vid->h = 200;
+		break;
+	case 2:
+	default:
+		vid->w = 640;
+		vid->h = 400;
+		break;
+	}
+}
+
 static
 void st_video_set_shift_mode (st_video_t *vid, unsigned char val)
 {
@@ -218,7 +238,7 @@ void st_video_set_shift_mode (st_video_t *vid, unsigned char val)
 	}
 
 	vid->shift_mode = val;
-	vid->mode = val & 3;
+	st_video_set_rez(vid);
 
 #if DEBUG_VIDEO >= 1
 	st_log_deb ("video: shift mode = 0x%02X\n", val);
@@ -611,16 +631,9 @@ void st_video_reset (st_video_t *vid)
 	vid->src = mem_get_ptr (vid->mem, vid->addr, 32768);
 	vid->dst = vid->rgb;
 
-	if (vid->mono) {
-		vid->w = 640;
-		vid->h = 400;
-	}
-	else {
-		vid->w = 320;
-		vid->h = 200;
-	}
-
 	st_video_set_shift_mode (vid, vid->mono ? 2 : 0);
+
+	st_video_set_rez(vid);
 
 	for (i = 0; i < 16; i++) {
 		vid->palette[i] = 0;
@@ -666,21 +679,21 @@ void st_video_clock (st_video_t *vid, unsigned cnt)
 
 			if (vid->line < vid->vb1) {
 				if (vid->frame_skip == 0) {
-					if (vid->mode == 0) {
+					if (vid->shift_mode == 0) {
 						st_video_update_line_0 (vid);
 					}
-					else if (vid->mode == 1) {
+					else if (vid->shift_mode == 1) {
 						st_video_update_line_1 (vid);
 					}
-					else if (vid->mode == 2) {
+					else if (vid->shift_mode == 2) {
 						st_video_update_line_2 (vid);
 					}
 				}
 				else {
-					if ((vid->mode == 0) || (vid->mode == 1)) {
+					if ((vid->shift_mode == 0) || (vid->shift_mode == 1)) {
 						vid->addr += 160;
 					}
-					else if (vid->mode == 2) {
+					else if (vid->shift_mode == 2) {
 						vid->addr += 80;
 					}
 				}
@@ -726,22 +739,7 @@ void st_video_clock (st_video_t *vid, unsigned cnt)
 
 	st_video_set_vb (vid, 0);
 
-	if (vid->mode == 0) {
-		vid->w = 320;
-		vid->h = 200;
-	}
-	else if (vid->mode == 1) {
-		vid->w = 640;
-		vid->h = 200;
-	}
-	else if (vid->mode == 2) {
-		vid->w = 640;
-		vid->h = 400;
-	}
-	else {
-		vid->w = 640;
-		vid->h = 400;
-	}
+	st_video_set_rez(vid);
 
 	vid->line = 0;
 	vid->src = mem_get_ptr (vid->mem, vid->addr, 32768);

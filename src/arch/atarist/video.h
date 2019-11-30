@@ -40,7 +40,6 @@ struct _st_video_t {
 
 	unsigned char       sync_mode;
 	unsigned char       shift_mode;
-	unsigned char       mode;
 	char                mono;
 
 	unsigned short      palette[16];
