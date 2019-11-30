@@ -277,6 +277,11 @@ int trm_set_msg_trm (terminal_t *trm, const char *msg, const char *val)
 		return (0);
 	}
 
+	if (strcmp (msg, "term.scale") == 0) {
+		trm_set_scale (trm, trm->scale + strtol(val, NULL, 0));
+		return (0);
+	}
+
 	if (trm->set_msg_trm != NULL) {
 		return (trm->set_msg_trm (trm->ext, msg, val));
 	}
@@ -346,7 +351,7 @@ void trm_set_min_size (terminal_t *trm, unsigned w, unsigned h)
 
 void trm_set_scale (terminal_t *trm, unsigned v)
 {
-	trm->scale = (v < 1) ? 1 : v;
+	trm->scale = v < 1 ? 1 : v;
 
 	trm->update_x = 0;
 	trm->update_y = 0;
@@ -598,9 +603,7 @@ int trm_set_key_magic (terminal_t *trm, pce_key_t key)
 
 	case PCE_KEY_DOWN:
 	case PCE_KEY_KP_2:
-		if (trm->scale > 1) {
-			trm_set_scale (trm, trm->scale - 1);
-		}
+		trm_set_scale (trm, trm->scale - 1);
 		return (0);
 
 	case PCE_KEY_LEFT:

@@ -27,8 +27,6 @@
     }
     .pcejs-canvas {
       cursor: none;
-      width: 640px;
-      height: 400px;
     }
     .pcejs-container {
       margin-top: 32px;
@@ -54,35 +52,36 @@
       <h1>Atari ST</h1>
       <div class="pcejs pcejs-loading-status" id="pcejs-loading-status">Downloading...</div>
 
-      <table><tr><td>
-      <div class="pcejs">
-        <canvas class="pcejs pcejs-canvas" id="pcejs-canvas" oncontextmenu="event.preventDefault()"></canvas>
-      </div>
-      </td><td>
-<div id='controls' class="pcejs-controls">
+<div id='controls' class="pcejs-controls" style="position:absolute; left:0; width:20%">
   <table><tr><td align="left">
   <span><input type="checkbox" id="toggleconsole" onclick="toggleconsole();">Show log</span><br />
-  </td></tr><tr><td align="left">
+  </td></tr>
+  <tr><td align="left">
   <span><input type="button" value="Fullscreen"
          onclick="Module.requestFullscreen(true, false)">
         </span><br />
-  </td><td align="left">
+  </td>
+  <td align="left">
   <!-- <span><input type="checkbox" id="resize">Resize canvas</span><br /> -->
   <!-- <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span> -->
-  </td></tr><tr><td align="left">
-  <span><input type="button" value="Reset" onclick="emu_msg('emu.reset', '1')"></span>
   </td></tr>
-  </td></tr></table>
+  <tr><td align="left"><span><input type="button" value="Reset" onclick="emu_msg('emu.reset', '1')"></span></td></tr>
+  <tr><td align="left"><span><input type="button" value="Zoom in" onclick="emu_msg('term.scale', '+1')"></span></tr></td>
+  <tr><td align="left"><span><input type="button" value="Zoom out" onclick="emu_msg('term.scale', '-1')"></span></tr></td>
+  </table>
 </div>
-      </td></tr></table>
+      <div>
+      <div class="pcejs">
+        <canvas class="pcejs pcejs-canvas" id="pcejs-canvas" oncontextmenu="event.preventDefault()" width="640" height="400"></canvas>
+      </div>
 
       <div class="pcejs">
       <p>This is an Atari ST running in the <a href="https://github.com/jsdf/pce" target="_blank">pce.js emulator</a>.</p>
       <p>It is using EmuTOS.</p>
-    <p class="pcejs">press esc + &uarr; to zoom in, esc + &darr; to zoom out</p>
       </div>
 
       <div><textarea class="emscripten" id="output" rows="8" spellcheck="false" style="display:none"></textarea></div>
+      </div>
       <script type="text/javascript" src="bundle.js"></script>
 
     </div>
