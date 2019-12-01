@@ -380,7 +380,6 @@ int main (int argc, char *argv[])
 	pc_reset (par_pc);
 
 #ifdef __EMSCRIPTEN__
-	pce_log_set_level (stderr, MSG_DEB);
 	pc_run_emscripten(par_pc);
 	exit(1);
 #endif

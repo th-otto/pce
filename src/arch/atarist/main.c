@@ -198,7 +198,7 @@ void st_log_deb (const char *msg, ...)
 		pc = 0;
 	}
 
-	pce_log (MSG_DEB, "[%06lX] ", pc & 0xffffff);
+	pce_log (MSG_DEB, "[%08lX] ", pc);
 
 	va_start (va, msg);
 	pce_log_va (MSG_DEB, msg, va);
@@ -362,7 +362,6 @@ int main (int argc, char *argv[])
 	st_reset (par_sim);
 
 #ifdef __EMSCRIPTEN__
-	pce_log_set_level (stderr, MSG_DEB);
 	st_run_emscripten(par_sim);
 	exit(1);
 #endif

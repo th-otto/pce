@@ -5,7 +5,7 @@ var utils = require('pcejs-util')
 var loadingStatus = utils.loadingStatus(document.getElementById('pcejs-loading-status'))
 
 atarist({
-  'arguments': ['-c','pce-config.cfg','-r'],
+  'arguments': ['-c','pce-config.cfg','-r','-v'],
   autoloadFiles: [
     'tos-1.00-us.rom',
     'tos-1.04-us.rom',

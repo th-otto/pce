@@ -362,7 +362,6 @@ int main (int argc, char *argv[])
 	rc759_reset (par_sim);
 
 #ifdef __EMSCRIPTEN__
-	pce_log_set_level (stderr, MSG_DEB);
 	rc759_run_emscripten(par_sim);
 	exit(1);
 #endif
