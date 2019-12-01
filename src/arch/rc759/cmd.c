@@ -550,8 +550,10 @@ void rc759_run_emscripten_step ()
 {
 	rc759_t *sim = par_sim;
 
-	// for each 'emscripten step' we'll run a bunch of actual cycles
-	// to minimise overhead from emscripten's main loop management
+	/*
+	 * for each 'emscripten step' we'll run a bunch of actual cycles
+	 * to minimise overhead from emscripten's main loop management
+	 */
 	int i;
 	for (i = 0; i < 10000; ++i)
 	{

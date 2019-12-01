@@ -584,7 +584,7 @@ void pc_run_emscripten (ibmpc_t *pc)
 #endif
 
 	pc->current_int &= 0xff;
-	// pce_stop();
+	/* pce_stop(); */
 }
 
 /*
@@ -592,9 +592,10 @@ void pc_run_emscripten (ibmpc_t *pc)
  */
 void pc_run_emscripten_step ()
 {
-
-	// for each 'emscripten step' we'll run a bunch of actual cycles
-	// to minimise overhead from emscripten's main loop management
+	/*
+	 * for each 'emscripten step' we'll run a bunch of actual cycles
+	 * to minimise overhead from emscripten's main loop management
+	 */
 	int i;
 	for (i = 0; i < 10000; ++i)
 	{

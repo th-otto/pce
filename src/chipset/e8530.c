@@ -1030,16 +1030,16 @@ void e8530_set_wr3 (e8530_t *scc, unsigned chn, unsigned char val)
 #if defined DEBUG_SCC || defined SDLC_DEBUG
 		fprintf (stderr, "SCC %c: Enter hunt mode\n", scc_get_chn (chn));
 #endif
-		c->rr[0] |= 0x10; // Set hunt bit
+		c->rr[0] |= 0x10; /* Set hunt bit */
 	}
 
 #ifdef SDLC_LOCALTALK_ENABLE
 	if((c->wr[4] & 0x30) == 0x20) {
-		// In SDLC mode
+		/* In SDLC mode */
 
 #ifdef SDLC_DEBUG
 		if((val ^ c->wr[3]) & 0x04) {
-			// Address Search Mode bit changed
+			/* Address Search Mode bit changed */
 			fprintf (stderr, "SCC %c: Address Search Mode = %c\n", scc_get_chn (chn), (val & 0x04) ? '1' : '0');
 		}
 #endif
@@ -1591,7 +1591,9 @@ void e8530_reset_channel (e8530_t *scc, unsigned chn)
 	c = &scc->chn[chn];
 
 	c->rr[0] |= 0x04; /* tx empty */
-//	c->rr[0] |= 0x20; /* cts */
+#if 0
+	c->rr[0] |= 0x20; /* cts */
+#endif
 	c->rr[1] |= 0x01; /* all sent */
 
 	c->rr0_latch_msk = 0;

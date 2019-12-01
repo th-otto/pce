@@ -432,7 +432,7 @@ void mac_run_emscripten (macplus_t *sim)
 	}
 #endif
 
-	// pce_stop();
+	/* pce_stop(); */
 }
 
 
@@ -464,22 +464,24 @@ void mac_run_emscripten_step ()
 		}
 	}
  
-	// for each 'emscripten step' we'll run a bunch of actual cycles
-	// to minimise overhead from emscripten's main loop management
+	/*
+	 * for each 'emscripten step' we'll run a bunch of actual cycles
+	 * to minimise overhead from emscripten's main loop management
+	 */
 	for (i = 0; i < 10000; ++i) {
-		// gross hacks to set mouse position in browser
+		/* gross hacks to set mouse position in browser */
 		if (mousehack_interval && (i % mousehack_interval == 0)) {
 			SDL_GetMouseState (&mousex, &mousey);
-			// clamp mouse pos to screen bounds
+			/* clamp mouse pos to screen bounds */
 			mousex = mousex > screenw ? screenw : (mousex < 0 ? 0 : mousex);
 			mousey = mousey > screenh ? screenh : (mousey < 0 ? 0 : mousey);
-			// internal raw mouse coords
+			/* internal raw mouse coords */
 			e68_set_mem16 (sim->cpu, 0x0828, (unsigned) mousey);
 			e68_set_mem16 (sim->cpu, 0x082a, (unsigned) mousex);
-			// raw mouse coords
+			/* raw mouse coords */
 			e68_set_mem16 (sim->cpu, 0x082c, (unsigned) mousey);
 			e68_set_mem16 (sim->cpu, 0x082e, (unsigned) mousex);
-			// smoothed mouse coords
+			/* smoothed mouse coords */
 			e68_set_mem16 (sim->cpu, 0x0830, (unsigned) mousey);
 			e68_set_mem16 (sim->cpu, 0x0832, (unsigned) mousex);
 		}
@@ -498,8 +500,10 @@ void mac_run_emscripten_step ()
 			trm_check (sim->trm);
 		}
 	}
-	// print state
-	// mac_prt_state_cpu(sim);
+	/* print state */
+#if 0
+	mac_prt_state_cpu(sim);
+#endif
 }
 /*
  * end emscripten specific main loop

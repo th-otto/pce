@@ -535,7 +535,9 @@ int pc_set_msg (void *ext, const char *msg, const char *val)
 		}
 	}
 
-	// pce_log (MSG_INF, "unhandled message (\"%s\", \"%s\")\n", msg, val);
+#if 0
+	pce_log (MSG_INF, "unhandled message (\"%s\", \"%s\")\n", msg, val);
+#endif
 
 	return (1);
 }
