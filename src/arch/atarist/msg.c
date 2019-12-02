@@ -415,6 +415,50 @@ int st_set_msg_emu_viking_toggle (atari_st_t *sim, const char *msg, const char *
 }
 
 
+static void st_vid_reschange(atari_st_t *sim, int v)
+{
+	sim->mono = v == 2;
+	st_video_reset(sim->video, v);
+	sim->mfp_inp = (sim->mfp_inp & 0x7f) | (sim->mono ? 0x80 : 0x00);
+	e68901_set_inp (&sim->mfp, sim->mfp_inp);
+	e68_set_pc_prefetch(sim->cpu, sim->rom_addr);
+	mem_set_uint32_be (sim->mem, 0x0420, 0);
+	mem_set_uint32_be (sim->mem, 0x043a, 0);
+	mem_set_uint32_be (sim->mem, 0x051a, 0);
+	mem_set_uint8 (sim->mem, 0x0424, 0);
+	mem_set_uint8 (sim->mem, 0x044a, sim->video->shift_mode);
+	memset (mem_get_ptr(sim->mem, 8, 0), 0, 64000);
+	e68_reset(sim->cpu);
+}
+
+
+
+static int st_set_msg_video_rez(atari_st_t *sim, const char *msg, const char *val)
+{
+	int v;
+
+	if (msg_get_sint (val, &v) == 0)
+	{
+		switch (v)
+		{
+		case 0:
+		case 1:
+		case 2:
+			sim->video->shift_mode = v;
+			st_vid_reschange(sim, v);
+			break;
+		case 7:
+			if (sim->viking != NULL)
+			{
+				st_set_msg_emu_viking(sim, msg, "1");
+			}
+			break;
+		}
+	}
+	return sim->viking && sim->video_viking ? 7 : sim->video->shift_mode;
+}
+
+
 static st_msg_list_t set_msg_list[] = {
 	{ "disk.eject", st_set_msg_disk_eject },
 	{ "disk.insert", st_set_msg_disk_insert },
@@ -441,6 +485,7 @@ static st_msg_list_t set_msg_list[] = {
 	{ "emu.stop", st_set_msg_emu_stop },
 	{ "emu.viking", st_set_msg_emu_viking },
 	{ "emu.viking.toggle", st_set_msg_emu_viking_toggle },
+	{ "video.rez", st_set_msg_video_rez },
 	{ NULL, NULL }
 };
 

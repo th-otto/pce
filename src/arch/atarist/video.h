@@ -94,7 +94,7 @@ void st_video_set_frame_skip (st_video_t *vid, unsigned skip);
 
 void st_video_redraw (st_video_t *vid);
 
-void st_video_reset (st_video_t *vid);
+void st_video_reset (st_video_t *vid, unsigned char shift_mode);
 
 void st_video_clock (st_video_t *vid, unsigned cnt);
 

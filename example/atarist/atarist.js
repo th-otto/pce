@@ -4,8 +4,11 @@ var utils = require('pcejs-util')
 // add a load progress bar. not required, but good ux
 var loadingStatus = utils.loadingStatus(document.getElementById('pcejs-loading-status'))
 
-atarist({
-  'arguments': ['-c','pce-config.cfg','-r','-v'],
+atarist((function() {
+  var toggle = document.getElementById('togglecolor');
+  var mono = toggle === 'undefined' ? "0" : toggle.checked ? "0" : "1";
+  return {
+  'arguments': ['-c','pce-config.cfg','-r','-v','-I','system.mono='+mono],
   autoloadFiles: [
     'tos-1.00-us.rom',
     'tos-1.04-us.rom',
@@ -36,5 +39,4 @@ atarist({
   monitorRunDependencies: function (remainingDependencies) {
     loadingStatus.update(remainingDependencies)
   },
-})
-
+};})())

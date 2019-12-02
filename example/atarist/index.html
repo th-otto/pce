@@ -55,6 +55,7 @@
 <div id='controls' class="pcejs-controls" style="position:absolute; left:0; width:20%">
   <table><tr><td align="left">
   <span><input type="checkbox" id="toggleconsole" onclick="toggleconsole();">Show log</span><br />
+  <span><input type="checkbox" id="togglecolor" onclick="togglecolor();">Color</span><br />
   </td></tr>
   <tr><td align="left">
   <span><input type="button" value="Fullscreen"
@@ -82,19 +83,24 @@
 
       <div><textarea class="emscripten" id="output" rows="8" spellcheck="false" style="display:none"></textarea></div>
       </div>
-      <script type="text/javascript" src="bundle.js"></script>
-
     </div>
 
+<script type="text/javascript" src="bundle.js"></script>
+
 <script type="text/javascript">
+var emu_msg = Module.cwrap('emu_msg', 'number', ['string', 'string']);
 function toggleconsole() {
    var toggle = document.getElementById('toggleconsole');
    var output = document.getElementById('output');
    output.style.display = toggle.checked ? "block" : "none";
    output.scrollTop = 99999;
 }
+function togglecolor() {
+   var toggle = document.getElementById('togglecolor');
+   emu_msg('video.rez', toggle.checked ? "0" : "2");
+   var output = document.getElementById('output');
+}
 toggleconsole();
-var emu_msg = Module.cwrap('emu_msg', 'number', ['string', 'string']);
 document.getElementById('output').value = '';
 </script>
 

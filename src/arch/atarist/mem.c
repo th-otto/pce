@@ -103,7 +103,8 @@ unsigned char st_mem_get_uint8 (void *ext, unsigned long addr)
 
 	default:
 		e68_set_bus_error (sim->cpu, 1);
-		st_log_deb ("mem: get  8: %06lX -> 00\n", addr);
+		if (sim->debug.report_buserrs)
+			st_log_deb ("mem: get  8: %06lX -> 00\n", addr);
 		break;
 	}
 
@@ -164,7 +165,8 @@ unsigned short st_mem_get_uint16 (void *ext, unsigned long addr)
 
 	default:
 		e68_set_bus_error (sim->cpu, 1);
-		st_log_deb ("mem: get 16: %06lX -> 0000\n", addr);
+		if (sim->debug.report_buserrs)
+			st_log_deb ("mem: get 16: %06lX -> 0000\n", addr);
 		break;
 	}
 
@@ -194,7 +196,8 @@ void st_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 
 	if ((addr >= 0xff8808) && (addr < 0xff8900)) {
 		/* psg */
-		st_log_deb ("mem: set  8: %06lX <- %02X\n", addr, val);
+		if (sim->debug.report_buserrs)
+			st_log_deb ("mem: set  8: %06lX <- %02X\n", addr, val);
 		return;
 	}
 
@@ -270,7 +273,8 @@ void st_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 
 	default:
 		e68_set_bus_error (sim->cpu, 1);
-		st_log_deb ("mem: set  8: %06lX <- %02X\n", addr, val);
+		if (sim->debug.report_buserrs)
+			st_log_deb ("mem: set  8: %06lX <- %02X\n", addr, val);
 		break;
 	}
 }
@@ -287,7 +291,8 @@ void st_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 
 	if ((addr >= 0xff8804) && (addr < 0xff8900)) {
 		/* psg */
-		st_log_deb ("mem: set 16: %06lX <- %04X\n", addr, val);
+		if (sim->debug.report_buserrs)
+			st_log_deb ("mem: set 16: %06lX <- %04X\n", addr, val);
 		return;
 	}
 
@@ -333,7 +338,8 @@ void st_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 
 	default:
 		e68_set_bus_error (sim->cpu, 1);
-		st_log_deb ("mem: set 16: %06lX <- %04X\n", addr, val);
+		if (sim->debug.report_buserrs)
+			st_log_deb ("mem: set 16: %06lX <- %04X\n", addr, val);
 		break;
 	}
 }

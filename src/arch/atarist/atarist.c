@@ -835,6 +835,8 @@ void st_init (atari_st_t *sim, ini_sct_t *ini)
 	}
 
 	st_clock_discontinuity (sim);
+
+	sim->debug.report_buserrs = 1;
 }
 
 atari_st_t *st_new (ini_sct_t *ini)
@@ -981,7 +983,7 @@ void st_reset (atari_st_t *sim)
 	st_fdc_reset (&sim->fdc);
 	st_dma_reset (&sim->dma);
 	st_kbd_reset (&sim->kbd);
-	st_video_reset (sim->video);
+	st_video_reset (sim->video, sim->mono ? 2 : 0);
 
 	if (sim->viking != NULL) {
 		st_viking_reset (sim->viking);

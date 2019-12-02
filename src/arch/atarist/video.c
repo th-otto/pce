@@ -614,7 +614,7 @@ void st_video_redraw (st_video_t *vid)
 {
 }
 
-void st_video_reset (st_video_t *vid)
+void st_video_reset (st_video_t *vid, unsigned char shift_mode)
 {
 	unsigned i;
 
@@ -631,7 +631,7 @@ void st_video_reset (st_video_t *vid)
 	vid->src = mem_get_ptr (vid->mem, vid->addr, 32768);
 	vid->dst = vid->rgb;
 
-	st_video_set_shift_mode (vid, vid->mono ? 2 : 0);
+	st_video_set_shift_mode (vid, shift_mode);
 
 	st_video_set_rez(vid);
 

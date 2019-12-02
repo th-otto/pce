@@ -126,6 +126,7 @@ struct atari_st_s {
 
 	struct {
 		int trace_bios;
+		int report_buserrs;
 	} debug;
 };
 
