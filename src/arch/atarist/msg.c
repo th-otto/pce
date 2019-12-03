@@ -417,7 +417,7 @@ int st_set_msg_emu_viking_toggle (atari_st_t *sim, const char *msg, const char *
 
 static void st_vid_reschange(atari_st_t *sim, int v)
 {
-	sim->mono = v == 2;
+	sim->mono = v == ST_HIGH;
 	st_video_reset(sim->video, v);
 	sim->mfp_inp = (sim->mfp_inp & 0x7f) | (sim->mono ? 0x80 : 0x00);
 	e68901_set_inp (&sim->mfp, sim->mfp_inp);
@@ -441,13 +441,13 @@ static int st_set_msg_video_rez(atari_st_t *sim, const char *msg, const char *va
 	{
 		switch (v)
 		{
-		case 0:
-		case 1:
-		case 2:
+		case ST_LOW:
+		case ST_MEDIUM:
+		case ST_HIGH:
 			sim->video->shift_mode = v;
 			st_vid_reschange(sim, v);
 			break;
-		case 7:
+		case TT_HIGH:
 			if (sim->viking != NULL)
 			{
 				st_set_msg_emu_viking(sim, msg, "1");
@@ -455,7 +455,7 @@ static int st_set_msg_video_rez(atari_st_t *sim, const char *msg, const char *va
 			break;
 		}
 	}
-	return sim->viking && sim->video_viking ? 7 : sim->video->shift_mode;
+	return sim->viking && sim->video_viking ? TT_HIGH : sim->video->shift_mode;
 }
 
 

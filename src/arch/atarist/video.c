@@ -182,8 +182,8 @@ void st_video_set_timing (st_video_t *vid)
 	pal = vid->sync_mode & 2;
 
 	switch (vid->shift_mode & 3) {
-	case 0:
-	case 1:
+	case ST_LOW:
+	case ST_MEDIUM:
 		if (pal) {
 			vid->hb1 = 320;
 			vid->hb2 = 320 + 192;
@@ -198,6 +198,7 @@ void st_video_set_timing (st_video_t *vid)
 		}
 		break;
 
+	case ST_HIGH:
 	default:
 		vid->hb1 = 640 / 4;
 		vid->hb2 = (640 + 256) / 4;
@@ -214,15 +215,15 @@ static void st_video_set_rez(st_video_t *vid)
 {
 	switch (vid->shift_mode & 3)
 	{
-	case 0:
+	case ST_LOW:
 		vid->w = 320;
 		vid->h = 200;
 		break;
-	case 1:
+	case ST_MEDIUM:
 		vid->w = 640;
 		vid->h = 200;
 		break;
-	case 2:
+	case ST_HIGH:
 	default:
 		vid->w = 640;
 		vid->h = 400;
@@ -616,8 +617,6 @@ void st_video_redraw (st_video_t *vid)
 
 void st_video_reset (st_video_t *vid, unsigned char shift_mode)
 {
-	unsigned i;
-
 	vid->base = 0;
 	vid->addr = 0;
 
@@ -635,17 +634,31 @@ void st_video_reset (st_video_t *vid, unsigned char shift_mode)
 
 	st_video_set_rez(vid);
 
-	for (i = 0; i < 16; i++) {
-		vid->palette[i] = 0;
-		vid->pal_col[i][0] = 0;
-		vid->pal_col[i][1] = 0;
-		vid->pal_col[i][2] = 0;
-	}
+	st_video_set_palette(vid, 0,  0xfff); /* white */
+	st_video_set_palette(vid, 1,  0xf00); /* red */
+	st_video_set_palette(vid, 2,  0x0f0); /* green */
+	st_video_set_palette(vid, 3,  0xff0); /* yellow */
+	st_video_set_palette(vid, 4,  0x00f); /* blue */
+	st_video_set_palette(vid, 5,  0xf0f); /* magenta */
+	st_video_set_palette(vid, 6,  0x0ff); /* cyan */
+	st_video_set_palette(vid, 7,  0x555); /* light gray */
+	st_video_set_palette(vid, 8,  0x333); /* gray */
+	st_video_set_palette(vid, 9,  0xf33); /* light red */
+	st_video_set_palette(vid, 10, 0x3f3); /* light green */
+	st_video_set_palette(vid, 11, 0xff3); /* light yellow */
+	st_video_set_palette(vid, 12, 0x33f); /* light blue */
+	st_video_set_palette(vid, 13, 0xf3f); /* light magenta */
+	st_video_set_palette(vid, 14, 0x0ff); /* light cyan */
+	st_video_set_palette(vid, 15, 0x000); /* black */
 
-	for (i = 0; i < 2; i++) {
-		vid->pal_mono[i][0] = 0;
-		vid->pal_mono[i][1] = 0;
-		vid->pal_mono[i][2] = 0;
+	switch (vid->shift_mode)
+	{
+	case ST_MEDIUM:
+		st_video_set_palette(vid, 3, 0x000); /* black */
+		break;
+	case ST_HIGH:
+		st_video_set_palette(vid, 1, 0x000); /* black */
+		break;
 	}
 }
 
@@ -679,21 +692,21 @@ void st_video_clock (st_video_t *vid, unsigned cnt)
 
 			if (vid->line < vid->vb1) {
 				if (vid->frame_skip == 0) {
-					if (vid->shift_mode == 0) {
+					if (vid->shift_mode == ST_LOW) {
 						st_video_update_line_0 (vid);
 					}
-					else if (vid->shift_mode == 1) {
+					else if (vid->shift_mode == ST_MEDIUM) {
 						st_video_update_line_1 (vid);
 					}
-					else if (vid->shift_mode == 2) {
+					else if (vid->shift_mode == ST_HIGH) {
 						st_video_update_line_2 (vid);
 					}
 				}
 				else {
-					if ((vid->shift_mode == 0) || (vid->shift_mode == 1)) {
+					if ((vid->shift_mode == ST_LOW) || (vid->shift_mode == ST_MEDIUM)) {
 						vid->addr += 160;
 					}
-					else if (vid->shift_mode == 2) {
+					else if (vid->shift_mode == ST_HIGH) {
 						vid->addr += 80;
 					}
 				}

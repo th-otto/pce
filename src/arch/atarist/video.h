@@ -27,6 +27,17 @@
 #include <devices/memory.h>
 #include <drivers/video/terminal.h>
 
+/* TT resolutions */
+#define TT_HIGH        6
+#define TT_MEDIUM      4
+#define TT_LOW         7
+
+/* ST(e) resolutions */
+#define ST_HIGH        2
+#define ST_MEDIUM      1
+#define ST_LOW         0
+#define FALCON_REZ     3    /* used as a Falcon indicator */
+
 typedef struct _st_video_t st_video_t;
 
 #include "atarist.h"
