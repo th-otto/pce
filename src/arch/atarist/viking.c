@@ -34,12 +34,12 @@
 #define VIKING_FPS 25
 
 
-static unsigned char st_viking_get_uint8 (st_viking_t *vik, unsigned long addr);
-static unsigned short st_viking_get_uint16 (st_viking_t *vik, unsigned long addr);
-static unsigned long st_viking_get_uint32 (st_viking_t *vik, unsigned long addr);
-static void st_viking_set_uint8 (st_viking_t *vik, unsigned long addr, unsigned char val);
-static void st_viking_set_uint16 (st_viking_t *vik, unsigned long addr, unsigned short val);
-static void st_viking_set_uint32 (st_viking_t *vik, unsigned long addr, unsigned long val);
+static unsigned char st_viking_get_uint8 (void *vik, unsigned long addr);
+static unsigned short st_viking_get_uint16 (void *vik, unsigned long addr);
+static unsigned long st_viking_get_uint32 (void *vik, unsigned long addr);
+static void st_viking_set_uint8 (void *vik, unsigned long addr, unsigned char val);
+static void st_viking_set_uint16 (void *vik, unsigned long addr, unsigned short val);
+static void st_viking_set_uint32 (void *vik, unsigned long addr, unsigned long val);
 
 
 int st_viking_init (st_viking_t *vik, unsigned long addr)
@@ -170,14 +170,16 @@ void st_viking_mod_line (st_viking_t *vik, unsigned long addr1, unsigned long ad
 }
 
 static
-unsigned char st_viking_get_uint8 (st_viking_t *vik, unsigned long addr)
+unsigned char st_viking_get_uint8 (void *ext, unsigned long addr)
 {
+	st_viking_t *vik = (st_viking_t *)ext;
 	return (vik->ptr[addr]);
 }
 
 static
-unsigned short st_viking_get_uint16 (st_viking_t *vik, unsigned long addr)
+unsigned short st_viking_get_uint16 (void *ext, unsigned long addr)
 {
+	st_viking_t *vik = (st_viking_t *)ext;
 	unsigned short val;
 
 	val = vik->ptr[addr];
@@ -187,8 +189,9 @@ unsigned short st_viking_get_uint16 (st_viking_t *vik, unsigned long addr)
 }
 
 static
-unsigned long st_viking_get_uint32 (st_viking_t *vik, unsigned long addr)
+unsigned long st_viking_get_uint32 (void *ext, unsigned long addr)
 {
+	st_viking_t *vik = (st_viking_t *)ext;
 	unsigned long val;
 
 	val = vik->ptr[addr];
@@ -200,16 +203,18 @@ unsigned long st_viking_get_uint32 (st_viking_t *vik, unsigned long addr)
 }
 
 static
-void st_viking_set_uint8 (st_viking_t *vik, unsigned long addr, unsigned char val)
+void st_viking_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	st_viking_t *vik = (st_viking_t *)ext;
 	vik->ptr[addr] = val;
 
 	st_viking_mod_line (vik, addr, addr);
 }
 
 static
-void st_viking_set_uint16 (st_viking_t *vik, unsigned long addr, unsigned short val)
+void st_viking_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	st_viking_t *vik = (st_viking_t *)ext;
 	vik->ptr[addr + 0] = (val >> 8) & 0xff;
 	vik->ptr[addr + 1] = val & 0xff;
 
@@ -217,8 +222,9 @@ void st_viking_set_uint16 (st_viking_t *vik, unsigned long addr, unsigned short 
 }
 
 static
-void st_viking_set_uint32 (st_viking_t *vik, unsigned long addr, unsigned long val)
+void st_viking_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
+	st_viking_t *vik = (st_viking_t *)ext;
 	vik->ptr[addr + 0] = (val >> 24) & 0xff;
 	vik->ptr[addr + 1] = (val >> 16) & 0xff;
 	vik->ptr[addr + 2] = (val >> 8) & 0xff;

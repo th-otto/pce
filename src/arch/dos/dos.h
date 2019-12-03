@@ -62,10 +62,10 @@ typedef struct {
 } dos_t;
 
 
-unsigned char sim_get_uint8 (dos_t *sim, unsigned short seg, unsigned short ofs);
-unsigned short sim_get_uint16 (dos_t *sim, unsigned short seg, unsigned short ofs);
-void sim_set_uint8 (dos_t *sim, unsigned short seg, unsigned short ofs, unsigned char val);
-void sim_set_uint16 (dos_t *sim, unsigned short seg, unsigned short ofs, unsigned short val);
+unsigned char sim_get_uint8 (void *sim, unsigned short seg, unsigned short ofs);
+unsigned short sim_get_uint16 (void *sim, unsigned short seg, unsigned short ofs);
+void sim_set_uint8 (void *sim, unsigned short seg, unsigned short ofs, unsigned char val);
+void sim_set_uint16 (void *sim, unsigned short seg, unsigned short ofs, unsigned short val);
 int sim_get_asciiz (dos_t *sim, unsigned short seg, unsigned short ofs, char *dst, unsigned max);
 
 void sim_print_state_cpu (dos_t *sim, FILE *fp);

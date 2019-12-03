@@ -888,8 +888,9 @@ void cga_set_pen_set (cga_t *cga, unsigned char val)
  * Get a CGA register
  */
 static
-unsigned char cga_reg_get_uint8 (cga_t *cga, unsigned long addr)
+unsigned char cga_reg_get_uint8 (void *ext, unsigned long addr)
 {
+	cga_t *cga = (cga_t *)ext;
 	switch (addr) {
 	case CGA_CRTC_INDEX:
 	case CGA_CRTC_INDEX0:
@@ -910,7 +911,7 @@ unsigned char cga_reg_get_uint8 (cga_t *cga, unsigned long addr)
 }
 
 static
-unsigned short cga_reg_get_uint16 (cga_t *cga, unsigned long addr)
+unsigned short cga_reg_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
@@ -919,8 +920,9 @@ unsigned short cga_reg_get_uint16 (cga_t *cga, unsigned long addr)
  * Set a CGA register
  */
 static
-void cga_reg_set_uint8 (cga_t *cga, unsigned long addr, unsigned char val)
+void cga_reg_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	cga_t *cga = (cga_t *)ext;
 	switch (addr) {
 	case CGA_CRTC_INDEX:
 	case CGA_CRTC_INDEX0:
@@ -956,8 +958,9 @@ void cga_reg_set_uint8 (cga_t *cga, unsigned long addr, unsigned char val)
 }
 
 static
-void cga_reg_set_uint16 (cga_t *cga, unsigned long addr, unsigned short val)
+void cga_reg_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	cga_t *cga = (cga_t *)ext;
 	cga_reg_set_uint8 (cga, addr, val & 0xff);
 
 	if (addr < 15) {
@@ -966,14 +969,16 @@ void cga_reg_set_uint16 (cga_t *cga, unsigned long addr, unsigned short val)
 }
 
 static
-unsigned char cga_mem_get_uint8 (cga_t *cga, unsigned long addr)
+unsigned char cga_mem_get_uint8 (void *ext, unsigned long addr)
 {
+	cga_t *cga = (cga_t *)ext;
 	return (cga->mem[addr & 0x3fff]);
 }
 
 static
-unsigned short cga_mem_get_uint16 (cga_t *cga, unsigned long addr)
+unsigned short cga_mem_get_uint16 (void *ext, unsigned long addr)
 {
+	cga_t *cga = (cga_t *)ext;
 	unsigned short val;
 
 	val = cga->mem[(addr + 1) & 0x3fff];
@@ -983,15 +988,17 @@ unsigned short cga_mem_get_uint16 (cga_t *cga, unsigned long addr)
 }
 
 static
-void cga_mem_set_uint8 (cga_t *cga, unsigned long addr, unsigned char val)
+void cga_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	cga_t *cga = (cga_t *)ext;
 	cga->mem[addr & 0x3fff] = val;
 	cga->mod_cnt = 2;
 }
 
 static
-void cga_mem_set_uint16 (cga_t *cga, unsigned long addr, unsigned short val)
+void cga_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	cga_t *cga = (cga_t *)ext;
 	cga->mem[(addr + 0) & 0x3fff] = val & 0xff;
 	cga->mem[(addr + 1) & 0x3fff] = (val >> 8) & 0xff;
 	cga->mod_cnt = 2;

@@ -174,14 +174,14 @@ void e8272_set_ignore_eot (e8272_t *fdc, int ignore_eot);
 void e8272_set_drive_mask (e8272_t *fdc, unsigned mask);
 
 
-void e8272_write_data (e8272_t *fdc, unsigned char val);
+void e8272_write_data (void *fdc, unsigned char val);
 
-unsigned char e8272_read_data (e8272_t *fdc);
+unsigned char e8272_read_data (void *fdc);
 
 
-unsigned char e8272_get_uint8 (e8272_t *fdc, unsigned long addr);
+unsigned char e8272_get_uint8 (void *fdc, unsigned long addr);
 
-void e8272_set_uint8 (e8272_t *fdc, unsigned long addr, unsigned char val);
+void e8272_set_uint8 (void *fdc, unsigned long addr, unsigned char val);
 
 
 void e8272_reset (e8272_t *fdc);

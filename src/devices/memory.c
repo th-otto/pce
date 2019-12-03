@@ -115,31 +115,31 @@ void mem_blk_fix_fct (mem_blk_t *blk)
 	}
 
 	if (blk->get_uint8 == NULL) {
-		blk->get_uint8 = (void *) mem_blk_get_uint8_null;
+		blk->get_uint8 = mem_blk_get_uint8_null;
 	}
 
 	if (blk->get_uint16 == NULL) {
-		blk->get_uint16 = (void *) mem_blk_get_uint16_null;
+		blk->get_uint16 = mem_blk_get_uint16_null;
 	}
 
 	if (blk->get_uint32 == NULL) {
-		blk->get_uint32 = (void *) mem_blk_get_uint32_null;
+		blk->get_uint32 = mem_blk_get_uint32_null;
 	}
 
 	if (blk->set_uint8 == NULL) {
-		blk->set_uint8 = (void *) mem_blk_set_uint8_null;
+		blk->set_uint8 = mem_blk_set_uint8_null;
 	}
 
 	if (blk->set_uint16 == NULL) {
-		blk->set_uint16 = (void *) mem_blk_set_uint16_null;
+		blk->set_uint16 = mem_blk_set_uint16_null;
 	}
 
 	if (blk->set_uint32 == NULL) {
-		blk->set_uint32 = (void *) mem_blk_set_uint32_null;
+		blk->set_uint32 = mem_blk_set_uint32_null;
 	}
 }
 
-void mem_blk_set_fget (mem_blk_t *blk, void *ext, void *g8, void *g16, void *g32)
+void mem_blk_set_fget (mem_blk_t *blk, void *ext, mem_get_uint8_f g8, mem_get_uint16_f g16, mem_get_uint32_f g32)
 {
 	blk->ext = ext;
 	blk->get_uint8 = g8;
@@ -149,7 +149,7 @@ void mem_blk_set_fget (mem_blk_t *blk, void *ext, void *g8, void *g16, void *g32
 	mem_blk_fix_fct (blk);
 }
 
-void mem_blk_set_fset (mem_blk_t *blk, void *ext, void *s8, void *s16, void *s32)
+void mem_blk_set_fset (mem_blk_t *blk, void *ext, mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32)
 {
 	blk->ext = ext;
 	blk->set_uint8 = s8;
@@ -160,7 +160,8 @@ void mem_blk_set_fset (mem_blk_t *blk, void *ext, void *s8, void *s16, void *s32
 }
 
 void mem_blk_set_fct (mem_blk_t *blk, void *ext,
-	void *g8, void *g16, void *g32, void *s8, void *s16, void *s32)
+	mem_get_uint8_f g8, mem_get_uint16_f g16, mem_get_uint32_f g32,
+	mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32)
 {
 	blk->ext = ext;
 
@@ -394,7 +395,7 @@ unsigned char mem_blk_get_uint8 (const mem_blk_t *blk, unsigned long addr)
 	return (blk->data[addr]);
 }
 
-unsigned char mem_blk_get_uint8_null (const void *ext, unsigned long addr)
+unsigned char mem_blk_get_uint8_null (void *ext, unsigned long addr)
 {
 	return (0);
 }
@@ -419,7 +420,7 @@ unsigned short mem_blk_get_uint16_le (const mem_blk_t *blk, unsigned long addr)
 	return (ret);
 }
 
-unsigned short mem_blk_get_uint16_null (const void *ext, unsigned long addr)
+unsigned short mem_blk_get_uint16_null (void *ext, unsigned long addr)
 {
 	return (0);
 }
@@ -448,7 +449,7 @@ unsigned long mem_blk_get_uint32_le (const mem_blk_t *blk, unsigned long addr)
 	return (ret);
 }
 
-unsigned long mem_blk_get_uint32_null (const void *ext, unsigned long addr)
+unsigned long mem_blk_get_uint32_null (void *ext, unsigned long addr)
 {
 	return (0);
 }
@@ -520,7 +521,8 @@ void mem_del (memory_t *mem)
 }
 
 void mem_set_fct (memory_t *mem, void *ext,
-	void *g8, void *g16, void *g32, void *s8, void *s16, void *s32)
+	mem_get_uint8_f g8, mem_get_uint16_f g16, mem_get_uint32_f g32,
+	mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32)
 {
 	mem->ext = ext;
 

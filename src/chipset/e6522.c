@@ -621,8 +621,9 @@ unsigned long e6522_addr_decode (e6522_t *via, unsigned long addr)
 	return (addr >> via->addr_shift);
 }
 
-unsigned char e6522_get_uint8 (e6522_t *via, unsigned long addr)
+unsigned char e6522_get_uint8 (void *ext, unsigned long addr)
 {
+	e6522_t *via = (e6522_t *)ext;
 	unsigned char val;
 
 	addr = e6522_addr_decode (via, addr);
@@ -704,19 +705,22 @@ unsigned char e6522_get_uint8 (e6522_t *via, unsigned long addr)
 	return (val);
 }
 
-unsigned short e6522_get_uint16 (e6522_t *via, unsigned long addr)
+unsigned short e6522_get_uint16 (void *ext, unsigned long addr)
 {
+	e6522_t *via = (e6522_t *)ext;
 	return (e6522_get_uint8 (via, addr));
 }
 
-unsigned long e6522_get_uint32 (e6522_t *via, unsigned long addr)
+unsigned long e6522_get_uint32 (void *ext, unsigned long addr)
 {
+	e6522_t *via = (e6522_t *)ext;
 	return (e6522_get_uint8 (via, addr));
 }
 
 
-void e6522_set_uint8 (e6522_t *via, unsigned long addr, unsigned char val)
+void e6522_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	e6522_t *via = (e6522_t *)ext;
 	addr = e6522_addr_decode (via, addr);
 
 #if DEBUG_VIA
@@ -791,13 +795,15 @@ void e6522_set_uint8 (e6522_t *via, unsigned long addr, unsigned char val)
 	}
 }
 
-void e6522_set_uint16 (e6522_t *via, unsigned long addr, unsigned short val)
+void e6522_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	e6522_t *via = (e6522_t *)ext;
 	e6522_set_uint8 (via, addr, val & 0xff);
 }
 
-void e6522_set_uint32 (e6522_t *via, unsigned long addr, unsigned long val)
+void e6522_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
+	e6522_t *via = (e6522_t *)ext;
 	e6522_set_uint8 (via, addr, val & 0xff);
 }
 

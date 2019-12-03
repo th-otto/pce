@@ -170,8 +170,9 @@ unsigned char e8255_get_out_c (e8255_t *ppi)
 	return (e8255_get_out (ppi, 2));
 }
 
-void e8255_set_uint8 (e8255_t *ppi, unsigned long addr, unsigned char val)
+void e8255_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	e8255_t *ppi = (e8255_t *)ext;
 	switch (addr) {
 		case 0:
 			e8255_set_out (ppi, 0, val);
@@ -220,18 +221,21 @@ void e8255_set_uint8 (e8255_t *ppi, unsigned long addr, unsigned char val)
 	}
 }
 
-void e8255_set_uint16 (e8255_t *ppi, unsigned long addr, unsigned short val)
+void e8255_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	e8255_t *ppi = (e8255_t *)ext;
 	e8255_set_uint8 (ppi, addr, val & 0xff);
 }
 
-void e8255_set_uint32 (e8255_t *ppi, unsigned long addr, unsigned long val)
+void e8255_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
+	e8255_t *ppi = (e8255_t *)ext;
 	e8255_set_uint8 (ppi, addr, val & 0xff);
 }
 
-unsigned char e8255_get_uint8 (e8255_t *ppi, unsigned long addr)
+unsigned char e8255_get_uint8 (void *ext, unsigned long addr)
 {
+	e8255_t *ppi = (e8255_t *)ext;
 	switch (addr) {
 		case 0:
 			return (e8255_get_inp (ppi, 0));
@@ -249,12 +253,14 @@ unsigned char e8255_get_uint8 (e8255_t *ppi, unsigned long addr)
 	return (0);
 }
 
-unsigned short e8255_get_uint16 (e8255_t *ppi, unsigned long addr)
+unsigned short e8255_get_uint16 (void *ext, unsigned long addr)
 {
+	e8255_t *ppi = (e8255_t *)ext;
 	return (e8255_get_uint8 (ppi, addr));
 }
 
-unsigned long e8255_get_uint32 (e8255_t *ppi, unsigned long addr)
+unsigned long e8255_get_uint32 (void *ext, unsigned long addr)
 {
+	e8255_t *ppi = (e8255_t *)ext;
 	return (e8255_get_uint8 (ppi, addr));
 }

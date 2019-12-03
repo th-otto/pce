@@ -137,10 +137,11 @@ mem_blk_t *mem_blk_clone (const mem_blk_t *blk);
 
 void mem_blk_fix_fct (mem_blk_t *blk);
 
-void mem_blk_set_fget (mem_blk_t *blk, void *ext, void *g8, void *g16, void *g32);
-void mem_blk_set_fset (mem_blk_t *blk, void *ext, void *s8, void *s16, void *s32);
+void mem_blk_set_fget (mem_blk_t *blk, void *ext, mem_get_uint8_f g8, mem_get_uint16_f g16, mem_get_uint32_f g32);
+void mem_blk_set_fset (mem_blk_t *blk, void *ext, mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32);
 void mem_blk_set_fct (mem_blk_t *blk, void *ext,
-	void *g8, void *g16, void *g32, void *s8, void *s16, void *s32
+	mem_get_uint8_f g8, mem_get_uint16_f g16, mem_get_uint32_f g32,
+	mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32
 );
 void mem_blk_set_ext (mem_blk_t *blk, void *ext);
 
@@ -220,13 +221,13 @@ void mem_blk_set_uint32_le (mem_blk_t *blk, unsigned long addr, unsigned long va
 void mem_blk_set_uint32_null (void *ext, unsigned long addr, unsigned long val);
 
 unsigned char mem_blk_get_uint8 (const mem_blk_t *blk, unsigned long addr);
-unsigned char mem_blk_get_uint8_null (const void *ext, unsigned long addr);
+unsigned char mem_blk_get_uint8_null (void *ext, unsigned long addr);
 unsigned short mem_blk_get_uint16_be (const mem_blk_t *blk, unsigned long addr);
 unsigned short mem_blk_get_uint16_le (const mem_blk_t *blk, unsigned long addr);
-unsigned short mem_blk_get_uint16_null (const void *ext, unsigned long addr);
+unsigned short mem_blk_get_uint16_null (void *ext, unsigned long addr);
 unsigned long mem_blk_get_uint32_be (const mem_blk_t *blk, unsigned long addr);
 unsigned long mem_blk_get_uint32_le (const mem_blk_t *blk, unsigned long addr);
-unsigned long mem_blk_get_uint32_null (const void *ext, unsigned long addr);
+unsigned long mem_blk_get_uint32_null (void *ext, unsigned long addr);
 
 
 /*!***************************************************************************
@@ -255,7 +256,8 @@ void mem_del (memory_t *mem);
  * @short Set the default access functions
  *****************************************************************************/
 void mem_set_fct (memory_t *mem, void *ext,
-	void *g8, void *g16, void *g32, void *s8, void *s16, void *s32
+	mem_get_uint8_f g8,	mem_get_uint16_f g16, mem_get_uint32_f g32,
+	mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32
 );
 
 /*!***************************************************************************

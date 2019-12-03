@@ -246,8 +246,9 @@ void ds1743_set_day (ds1743_t *rtc, unsigned dow)
 	ds1743_clk_to_ram (rtc);
 }
 
-unsigned char ds1743_get_uint8 (ds1743_t *rtc, unsigned long addr)
+unsigned char ds1743_get_uint8 (void *ext, unsigned long addr)
 {
+	ds1743_t *rtc = (ds1743_t *)ext;
 	unsigned char val;
 	unsigned char *p;
 
@@ -278,18 +279,19 @@ unsigned char ds1743_get_uint8 (ds1743_t *rtc, unsigned long addr)
 	return (val);
 }
 
-unsigned short ds1743_get_uint16 (ds1743_t *rtc, unsigned long addr)
+unsigned short ds1743_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0);
 }
 
-unsigned long ds1743_get_uint32 (ds1743_t *rtc, unsigned long addr)
+unsigned long ds1743_get_uint32 (void *ext, unsigned long addr)
 {
 	return (0);
 }
 
-void ds1743_set_uint8 (ds1743_t *rtc, unsigned long addr, unsigned char val)
+void ds1743_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	ds1743_t *rtc = (ds1743_t *)ext;
 	unsigned char old;
 
 	if (addr >= rtc->cnt) {
@@ -323,10 +325,10 @@ void ds1743_set_uint8 (ds1743_t *rtc, unsigned long addr, unsigned char val)
 	}
 }
 
-void ds1743_set_uint16 (ds1743_t *rtc, unsigned long addr, unsigned short val)
+void ds1743_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
 }
 
-void ds1743_set_uint32 (ds1743_t *rtc, unsigned long addr, unsigned long val)
+void ds1743_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
 }

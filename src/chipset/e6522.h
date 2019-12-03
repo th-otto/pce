@@ -111,13 +111,13 @@ void e6522_set_ddra (e6522_t *via, unsigned char val);
 void e6522_set_orb (e6522_t *via, unsigned char val);
 void e6522_set_ddrb (e6522_t *via, unsigned char val);
 
-unsigned char e6522_get_uint8 (e6522_t *via, unsigned long addr);
-unsigned short e6522_get_uint16 (e6522_t *via, unsigned long addr);
-unsigned long e6522_get_uint32 (e6522_t *via, unsigned long addr);
+unsigned char e6522_get_uint8 (void *via, unsigned long addr);
+unsigned short e6522_get_uint16 (void *via, unsigned long addr);
+unsigned long e6522_get_uint32 (void *via, unsigned long addr);
 
-void e6522_set_uint8 (e6522_t *via, unsigned long addr, unsigned char val);
-void e6522_set_uint16 (e6522_t *via, unsigned long addr, unsigned short val);
-void e6522_set_uint32 (e6522_t *via, unsigned long addr, unsigned long val);
+void e6522_set_uint8 (void *via, unsigned long addr, unsigned char val);
+void e6522_set_uint16 (void *via, unsigned long addr, unsigned short val);
+void e6522_set_uint32 (void *via, unsigned long addr, unsigned long val);
 
 void e6522_reset (e6522_t *via);
 

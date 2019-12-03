@@ -25,6 +25,7 @@
 
 
 #include <stdio.h>
+#include <devices/memory.h>
 
 
 /* CPU options */
@@ -89,10 +90,10 @@
 struct e8086_t;
 
 
-typedef unsigned char (*e86_get_uint8_f) (void *ext, unsigned long addr);
-typedef unsigned short (*e86_get_uint16_f) (void *ext, unsigned long addr);
-typedef void (*e86_set_uint8_f) (void *ext, unsigned long addr, unsigned char val);
-typedef void (*e86_set_uint16_f) (void *ext, unsigned long addr, unsigned short val);
+typedef unsigned char (*e86_get_uint8_f) (memory_t *mem, unsigned long addr);
+typedef unsigned short (*e86_get_uint16_f) (memory_t *mem, unsigned long addr);
+typedef void (*e86_set_uint8_f) (memory_t *mem, unsigned long addr, unsigned char val);
+typedef void (*e86_set_uint16_f) (memory_t *mem, unsigned long addr, unsigned short val);
 
 typedef unsigned (*e86_opcode_f) (struct e8086_t *c);
 

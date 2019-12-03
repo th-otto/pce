@@ -617,8 +617,9 @@ unsigned char pla_get_special (plantronics_t *pla)
  * Get a Plantronics register
  */
 static
-unsigned char pla_reg_get_uint8 (plantronics_t *pla, unsigned long addr)
+unsigned char pla_reg_get_uint8 (void *ext, unsigned long addr)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	switch (addr) {
 	case PLA_CRTC_INDEX:
 	case PLA_CRTC_INDEX0:
@@ -642,7 +643,7 @@ unsigned char pla_reg_get_uint8 (plantronics_t *pla, unsigned long addr)
 }
 
 static
-unsigned short pla_reg_get_uint16 (plantronics_t *pla, unsigned long addr)
+unsigned short pla_reg_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
@@ -651,8 +652,9 @@ unsigned short pla_reg_get_uint16 (plantronics_t *pla, unsigned long addr)
  * Set a Plantronics register
  */
 static
-void pla_reg_set_uint8 (plantronics_t *pla, unsigned long addr, unsigned char val)
+void pla_reg_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	switch (addr) {
 	case PLA_CRTC_INDEX:
 	case PLA_CRTC_INDEX0:
@@ -692,8 +694,9 @@ void pla_reg_set_uint8 (plantronics_t *pla, unsigned long addr, unsigned char va
 }
 
 static
-void pla_reg_set_uint16 (plantronics_t *pla, unsigned long addr, unsigned short val)
+void pla_reg_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	pla_reg_set_uint8 (pla, addr, val & 0xff);
 
 	if (addr < 15) {
@@ -720,8 +723,9 @@ int pla_alternate_plane (const plantronics_t *pla)
 }
 
 static
-void pla_mem_set_uint8 (plantronics_t *pla, unsigned long addr, unsigned char val)
+void pla_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	if (pla_alternate_plane (pla)) {
 		addr ^= 0x4000;
 	}
@@ -733,8 +737,9 @@ void pla_mem_set_uint8 (plantronics_t *pla, unsigned long addr, unsigned char va
 }
 
 static
-void pla_mem_set_uint16 (plantronics_t *pla, unsigned long addr, unsigned short val)
+void pla_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	if (pla_alternate_plane (pla)) {
 		addr ^= 0x4000;
 	}
@@ -751,8 +756,9 @@ void pla_mem_set_uint16 (plantronics_t *pla, unsigned long addr, unsigned short 
 }
 
 static
-unsigned char pla_mem_get_uint8 (plantronics_t *pla, unsigned long addr)
+unsigned char pla_mem_get_uint8 (void *ext, unsigned long addr)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	if (pla_alternate_plane (pla)) {
 		addr ^= 0x4000;
 	}
@@ -765,8 +771,9 @@ unsigned char pla_mem_get_uint8 (plantronics_t *pla, unsigned long addr)
 }
 
 static
-unsigned short pla_mem_get_uint16 (plantronics_t *pla, unsigned long addr)
+unsigned short pla_mem_get_uint16 (void *ext, unsigned long addr)
 {
+	plantronics_t *pla = (plantronics_t *)ext;
 	unsigned short val;
 
 	val = 0;

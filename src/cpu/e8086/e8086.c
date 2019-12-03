@@ -29,10 +29,10 @@
 #include <stdarg.h>
 
 
-static unsigned char e86_get_mem_uint8 (void *mem, unsigned long addr);
-static unsigned short e86_get_mem_uint16 (void *mem, unsigned long addr);
-static void e86_set_mem_uint8 (void *mem, unsigned long addr, unsigned char val);
-static void e86_set_mem_uint16 (void *mem, unsigned long addr, unsigned short val);
+static unsigned char e86_get_mem_uint8 (memory_t *mem, unsigned long addr);
+static unsigned short e86_get_mem_uint16 (memory_t *mem, unsigned long addr);
+static void e86_set_mem_uint8 (memory_t *mem, unsigned long addr, unsigned char val);
+static void e86_set_mem_uint16 (memory_t *mem, unsigned long addr, unsigned short val);
 
 
 static char *dreg16[8] = { "ax", "cx", "dx", "bx", "sp", "bp", "si", "di" };
@@ -241,24 +241,24 @@ void e86_set_prt (e8086_t *c, void *prt,
 }
 
 static
-unsigned char e86_get_mem_uint8 (void *mem, unsigned long addr)
+unsigned char e86_get_mem_uint8 (memory_t *mem, unsigned long addr)
 {
 	return (0xaa);
 }
 
 static
-unsigned short e86_get_mem_uint16 (void *mem, unsigned long addr)
+unsigned short e86_get_mem_uint16 (memory_t *mem, unsigned long addr)
 {
 	return (0xaaaa);
 }
 
 static
-void e86_set_mem_uint8 (void *mem, unsigned long addr, unsigned char val)
+void e86_set_mem_uint8 (memory_t *mem, unsigned long addr, unsigned char val)
 {
 }
 
 static
-void e86_set_mem_uint16 (void *mem, unsigned long addr, unsigned short val)
+void e86_set_mem_uint16 (memory_t *mem, unsigned long addr, unsigned short val)
 {
 }
 

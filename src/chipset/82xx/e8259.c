@@ -486,8 +486,9 @@ void e8259_set_ocw3 (e8259_t *pic, unsigned char val)
 	}
 }
 
-void e8259_set_uint8 (e8259_t *pic, unsigned long addr, unsigned char val)
+void e8259_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	e8259_t *pic = (e8259_t *)ext;
 	switch (addr) {
 	case 0:
 		if ((val & 0x10) == 0x10) {
@@ -514,18 +515,21 @@ void e8259_set_uint8 (e8259_t *pic, unsigned long addr, unsigned char val)
 	e8259_check_int (pic);
 }
 
-void e8259_set_uint16 (e8259_t *pic, unsigned long addr, unsigned short val)
+void e8259_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	e8259_t *pic = (e8259_t *)ext;
 	e8259_set_uint8 (pic, addr, val & 0xff);
 }
 
-void e8259_set_uint32 (e8259_t *pic, unsigned long addr, unsigned long val)
+void e8259_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
+	e8259_t *pic = (e8259_t *)ext;
 	e8259_set_uint8 (pic, addr, val & 0xff);
 }
 
-unsigned char e8259_get_uint8 (e8259_t *pic, unsigned long addr)
+unsigned char e8259_get_uint8 (void *ext, unsigned long addr)
 {
+	e8259_t *pic = (e8259_t *)ext;
 	switch (addr) {
 	case 0x00:
 		return (pic->read_irr ? pic->irr : pic->isr);
@@ -537,13 +541,15 @@ unsigned char e8259_get_uint8 (e8259_t *pic, unsigned long addr)
 	return (0xff);
 }
 
-unsigned short e8259_get_uint16 (e8259_t *pic, unsigned long addr)
+unsigned short e8259_get_uint16 (void *ext, unsigned long addr)
 {
+	e8259_t *pic = (e8259_t *)ext;
 	return (e8259_get_uint8 (pic, addr));
 }
 
-unsigned long e8259_get_uint32 (e8259_t *pic, unsigned long addr)
+unsigned long e8259_get_uint32 (void *ext, unsigned long addr)
 {
+	e8259_t *pic = (e8259_t *)ext;
 	return (e8259_get_uint8 (pic, addr));
 }
 

@@ -88,8 +88,8 @@ typedef struct hdc_t {
 } hdc_t;
 
 
-unsigned char hdc_read_data (hdc_t *hdc);
-void hdc_write_data (hdc_t *hdc, unsigned char val);
+unsigned char hdc_read_data (void *hdc);
+void hdc_write_data (void *hdc, unsigned char val);
 void hdc_set_tc (hdc_t *hdc, unsigned char val);
 
 hdc_t *hdc_new (unsigned long addr);

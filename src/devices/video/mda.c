@@ -339,8 +339,9 @@ unsigned char mda_get_status (mda_t *mda)
  * Get an MDA register
  */
 static
-unsigned char mda_reg_get_uint8 (mda_t *mda, unsigned long addr)
+unsigned char mda_reg_get_uint8 (void *ext, unsigned long addr)
 {
+	mda_t *mda = (mda_t *)ext;
 	switch (addr) {
 	case MDA_CRTC_DATA:
 		return (e6845_get_data (&mda->crtc));
@@ -354,7 +355,7 @@ unsigned char mda_reg_get_uint8 (mda_t *mda, unsigned long addr)
 }
 
 static
-unsigned short mda_reg_get_uint16 (mda_t *mda, unsigned long addr)
+unsigned short mda_reg_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
@@ -363,8 +364,9 @@ unsigned short mda_reg_get_uint16 (mda_t *mda, unsigned long addr)
  * Set an MDA register
  */
 static
-void mda_reg_set_uint8 (mda_t *mda, unsigned long addr, unsigned char val)
+void mda_reg_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	mda_t *mda = (mda_t *)ext;
 	switch (addr) {
 	case MDA_CRTC_INDEX:
 		e6845_set_index (&mda->crtc, val);
@@ -382,8 +384,9 @@ void mda_reg_set_uint8 (mda_t *mda, unsigned long addr, unsigned char val)
 }
 
 static
-void mda_reg_set_uint16 (mda_t *mda, unsigned long addr, unsigned short val)
+void mda_reg_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	mda_t *mda = (mda_t *)ext;
 	mda_reg_set_uint8 (mda, addr, val & 0xff);
 
 	if (addr < 12) {
@@ -392,14 +395,16 @@ void mda_reg_set_uint16 (mda_t *mda, unsigned long addr, unsigned short val)
 }
 
 static
-unsigned char mda_mem_get_uint8 (mda_t *mda, unsigned long addr)
+unsigned char mda_mem_get_uint8 (void *ext, unsigned long addr)
 {
+	mda_t *mda = (mda_t *)ext;
 	return (mda->mem[addr & 0x0fff]);
 }
 
 static
-unsigned short mda_mem_get_uint16 (mda_t *mda, unsigned long addr)
+unsigned short mda_mem_get_uint16 (void *ext, unsigned long addr)
 {
+	mda_t *mda = (mda_t *)ext;
 	unsigned short val;
 
 	val = mda->mem[(addr + 1) & 0x0fff];
@@ -409,15 +414,17 @@ unsigned short mda_mem_get_uint16 (mda_t *mda, unsigned long addr)
 }
 
 static
-void mda_mem_set_uint8 (mda_t *mda, unsigned long addr, unsigned char val)
+void mda_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	mda_t *mda = (mda_t *)ext;
 	mda->mem[addr & 0x0fff] = val;
 	mda->mod_cnt = 2;
 }
 
 static
-void mda_mem_set_uint16 (mda_t *mda, unsigned long addr, unsigned short val)
+void mda_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	mda_t *mda = (mda_t *)ext;
 	mda->mem[(addr + 0) & 0x0fff] = val & 0xff;
 	mda->mem[(addr + 1) & 0x0fff] = (val >> 8) & 0xff;
 	mda->mod_cnt = 2;

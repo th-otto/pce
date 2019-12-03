@@ -1249,8 +1249,9 @@ unsigned char hdc_get_config (hdc_t *hdc)
 	return (hdc->config);
 }
 
-unsigned char hdc_read_data (hdc_t *hdc)
+unsigned char hdc_read_data (void *ext)
 {
+	hdc_t *hdc = (hdc_t *)ext;
 	unsigned char val;
 
 	if ((hdc->status & HDC_STATUS_REQ) == 0) {
@@ -1425,8 +1426,9 @@ void hdc_set_command (hdc_t *hdc, unsigned char val)
 	}
 }
 
-void hdc_write_data (hdc_t *hdc, unsigned char val)
+void hdc_write_data (void *ext, unsigned char val)
 {
+	hdc_t *hdc = (hdc_t *)ext;
 	if ((hdc->status & HDC_STATUS_REQ) == 0) {
 		return;
 	}
@@ -1450,8 +1452,9 @@ void hdc_write_data (hdc_t *hdc, unsigned char val)
 }
 
 static
-unsigned char hdc_get_uint8 (hdc_t *hdc, unsigned long addr)
+unsigned char hdc_get_uint8 (void *ext, unsigned long addr)
 {
+	hdc_t *hdc = (hdc_t *)ext;
 	unsigned char val;
 
 	val = 0;
@@ -1482,14 +1485,15 @@ unsigned char hdc_get_uint8 (hdc_t *hdc, unsigned long addr)
 }
 
 static
-unsigned char hdc_get_uint16 (hdc_t *hdc, unsigned long addr)
+unsigned short hdc_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0);
 }
 
 static
-void hdc_set_uint8 (hdc_t *hdc, unsigned long addr, unsigned char val)
+void hdc_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	hdc_t *hdc = (hdc_t *)ext;
 #if DEBUG_HDC >= 4
 	fprintf (stderr, "hdc: set %04lX <- %02X\n", addr, val);
 #endif
@@ -1514,7 +1518,7 @@ void hdc_set_uint8 (hdc_t *hdc, unsigned long addr, unsigned char val)
 }
 
 static
-void hdc_set_uint16 (hdc_t *hdc, unsigned long addr, unsigned val)
+void hdc_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
 }
 

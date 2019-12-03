@@ -651,8 +651,9 @@ void e8253_set_gate2 (e8253_t *pit, unsigned char val)
 	e8253_cnt_set_gate (&pit->counter[2], val);
 }
 
-unsigned char e8253_get_uint8 (e8253_t *pit, unsigned long addr)
+unsigned char e8253_get_uint8 (void *ext, unsigned long addr)
 {
+	e8253_t *pit = (e8253_t *)ext;
 	if (addr < 3) {
 		return (e8253_cnt_get_uint8 (&pit->counter[addr]));
 	}
@@ -660,8 +661,9 @@ unsigned char e8253_get_uint8 (e8253_t *pit, unsigned long addr)
 	return (0xff);
 }
 
-unsigned short e8253_get_uint16 (e8253_t *pit, unsigned long addr)
+unsigned short e8253_get_uint16 (void *ext, unsigned long addr)
 {
+	e8253_t *pit = (e8253_t *)ext;
 	if (addr < 3) {
 		return (e8253_cnt_get_uint16 (&pit->counter[addr]));
 	}
@@ -669,13 +671,15 @@ unsigned short e8253_get_uint16 (e8253_t *pit, unsigned long addr)
 	return (0xffff);
 }
 
-unsigned long e8253_get_uint32 (e8253_t *pit, unsigned long addr)
+unsigned long e8253_get_uint32 (void *ext, unsigned long addr)
 {
+	e8253_t *pit = (e8253_t *)ext;
 	return (e8253_get_uint8 (pit, addr));
 }
 
-void e8253_set_uint8 (e8253_t *pit, unsigned long addr, unsigned char val)
+void e8253_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	e8253_t *pit = (e8253_t *)ext;
 	unsigned idx;
 
 	if (addr < 3) {
@@ -693,13 +697,15 @@ void e8253_set_uint8 (e8253_t *pit, unsigned long addr, unsigned char val)
 	}
 }
 
-void e8253_set_uint16 (e8253_t *pit, unsigned long addr, unsigned short val)
+void e8253_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	e8253_t *pit = (e8253_t *)ext;
 	e8253_set_uint8 (pit, addr, val & 0xff);
 }
 
-void e8253_set_uint32 (e8253_t *pit, unsigned long addr, unsigned long val)
+void e8253_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
+	e8253_t *pit = (e8253_t *)ext;
 	e8253_set_uint8 (pit, addr, val & 0xff);
 }
 

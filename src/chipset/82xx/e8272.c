@@ -2037,8 +2037,9 @@ void e8272_write_dor (e8272_t *fdc, unsigned char val)
 	fdc->dor = val;
 }
 
-void e8272_write_data (e8272_t *fdc, unsigned char val)
+void e8272_write_data (void *ext, unsigned char val)
 {
+	e8272_t *fdc = (e8272_t *)ext;
 	e8272_set_irq (fdc, 0);
 
 	if ((fdc->msr & E8272_MSR_RQM) == 0) {
@@ -2068,8 +2069,9 @@ unsigned char e8272_read_msr (e8272_t *fdc)
 	return (fdc->msr);
 }
 
-unsigned char e8272_read_data (e8272_t *fdc)
+unsigned char e8272_read_data (void *ext)
 {
+	e8272_t *fdc = (e8272_t *)ext;
 	unsigned char val;
 
 	e8272_set_irq (fdc, 0);
@@ -2089,8 +2091,9 @@ unsigned char e8272_read_data (e8272_t *fdc)
 	return (0);
 }
 
-unsigned char e8272_get_uint8 (e8272_t *fdc, unsigned long addr)
+unsigned char e8272_get_uint8 (void *ext, unsigned long addr)
 {
+	e8272_t *fdc = (e8272_t *)ext;
 	unsigned char ret;
 
 	switch (addr) {
@@ -2121,8 +2124,9 @@ unsigned char e8272_get_uint8 (e8272_t *fdc, unsigned long addr)
 	return (ret);
 }
 
-void e8272_set_uint8 (e8272_t *fdc, unsigned long addr, unsigned char val)
+void e8272_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	e8272_t *fdc = (e8272_t *)ext;
 #if E8272_DEBUG >= 3
 	fprintf (stderr, "E8272: set %04lx <- %02x\n", addr, val);
 #endif

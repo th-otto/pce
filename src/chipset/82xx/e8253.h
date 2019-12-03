@@ -113,13 +113,13 @@ void e8253_set_gate0 (e8253_t *pit, unsigned char val);
 void e8253_set_gate1 (e8253_t *pit, unsigned char val);
 void e8253_set_gate2 (e8253_t *pit, unsigned char val);
 
-unsigned char e8253_get_uint8 (e8253_t *pit, unsigned long addr);
-unsigned short e8253_get_uint16 (e8253_t *pit, unsigned long addr);
-unsigned long e8253_get_uint32 (e8253_t *pit, unsigned long addr);
+unsigned char e8253_get_uint8 (void *pit, unsigned long addr);
+unsigned short e8253_get_uint16 (void *pit, unsigned long addr);
+unsigned long e8253_get_uint32 (void *pit, unsigned long addr);
 
-void e8253_set_uint8 (e8253_t *pit, unsigned long addr, unsigned char val);
-void e8253_set_uint16 (e8253_t *pit, unsigned long addr, unsigned short val);
-void e8253_set_uint32 (e8253_t *pit, unsigned long addr, unsigned long val);
+void e8253_set_uint8 (void *pit, unsigned long addr, unsigned char val);
+void e8253_set_uint16 (void *pit, unsigned long addr, unsigned short val);
+void e8253_set_uint32 (void *pit, unsigned long addr, unsigned long val);
 
 /*!***************************************************************************
  * @short Reset a PIT

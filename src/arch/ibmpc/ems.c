@@ -208,8 +208,9 @@ void ems_info (ems_t *ems, e8086_t *cpu)
 	}
 }
 
-unsigned char ems_get_uint8 (ems_t *ems, unsigned long addr)
+unsigned char ems_get_uint8 (void *ext, unsigned long addr)
 {
+	ems_t *ems = (ems_t *)ext;
 	unsigned page, offs;
 
 	if (addr > 65535) {
@@ -228,8 +229,9 @@ unsigned char ems_get_uint8 (ems_t *ems, unsigned long addr)
 	return (ems->map_blk[page]->data[addr]);
 }
 
-void ems_set_uint8 (ems_t *ems, unsigned long addr, unsigned char val)
+void ems_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	ems_t *ems = (ems_t *)ext;
 	unsigned page, offs;
 
 	if (addr > 65535) {
@@ -248,8 +250,9 @@ void ems_set_uint8 (ems_t *ems, unsigned long addr, unsigned char val)
 	ems->map_blk[page]->data[addr] = val;
 }
 
-unsigned short ems_get_uint16 (ems_t *ems, unsigned long addr)
+unsigned short ems_get_uint16 (void *ext, unsigned long addr)
 {
+	ems_t *ems = (ems_t *)ext;
 	unsigned short ret;
 
 	ret = ems_get_uint8 (ems, addr) + (ems_get_uint8 (ems, addr + 1) << 8);
@@ -257,8 +260,9 @@ unsigned short ems_get_uint16 (ems_t *ems, unsigned long addr)
 	return (ret);
 }
 
-void ems_set_uint16 (ems_t *ems, unsigned long addr, unsigned short val)
+void ems_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	ems_t *ems = (ems_t *)ext;
 	ems_set_uint8 (ems, addr, val & 0xff);
 	ems_set_uint8 (ems, addr + 1, (val >> 8) & 0xff);
 }

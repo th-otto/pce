@@ -532,8 +532,9 @@ void e8237_set_hreq (e8237_t *dma, unsigned char val)
 }
 
 
-void e8237_set_uint8 (e8237_t *dma, unsigned long addr, unsigned char val)
+void e8237_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	e8237_t *dma = (e8237_t *)ext;
 	switch (addr) {
 	case 0x00:
 		e8237_chn_set_addr (&dma->chn[0], val, &dma->flipflop);
@@ -607,16 +608,17 @@ void e8237_set_uint8 (e8237_t *dma, unsigned long addr, unsigned char val)
 	}
 }
 
-void e8237_set_uint16 (e8237_t *dma, unsigned long addr, unsigned short val)
+void e8237_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
 }
 
-void e8237_set_uint32 (e8237_t *dma, unsigned long addr, unsigned long val)
+void e8237_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
 }
 
-unsigned char e8237_get_uint8 (e8237_t *dma, unsigned long addr)
+unsigned char e8237_get_uint8 (void *ext, unsigned long addr)
 {
+	e8237_t *dma = (e8237_t *)ext;
 	switch (addr) {
 	case 0x00:
 		return (e8237_chn_get_addr (&dma->chn[0], &dma->flipflop));
@@ -652,12 +654,12 @@ unsigned char e8237_get_uint8 (e8237_t *dma, unsigned long addr)
 	return (0xff);
 }
 
-unsigned short e8237_get_uint16 (e8237_t *dma, unsigned long addr)
+unsigned short e8237_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
 
-unsigned long e8237_get_uint32 (e8237_t *dma, unsigned long addr)
+unsigned long e8237_get_uint32 (void *ext, unsigned long addr)
 {
 	return (0xffffffff);
 }

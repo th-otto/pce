@@ -176,13 +176,13 @@ unsigned char e8259_get_isr (e8259_t *pic);
 unsigned char e8259_get_icw (e8259_t *pic, unsigned i);
 unsigned char e8259_get_ocw (e8259_t *pic, unsigned i);
 
-void e8259_set_uint8 (e8259_t *pic, unsigned long addr, unsigned char val);
-void e8259_set_uint16 (e8259_t *pic, unsigned long addr, unsigned short val);
-void e8259_set_uint32 (e8259_t *pic, unsigned long addr, unsigned long val);
+void e8259_set_uint8 (void *pic, unsigned long addr, unsigned char val);
+void e8259_set_uint16 (void *pic, unsigned long addr, unsigned short val);
+void e8259_set_uint32 (void *pic, unsigned long addr, unsigned long val);
 
-unsigned char e8259_get_uint8 (e8259_t *pic, unsigned long addr);
-unsigned short e8259_get_uint16 (e8259_t *pic, unsigned long addr);
-unsigned long e8259_get_uint32 (e8259_t *pic, unsigned long addr);
+unsigned char e8259_get_uint8 (void *pic, unsigned long addr);
+unsigned short e8259_get_uint16 (void *pic, unsigned long addr);
+unsigned long e8259_get_uint32 (void *pic, unsigned long addr);
 
 /*!***************************************************************************
  * @short Reset a PIC 8259

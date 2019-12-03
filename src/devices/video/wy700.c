@@ -901,8 +901,9 @@ void wy700_set_control (wy700_t *wy, unsigned char val)
 }
 
 static
-unsigned char wy700_reg_get_uint8 (wy700_t *wy, unsigned long addr)
+unsigned char wy700_reg_get_uint8 (void *ext, unsigned long addr)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	switch (addr) {
 	case WY700_CRTC_INDEX:
 	case WY700_CRTC_INDEX0:
@@ -921,14 +922,15 @@ unsigned char wy700_reg_get_uint8 (wy700_t *wy, unsigned long addr)
 }
 
 static
-unsigned short wy700_reg_get_uint16 (wy700_t *wy, unsigned long addr)
+unsigned short wy700_reg_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
 
 static
-void wy700_reg_set_uint8 (wy700_t *wy, unsigned long addr, unsigned char val)
+void wy700_reg_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	switch (addr) {
 	case WY700_CRTC_INDEX:
 	case WY700_CRTC_INDEX0:
@@ -975,8 +977,9 @@ void wy700_reg_set_uint8 (wy700_t *wy, unsigned long addr, unsigned char val)
 }
 
 static
-void wy700_reg_set_uint16 (wy700_t *wy, unsigned long addr, unsigned short val)
+void wy700_reg_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	wy700_reg_set_uint8 (wy, addr, val & 0xff);
 
 	if (addr < 15) {
@@ -985,8 +988,9 @@ void wy700_reg_set_uint16 (wy700_t *wy, unsigned long addr, unsigned short val)
 }
 
 static
-unsigned char wy700_mem_get_uint8 (wy700_t *wy, unsigned long addr)
+unsigned char wy700_mem_get_uint8 (void *ext, unsigned long addr)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	addr &= 0x1ffff;
 
 	if (addr <= 0xffff) {
@@ -1002,8 +1006,9 @@ unsigned char wy700_mem_get_uint8 (wy700_t *wy, unsigned long addr)
 }
 
 static
-unsigned short wy700_mem_get_uint16 (wy700_t *wy, unsigned long addr)
+unsigned short wy700_mem_get_uint16 (void *ext, unsigned long addr)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	unsigned short val;
 
 	val = wy700_mem_get_uint8 (wy, addr + 1);
@@ -1013,8 +1018,9 @@ unsigned short wy700_mem_get_uint16 (wy700_t *wy, unsigned long addr)
 }
 
 static
-void wy700_mem_set_uint8 (wy700_t *wy, unsigned long addr, unsigned char val)
+void wy700_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	addr &= 0x1ffff;
 
 	if (addr <= 0xffff) {
@@ -1031,8 +1037,9 @@ void wy700_mem_set_uint8 (wy700_t *wy, unsigned long addr, unsigned char val)
 }
 
 static
-void wy700_mem_set_uint16 (wy700_t *wy, unsigned long addr, unsigned short val)
+void wy700_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	wy700_t *wy = (wy700_t *)ext;
 	wy700_mem_set_uint8 (wy, addr + 0, val & 0xff);
 	wy700_mem_set_uint8 (wy, addr + 1, (val >> 8) & 0xff);
 	wy->mod_cnt = 2;

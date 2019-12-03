@@ -37,9 +37,9 @@
 
 
 static
-unsigned char sim_get_mem8 (void *ext, unsigned long addr)
+unsigned char sim_get_mem8 (memory_t *mem, unsigned long addr)
 {
-	dos_t *sim = ext;
+	dos_t *sim = (dos_t *)mem;
 
 #if DEBUG_MEM
 	if (addr < 0x60) {
@@ -55,10 +55,10 @@ unsigned char sim_get_mem8 (void *ext, unsigned long addr)
 }
 
 static
-unsigned short sim_get_mem16 (void *ext, unsigned long addr)
+unsigned short sim_get_mem16 (memory_t *mem, unsigned long addr)
 {
 	unsigned short val;
-	dos_t       *sim = ext;
+	dos_t       *sim = (dos_t *)mem;
 
 #if DEBUG_MEM
 	if (addr < 0x60) {
@@ -70,15 +70,15 @@ unsigned short sim_get_mem16 (void *ext, unsigned long addr)
 		return (((unsigned) sim->mem[addr + 1] << 8) | sim->mem[addr]);
 	}
 
-	val = (sim_get_mem8 (sim, addr + 1) << 8) | sim_get_mem8 (sim, addr);
+	val = (sim_get_mem8 ((memory_t *)sim, addr + 1) << 8) | sim_get_mem8 ((memory_t *)sim, addr);
 
 	return (val);
 }
 
 static
-void sim_set_mem8 (void *ext, unsigned long addr, unsigned char val)
+void sim_set_mem8 (memory_t *mem, unsigned long addr, unsigned char val)
 {
-	dos_t *sim = ext;
+	dos_t *sim = (dos_t *)mem;
 
 #if DEBUG_MEM
 	if (addr < 0x60) {
@@ -92,9 +92,9 @@ void sim_set_mem8 (void *ext, unsigned long addr, unsigned char val)
 }
 
 static
-void sim_set_mem16 (void *ext, unsigned long addr, unsigned short val)
+void sim_set_mem16 (memory_t *mem, unsigned long addr, unsigned short val)
 {
-	dos_t *sim = ext;
+	dos_t *sim = (dos_t *)mem;
 
 #if DEBUG_MEM
 	if (addr < 0x60) {
@@ -112,7 +112,7 @@ void sim_set_mem16 (void *ext, unsigned long addr, unsigned short val)
 }
 
 static
-unsigned char sim_get_port8 (void *ext, unsigned long addr)
+unsigned char sim_get_port8 (memory_t *mem, unsigned long addr)
 {
 	if (addr == 0x21) {
 		return (0);
@@ -125,7 +125,7 @@ unsigned char sim_get_port8 (void *ext, unsigned long addr)
 }
 
 static
-unsigned short sim_get_port16 (void *ext, unsigned long addr)
+unsigned short sim_get_port16 (memory_t *mem, unsigned long addr)
 {
 	fprintf (stderr, "unknown port16 read: %04lX\n", addr);
 	exit (1);
@@ -134,53 +134,57 @@ unsigned short sim_get_port16 (void *ext, unsigned long addr)
 }
 
 static
-void sim_set_port8 (void *ext, unsigned long addr, unsigned char val)
+void sim_set_port8 (memory_t *mem, unsigned long addr, unsigned char val)
 {
 	fprintf (stderr, "unknown port8 write: %04lX <- %02X\n", addr, val);
 	exit (1);
 }
 
 static
-void sim_set_port16 (void *ext, unsigned long addr, unsigned short val)
+void sim_set_port16 (memory_t *mem, unsigned long addr, unsigned short val)
 {
 	fprintf (stderr, "unknown port16 write: %04lX <- %04X\n", addr, val);
 	exit (1);
 }
 
-unsigned char sim_get_uint8 (dos_t *sim, unsigned short seg, unsigned short ofs)
+unsigned char sim_get_uint8 (void *ext, unsigned short seg, unsigned short ofs)
 {
+	dos_t *sim = (dos_t *)ext;
 	unsigned long addr;
 
 	addr = ((unsigned long) seg << 4) + ofs;
 
-	return (sim_get_mem8 (sim, addr));
+	return (sim_get_mem8 ((memory_t *)sim, addr));
 }
 
-unsigned short sim_get_uint16 (dos_t *sim, unsigned short seg, unsigned short ofs)
+unsigned short sim_get_uint16 (void *ext, unsigned short seg, unsigned short ofs)
 {
+	dos_t *sim = (dos_t *)ext;
 	unsigned long addr;
 
 	addr = ((unsigned long) seg << 4) + ofs;
 
-	return (sim_get_mem16 (sim, addr));
+	return (sim_get_mem16 ((memory_t *)sim, addr));
 }
 
-void sim_set_uint8 (dos_t *sim, unsigned short seg, unsigned short ofs, unsigned char val)
+void sim_set_uint8 (void *ext, unsigned short seg, unsigned short ofs, unsigned char val)
 {
+	dos_t *sim = (dos_t *)ext;
 	unsigned long addr;
 
 	addr = ((unsigned long) seg << 4) + ofs;
 
-	sim_set_mem8 (sim, addr, val);
+	sim_set_mem8 ((memory_t *)sim, addr, val);
 }
 
-void sim_set_uint16 (dos_t *sim, unsigned short seg, unsigned short ofs, unsigned short val)
+void sim_set_uint16 (void *ext, unsigned short seg, unsigned short ofs, unsigned short val)
 {
+	dos_t *sim = (dos_t *)ext;
 	unsigned long addr;
 
 	addr = ((unsigned long) seg << 4) + ofs;
 
-	sim_set_mem16 (sim, addr, val);
+	sim_set_mem16 ((memory_t *)sim, addr, val);
 }
 
 int sim_get_asciiz (dos_t *sim, unsigned short seg, unsigned short ofs, char *dst, unsigned max)
@@ -422,7 +426,7 @@ int sim_init (dos_t *sim, unsigned kb)
 	e86_set_ram (&sim->cpu, sim->mem, sim->mem_cnt);
 
 	sim->cpu.op_ext = sim;
-	sim->cpu.op_int = (void *) sim_int;
+	sim->cpu.op_int = sim_int;
 
 	e86_reset (&sim->cpu);
 

@@ -546,8 +546,9 @@ void m24_set_mode2 (m24_t *m24, unsigned char val)
 }
 
 static
-unsigned char m24_reg_get_uint8 (m24_t *m24, unsigned long addr)
+unsigned char m24_reg_get_uint8 (void *ext, unsigned long addr)
 {
+	m24_t *m24 = (m24_t *)ext;
 	switch (addr) {
 	case M24_CRTC_INDEX:
 	case M24_CRTC_INDEX0:
@@ -566,14 +567,15 @@ unsigned char m24_reg_get_uint8 (m24_t *m24, unsigned long addr)
 }
 
 static
-unsigned short m24_reg_get_uint16 (m24_t *m24, unsigned long addr)
+unsigned short m24_reg_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
 
 static
-void m24_reg_set_uint8 (m24_t *m24, unsigned long addr, unsigned char val)
+void m24_reg_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	m24_t *m24 = (m24_t *)ext;
 	switch (addr) {
 	case M24_CRTC_INDEX:
 	case M24_CRTC_INDEX0:
@@ -613,8 +615,9 @@ void m24_reg_set_uint8 (m24_t *m24, unsigned long addr, unsigned char val)
 }
 
 static
-void m24_reg_set_uint16 (m24_t *m24, unsigned long addr, unsigned short val)
+void m24_reg_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	m24_t *m24 = (m24_t *)ext;
 	m24_reg_set_uint8 (m24, addr, val & 0xff);
 
 	if (addr < 15) {
@@ -642,14 +645,16 @@ void m24_set_mono (m24_t *m24, int mono)
 }
 
 static
-unsigned char m24_mem_get_uint8 (m24_t *m24, unsigned long addr)
+unsigned char m24_mem_get_uint8 (void *ext, unsigned long addr)
 {
+	m24_t *m24 = (m24_t *)ext;
 	return (m24->mem[addr & 0x7fff]);
 }
 
 static
-unsigned short m24_mem_get_uint16 (m24_t *m24, unsigned long addr)
+unsigned short m24_mem_get_uint16 (void *ext, unsigned long addr)
 {
+	m24_t *m24 = (m24_t *)ext;
 	unsigned short val;
 
 	val = m24->mem[(addr + 1) & 0x7fff];
@@ -659,15 +664,17 @@ unsigned short m24_mem_get_uint16 (m24_t *m24, unsigned long addr)
 }
 
 static
-void m24_mem_set_uint8 (m24_t *m24, unsigned long addr, unsigned char val)
+void m24_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	m24_t *m24 = (m24_t *)ext;
 	m24->mem[addr & 0x7fff] = val;
 	m24->mod_cnt = 2;
 }
 
 static
-void m24_mem_set_uint16 (m24_t *m24, unsigned long addr, unsigned short val)
+void m24_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	m24_t *m24 = (m24_t *)ext;
 	m24->mem[(addr + 0) & 0x7fff] = val & 0xff;
 	m24->mem[(addr + 1) & 0x7fff] = (val >> 8) & 0xff;
 	m24->mod_cnt = 2;

@@ -27,7 +27,7 @@
 #include "dos.h"
 
 
-void sim_int (dos_t *sim, unsigned char val);
+void sim_int (void *sim, unsigned char val);
 
 
 #endif

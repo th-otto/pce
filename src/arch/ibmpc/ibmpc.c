@@ -83,8 +83,9 @@ static char *par_intlog[256];
 
 
 static
-unsigned char pc_get_port8 (ibmpc_t *pc, unsigned long addr)
+unsigned char pc_get_port8 (void *ext, unsigned long addr)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	unsigned char val;
 
 	if (m24_get_port8 (pc, addr, &val) == 0) {
@@ -127,7 +128,7 @@ unsigned char pc_get_port8 (ibmpc_t *pc, unsigned long addr)
 }
 
 static
-unsigned short pc_get_port16 (ibmpc_t *pc, unsigned long addr)
+unsigned short pc_get_port16 (void *ext, unsigned long addr)
 {
 #ifdef DEBUG_PORTS
 	pc_log_deb ("get port 16 %04lX\n", addr);
@@ -137,8 +138,9 @@ unsigned short pc_get_port16 (ibmpc_t *pc, unsigned long addr)
 }
 
 static
-void pc_set_port8 (ibmpc_t *pc, unsigned long addr, unsigned char val)
+void pc_set_port8 (void *ext, unsigned long addr, unsigned char val)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 #ifdef DEBUG_PORTS
 	pc_log_deb ("set port 8 %04lX <- %02X\n", addr, val);
 #endif
@@ -171,7 +173,7 @@ void pc_set_port8 (ibmpc_t *pc, unsigned long addr, unsigned char val)
 }
 
 static
-void pc_set_port16 (ibmpc_t *pc, unsigned long addr, unsigned short val)
+void pc_set_port16 (void *ext, unsigned long addr, unsigned short val)
 {
 #ifdef DEBUG_PORTS
 	pc_log_deb ("set port 16 %04lX <- %04X\n", addr, val);
@@ -180,33 +182,38 @@ void pc_set_port16 (ibmpc_t *pc, unsigned long addr, unsigned short val)
 
 
 static
-void pc_dma2_set_mem8 (ibmpc_t *pc, unsigned long addr, unsigned char val)
+void pc_dma2_set_mem8 (void *ext, unsigned long addr, unsigned char val)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	mem_set_uint8 (pc->mem, pc->dma_page[2] + addr, val);
 }
 
 static
-unsigned char pc_dma2_get_mem8 (ibmpc_t *pc, unsigned long addr)
+unsigned char pc_dma2_get_mem8 (void *ext, unsigned long addr)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	return (mem_get_uint8 (pc->mem, pc->dma_page[2] + addr));
 }
 
 static
-void pc_dma3_set_mem8 (ibmpc_t *pc, unsigned long addr, unsigned char val)
+void pc_dma3_set_mem8 (void *ext, unsigned long addr, unsigned char val)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	mem_set_uint8 (pc->mem, pc->dma_page[3] + addr, val);
 }
 
 static
-unsigned char pc_dma3_get_mem8 (ibmpc_t *pc, unsigned long addr)
+unsigned char pc_dma3_get_mem8 (void *ext, unsigned long addr)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	return (mem_get_uint8 (pc->mem, pc->dma_page[3] + addr));
 }
 
 
 static
-unsigned char pc_ppi_get_port_a (ibmpc_t *pc)
+unsigned char pc_ppi_get_port_a (void *ext)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	unsigned char val;
 
 	if (pc->ppi_port_b & 0x80) {
@@ -222,8 +229,9 @@ unsigned char pc_ppi_get_port_a (ibmpc_t *pc)
 }
 
 static
-unsigned char pc_ppi_get_port_c (ibmpc_t *pc)
+unsigned char pc_ppi_get_port_c (void *ext)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	if (pc->model & PCE_IBMPC_5160) {
 		if (pc->ppi_port_b & 0x08) {
 			return (pc->ppi_port_c[1]);
@@ -254,8 +262,9 @@ unsigned char pc_ppi_get_port_c (ibmpc_t *pc)
 }
 
 static
-void pc_ppi_set_port_b (ibmpc_t *pc, unsigned char val)
+void pc_ppi_set_port_b (void *ext, unsigned char val)
 {
+	ibmpc_t *pc = (ibmpc_t *)ext;
 	unsigned char old;
 
 	old = pc->ppi_port_b;
@@ -637,17 +646,17 @@ void pc_setup_cpu (ibmpc_t *pc, ini_sct_t *ini)
 	}
 
 	e86_set_mem (pc->cpu, pc->mem,
-		(e86_get_uint8_f) &mem_get_uint8,
-		(e86_set_uint8_f) &mem_set_uint8,
-		(e86_get_uint16_f) &mem_get_uint16_le,
-		(e86_set_uint16_f) &mem_set_uint16_le
+		mem_get_uint8,
+		mem_set_uint8,
+		mem_get_uint16_le,
+		mem_set_uint16_le
 	);
 
 	e86_set_prt (pc->cpu, pc->prt,
-		(e86_get_uint8_f) &mem_get_uint8,
-		(e86_set_uint8_f) &mem_set_uint8,
-		(e86_get_uint16_f) &mem_get_uint16_le,
-		(e86_set_uint16_f) &mem_set_uint16_le
+		mem_get_uint8,
+		mem_set_uint8,
+		mem_get_uint16_le,
+		mem_set_uint16_le
 	);
 
 	if (pc->ram != NULL) {
@@ -798,11 +807,11 @@ void pc_setup_ppi (ibmpc_t *pc, ini_sct_t *ini)
 	e8255_init (&pc->ppi);
 
 	pc->ppi.port[0].read_ext = pc;
-	pc->ppi.port[0].read = (void *) pc_ppi_get_port_a;
+	pc->ppi.port[0].read = pc_ppi_get_port_a;
 	pc->ppi.port[1].write_ext = pc;
-	pc->ppi.port[1].write = (void *) pc_ppi_set_port_b;
+	pc->ppi.port[1].write = pc_ppi_set_port_b;
 	pc->ppi.port[2].read_ext = pc;
-	pc->ppi.port[2].read = (void *) pc_ppi_get_port_c;
+	pc->ppi.port[2].read = pc_ppi_get_port_c;
 
 	blk = mem_blk_new (addr, 4, 0);
 	if (blk == NULL) {
@@ -1355,16 +1364,16 @@ void pc_setup_fdc (ibmpc_t *pc, ini_sct_t *ini)
 	e8237_set_tc_fct (&pc->dma, 2, &pc->fdc->e8272, e8272_set_tc);
 
 	pc->dma.chn[2].iord_ext = &pc->fdc->e8272;
-	pc->dma.chn[2].iord = (void *) e8272_read_data;
+	pc->dma.chn[2].iord = e8272_read_data;
 
 	pc->dma.chn[2].iowr_ext = &pc->fdc->e8272;
-	pc->dma.chn[2].iowr = (void *) e8272_write_data;
+	pc->dma.chn[2].iowr = e8272_write_data;
 
 	pc->dma.chn[2].memrd_ext = pc;
-	pc->dma.chn[2].memrd = (void *) pc_dma2_get_mem8;
+	pc->dma.chn[2].memrd = pc_dma2_get_mem8;
 
 	pc->dma.chn[2].memwr_ext = pc;
-	pc->dma.chn[2].memwr = (void *) pc_dma2_set_mem8;
+	pc->dma.chn[2].memwr = pc_dma2_set_mem8;
 }
 
 static
@@ -1421,16 +1430,16 @@ void pc_setup_hdc (ibmpc_t *pc, ini_sct_t *ini)
 	hdc_set_dreq_fct (pc->hdc, &pc->dma, e8237_set_dreq3);
 
 	pc->dma.chn[3].iord_ext = pc->hdc;
-	pc->dma.chn[3].iord = (void *) hdc_read_data;
+	pc->dma.chn[3].iord = hdc_read_data;
 
 	pc->dma.chn[3].iowr_ext = pc->hdc;
-	pc->dma.chn[3].iowr = (void *) hdc_write_data;
+	pc->dma.chn[3].iowr = hdc_write_data;
 
 	pc->dma.chn[3].memrd_ext = pc;
-	pc->dma.chn[3].memrd = (void *) pc_dma3_get_mem8;
+	pc->dma.chn[3].memrd = pc_dma3_get_mem8;
 
 	pc->dma.chn[3].memwr_ext = pc;
-	pc->dma.chn[3].memwr = (void *) pc_dma3_set_mem8;
+	pc->dma.chn[3].memwr = pc_dma3_set_mem8;
 }
 
 static

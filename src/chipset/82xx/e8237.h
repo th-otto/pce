@@ -137,13 +137,13 @@ void e8237_set_eop1 (e8237_t *dma, unsigned char val);
 void e8237_set_eop2 (e8237_t *dma, unsigned char val);
 void e8237_set_eop3 (e8237_t *dma, unsigned char val);
 
-unsigned char e8237_get_uint8 (e8237_t *dma, unsigned long addr);
-unsigned short e8237_get_uint16 (e8237_t *dma, unsigned long addr);
-unsigned long e8237_get_uint32 (e8237_t *dma, unsigned long addr);
+unsigned char e8237_get_uint8 (void *dma, unsigned long addr);
+unsigned short e8237_get_uint16 (void *dma, unsigned long addr);
+unsigned long e8237_get_uint32 (void *dma, unsigned long addr);
 
-void e8237_set_uint8 (e8237_t *dma, unsigned long addr, unsigned char val);
-void e8237_set_uint16 (e8237_t *dma, unsigned long addr, unsigned short val);
-void e8237_set_uint32 (e8237_t *dma, unsigned long addr, unsigned long val);
+void e8237_set_uint8 (void *dma, unsigned long addr, unsigned char val);
+void e8237_set_uint16 (void *dma, unsigned long addr, unsigned short val);
+void e8237_set_uint32 (void *dma, unsigned long addr, unsigned long val);
 
 /*****************************************************************************
  * @short Reset a 8237 DMAC

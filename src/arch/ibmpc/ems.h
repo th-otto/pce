@@ -67,10 +67,10 @@ void ems_prt_state (ems_t *xms);
 
 void ems_info (ems_t *ems, e8086_t *cpu);
 
-unsigned char ems_get_uint8 (ems_t *ems, unsigned long addr);
-void ems_set_uint8 (ems_t *ems, unsigned long addr, unsigned char val);
-unsigned short ems_get_uint16 (ems_t *ems, unsigned long addr);
-void ems_set_uint16 (ems_t *ems, unsigned long addr, unsigned short val);
+unsigned char ems_get_uint8 (void *ems, unsigned long addr);
+void ems_set_uint8 (void *ems, unsigned long addr, unsigned char val);
+unsigned short ems_get_uint16 (void *ems, unsigned long addr);
+void ems_set_uint16 (void *ems, unsigned long addr, unsigned short val);
 
 void ems_handler (ems_t *ems, e8086_t *cpu);
 

@@ -70,8 +70,9 @@ static char *par_intlog[256];
 
 
 static
-unsigned char rc759_get_port8 (rc759_t *sim, unsigned long addr)
+unsigned char rc759_get_port8 (void *ext, unsigned long addr)
 {
+	rc759_t *sim = (rc759_t *)ext;
 	unsigned char val;
 
 	if ((addr >= 0x80) && (addr <= 0xff)) {
@@ -190,8 +191,9 @@ unsigned char rc759_get_port8 (rc759_t *sim, unsigned long addr)
 }
 
 static
-unsigned short rc759_get_port16 (rc759_t *sim, unsigned long addr)
+unsigned short rc759_get_port16 (void *ext, unsigned long addr)
 {
+	rc759_t *sim = (rc759_t *)ext;
 	unsigned short val;
 
 	switch (addr) {
@@ -349,8 +351,9 @@ unsigned short rc759_get_port16 (rc759_t *sim, unsigned long addr)
 }
 
 static
-void rc759_set_port8 (rc759_t *sim, unsigned long addr, unsigned char val)
+void rc759_set_port8 (void *ext, unsigned long addr, unsigned char val)
 {
+	rc759_t *sim = (rc759_t *)ext;
 	if ((addr >= 0x80) && (addr <= 0xff)) {
 		unsigned idx;
 
@@ -483,8 +486,9 @@ void rc759_set_port8 (rc759_t *sim, unsigned long addr, unsigned char val)
 }
 
 static
-void rc759_set_port16 (rc759_t *sim, unsigned long addr, unsigned short val)
+void rc759_set_port16 (void *ext, unsigned long addr, unsigned short val)
 {
+	rc759_t *sim = (rc759_t *)ext;
 	switch (addr) {
 	case 0x0002:
 		e8259_set_uint8 (&sim->pic, 1, val & 0xff);

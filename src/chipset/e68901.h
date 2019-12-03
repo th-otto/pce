@@ -106,13 +106,13 @@ void e68901_set_inp_5 (e68901_t *mfp, unsigned char val);
 
 void e68901_set_tbi (e68901_t *mfp, unsigned char val);
 
-unsigned char e68901_get_uint8 (e68901_t *mfp, unsigned long addr);
-unsigned short e68901_get_uint16 (e68901_t *mfp, unsigned long addr);
-unsigned long e68901_get_uint32 (e68901_t *mfp, unsigned long addr);
+unsigned char e68901_get_uint8 (void *mfp, unsigned long addr);
+unsigned short e68901_get_uint16 (void *mfp, unsigned long addr);
+unsigned long e68901_get_uint32 (void *mfp, unsigned long addr);
 
-void e68901_set_uint8 (e68901_t *mfp, unsigned long addr, unsigned char val);
-void e68901_set_uint16 (e68901_t *mfp, unsigned long addr, unsigned short val);
-void e68901_set_uint32 (e68901_t *mfp, unsigned long addr, unsigned long val);
+void e68901_set_uint8 (void *mfp, unsigned long addr, unsigned char val);
+void e68901_set_uint16 (void *mfp, unsigned long addr, unsigned short val);
+void e68901_set_uint32 (void *mfp, unsigned long addr, unsigned long val);
 
 int e68901_receive (e68901_t *mfp, unsigned char val);
 

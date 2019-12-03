@@ -78,13 +78,13 @@ unsigned char e8255_get_out_a (e8255_t *ppi);
 unsigned char e8255_get_out_b (e8255_t *ppi);
 unsigned char e8255_get_out_c (e8255_t *ppi);
 
-void e8255_set_uint8 (e8255_t *ppi, unsigned long addr, unsigned char val);
-void e8255_set_uint16 (e8255_t *ppi, unsigned long addr, unsigned short val);
-void e8255_set_uint32 (e8255_t *ppi, unsigned long addr, unsigned long val);
+void e8255_set_uint8 (void *ppi, unsigned long addr, unsigned char val);
+void e8255_set_uint16 (void *ppi, unsigned long addr, unsigned short val);
+void e8255_set_uint32 (void *ppi, unsigned long addr, unsigned long val);
 
-unsigned char e8255_get_uint8 (e8255_t *ppi, unsigned long addr);
-unsigned short e8255_get_uint16 (e8255_t *ppi, unsigned long addr);
-unsigned long e8255_get_uint32 (e8255_t *ppi, unsigned long addr);
+unsigned char e8255_get_uint8 (void *ppi, unsigned long addr);
+unsigned short e8255_get_uint16 (void *ppi, unsigned long addr);
+unsigned long e8255_get_uint32 (void *ppi, unsigned long addr);
 
 
 #endif

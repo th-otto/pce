@@ -472,8 +472,9 @@ void hgc_set_config (hgc_t *hgc, unsigned char val)
  * Get an HGC register
  */
 static
-unsigned char hgc_reg_get_uint8 (hgc_t *hgc, unsigned long addr)
+unsigned char hgc_reg_get_uint8 (void *ext, unsigned long addr)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	switch (addr) {
 	case HGC_CRTC_INDEX:
 		return (e6845_get_index (&hgc->crtc));
@@ -497,7 +498,7 @@ unsigned char hgc_reg_get_uint8 (hgc_t *hgc, unsigned long addr)
 }
 
 static
-unsigned short hgc_reg_get_uint16 (hgc_t *hgc, unsigned long addr)
+unsigned short hgc_reg_get_uint16 (void *ext, unsigned long addr)
 {
 	return (0xffff);
 }
@@ -506,8 +507,9 @@ unsigned short hgc_reg_get_uint16 (hgc_t *hgc, unsigned long addr)
  * Set an HGC register
  */
 static
-void hgc_reg_set_uint8 (hgc_t *hgc, unsigned long addr, unsigned char val)
+void hgc_reg_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	switch (addr) {
 	case HGC_CRTC_INDEX:
 		e6845_set_index (&hgc->crtc, val);
@@ -541,8 +543,9 @@ void hgc_reg_set_uint8 (hgc_t *hgc, unsigned long addr, unsigned char val)
 }
 
 static
-void hgc_reg_set_uint16 (hgc_t *hgc, unsigned long addr, unsigned short val)
+void hgc_reg_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	hgc_reg_set_uint8 (hgc, addr, val & 0xff);
 
 	if (addr < 15) {
@@ -551,14 +554,16 @@ void hgc_reg_set_uint16 (hgc_t *hgc, unsigned long addr, unsigned short val)
 }
 
 static
-unsigned char hgc_mem_get_uint8 (hgc_t *hgc, unsigned long addr)
+unsigned char hgc_mem_get_uint8 (void *ext, unsigned long addr)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	return (hgc->mem[addr & 0xffff]);
 }
 
 static
-unsigned short hgc_mem_get_uint16 (hgc_t *hgc, unsigned long addr)
+unsigned short hgc_mem_get_uint16 (void *ext, unsigned long addr)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	unsigned short val;
 
 	val = hgc->mem[(addr + 1) & 0xffff];
@@ -568,15 +573,17 @@ unsigned short hgc_mem_get_uint16 (hgc_t *hgc, unsigned long addr)
 }
 
 static
-void hgc_mem_set_uint8 (hgc_t *hgc, unsigned long addr, unsigned char val)
+void hgc_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	hgc->mem[addr & 0xffff] = val;
 	hgc->mod_cnt = 2;
 }
 
 static
-void hgc_mem_set_uint16 (hgc_t *hgc, unsigned long addr, unsigned short val)
+void hgc_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	hgc_t *hgc = (hgc_t *)ext;
 	hgc->mem[(addr + 0) & 0xffff] = val & 0xff;
 	hgc->mem[(addr + 1) & 0xffff] = (val >> 8) & 0xff;
 	hgc->mod_cnt = 2;

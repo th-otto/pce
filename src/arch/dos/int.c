@@ -112,8 +112,9 @@ int sim_int1a (dos_t *sim)
 }
 
 
-void sim_int (dos_t *sim, unsigned char val)
+void sim_int (void *_sim, unsigned char val)
 {
+	dos_t *sim = (dos_t *)_sim;
 	int ret;
 
 	if (sim->log_int) {

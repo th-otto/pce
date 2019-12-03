@@ -62,13 +62,13 @@ void ds1743_set_date (ds1743_t *rtc, unsigned y, unsigned m, unsigned d);
 void ds1743_set_time (ds1743_t *rtc, unsigned h, unsigned m, unsigned s);
 void ds1743_set_day (ds1743_t *rtc, unsigned dow);
 
-unsigned char ds1743_get_uint8 (ds1743_t *rtc, unsigned long addr);
-unsigned short ds1743_get_uint16 (ds1743_t *rtc, unsigned long addr);
-unsigned long ds1743_get_uint32 (ds1743_t *rtc, unsigned long addr);
+unsigned char ds1743_get_uint8 (void *rtc, unsigned long addr);
+unsigned short ds1743_get_uint16 (void *rtc, unsigned long addr);
+unsigned long ds1743_get_uint32 (void *rtc, unsigned long addr);
 
-void ds1743_set_uint8 (ds1743_t *rtc, unsigned long addr, unsigned char val);
-void ds1743_set_uint16 (ds1743_t *rtc, unsigned long addr, unsigned short val);
-void ds1743_set_uint32 (ds1743_t *rtc, unsigned long addr, unsigned long val);
+void ds1743_set_uint8 (void *rtc, unsigned long addr, unsigned char val);
+void ds1743_set_uint16 (void *rtc, unsigned long addr, unsigned short val);
+void ds1743_set_uint32 (void *rtc, unsigned long addr, unsigned long val);
 
 
 #endif

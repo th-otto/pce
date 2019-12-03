@@ -34,12 +34,12 @@
 #endif
 
 
-static unsigned char st_video_get_uint8 (atari_st_t *sim, unsigned long addr);
-static unsigned short st_video_get_uint16 (atari_st_t *sim, unsigned long addr);
-static unsigned long st_video_get_uint32 (atari_st_t *sim, unsigned long addr);
-static void st_video_set_uint8 (atari_st_t *sim, unsigned long addr, unsigned char val);
-static void st_video_set_uint16 (atari_st_t *sim, unsigned long addr, unsigned short val);
-static void st_video_set_uint32 (atari_st_t *sim, unsigned long addr, unsigned long val);
+static unsigned char st_video_get_uint8 (void *sim, unsigned long addr);
+static unsigned short st_video_get_uint16 (void *sim, unsigned long addr);
+static unsigned long st_video_get_uint32 (void *sim, unsigned long addr);
+static void st_video_set_uint8 (void *sim, unsigned long addr, unsigned char val);
+static void st_video_set_uint16 (void *sim, unsigned long addr, unsigned short val);
+static void st_video_set_uint32 (void *sim, unsigned long addr, unsigned long val);
 
 
 static int st_video_init (atari_st_t *sim, st_video_t *vid, unsigned long addr)
@@ -295,8 +295,9 @@ void st_video_set_palette (st_video_t *vid, unsigned idx, unsigned short val)
 }
 
 static
-unsigned char st_video_get_uint8 (atari_st_t *sim, unsigned long addr)
+unsigned char st_video_get_uint8 (void *ext, unsigned long addr)
 {
+	atari_st_t *sim = (atari_st_t *)ext;
 	st_video_t *vid = sim->video;
 	unsigned char val;
 
@@ -311,8 +312,6 @@ unsigned char st_video_get_uint8 (atari_st_t *sim, unsigned long addr)
 
 	case 0x0d:
 		/* video base low byte */
-		if ((sim->model & PCE_ST_STE) == 0)
-			e68_set_bus_error(sim->cpu, 1);
 		val = (vid->base) & 0xff;
 		break;
 
@@ -352,8 +351,9 @@ unsigned char st_video_get_uint8 (atari_st_t *sim, unsigned long addr)
 }
 
 static
-unsigned short st_video_get_uint16 (atari_st_t *sim, unsigned long addr)
+unsigned short st_video_get_uint16 (void *ext, unsigned long addr)
 {
+	atari_st_t *sim = (atari_st_t *)ext;
 	st_video_t *vid = sim->video;
 	unsigned short val;
 
@@ -378,8 +378,9 @@ unsigned short st_video_get_uint16 (atari_st_t *sim, unsigned long addr)
 }
 
 static
-unsigned long st_video_get_uint32 (atari_st_t *sim, unsigned long addr)
+unsigned long st_video_get_uint32 (void *ext, unsigned long addr)
 {
+	atari_st_t *sim = (atari_st_t *)ext;
 	unsigned long val;
 
 	val = st_video_get_uint16 (sim, addr);
@@ -389,8 +390,9 @@ unsigned long st_video_get_uint32 (atari_st_t *sim, unsigned long addr)
 }
 
 static
-void st_video_set_uint8 (atari_st_t *sim, unsigned long addr, unsigned char val)
+void st_video_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
+	atari_st_t *sim = (atari_st_t *)ext;
 	st_video_t *vid = sim->video;
 	switch (addr) {
 	case 0x01:
@@ -412,7 +414,7 @@ void st_video_set_uint8 (atari_st_t *sim, unsigned long addr, unsigned char val)
 
 	case 0x0d:
 		if ((sim->model & PCE_ST_STE) == 0)
-			e68_set_bus_error(sim->cpu, 1);
+			val = 0;
 		vid->base &= 0xffff00;
 		vid->base |= val & 0xff;
 #if DEBUG_VIDEO >= 1
@@ -444,8 +446,9 @@ void st_video_set_uint8 (atari_st_t *sim, unsigned long addr, unsigned char val)
 }
 
 static
-void st_video_set_uint16 (atari_st_t *sim, unsigned long addr, unsigned short val)
+void st_video_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
+	atari_st_t *sim = (atari_st_t *)ext;
 	st_video_t *vid = sim->video;
 	if ((addr >= 0x0040) && (addr < 0x0060)) {
 		st_video_set_palette (vid, (addr - 64) >> 1, val);
@@ -459,8 +462,9 @@ void st_video_set_uint16 (atari_st_t *sim, unsigned long addr, unsigned short va
 }
 
 static
-void st_video_set_uint32 (atari_st_t *sim, unsigned long addr, unsigned long val)
+void st_video_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 {
+	atari_st_t *sim = (atari_st_t *)ext;
 	st_video_t *vid = sim->video;
 	if (addr == 0) {
 		/* ??? long write to 0xff8200; should update 0xff8201 & 0xff8203 */
