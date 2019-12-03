@@ -32,6 +32,7 @@ atarist((function() {
             text = Array.prototype.slice.call(arguments).join(' ');
             element.value += text + "\n";
             element.scrollTop = 99999; // focus on bottom
+            console.log(text + "\n");
           },
   
   canvas: document.getElementById('pcejs-canvas'),

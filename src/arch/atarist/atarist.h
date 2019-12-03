@@ -53,10 +53,12 @@
 #include <libini/libini.h>
 
 
-#define PCE_ST_ST   0x0001
-#define PCE_ST_MEGA 0x0002
-#define PCE_ST_STE  0x0004
-#define PCE_ST_RTC  0x8000
+#define PCE_ST_ST      0x0001
+#define PCE_ST_MEGA    0x0002
+#define PCE_ST_STE     0x0004
+#define PCE_ST_TT      0x0008
+#define PCE_ST_FALCON  0x0010
+#define PCE_ST_RTC     0x8000
 
 
 /*****************************************************************************
@@ -126,7 +128,6 @@ struct atari_st_s {
 
 	struct {
 		int trace_bios;
-		int report_buserrs;
 	} debug;
 };
 

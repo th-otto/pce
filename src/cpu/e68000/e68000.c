@@ -26,12 +26,18 @@
 
 #include "e68000.h"
 #include "internal.h"
+#include <lib/log.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 
 void e68_init (e68000_t *c)
 {
 	unsigned i;
 
+	memset(c, 0, sizeof(*c));
 	c->flags = 0;
 
 	c->mem_ext = NULL;
@@ -78,6 +84,7 @@ void e68_init (e68000_t *c)
 	c->except_addr = 0;
 	c->except_vect = 0;
 	c->except_name = "none";
+	c->mem_mask = 0x00ffffff;
 
 	c->oprcnt = 0;
 	c->clkcnt = 0;
@@ -246,9 +253,14 @@ void e68_set_halt (e68000_t *c, unsigned val)
 	c->halt = val & 0x03;
 }
 
-void e68_set_bus_error (e68000_t *c, int val)
+void e68_set_bus_error (e68000_t *c, uint32_t addr, int size, int rw)
 {
-	c->bus_error = (val != 0);
+	c->bus_error = 1;
+	if (c->report_buserrs)
+	{
+		unsigned long pc = e68_get_last_pc (c, 0);
+		pce_log (MSG_DEB, "[%08lX] mem: %s %2d: %08lX -> %08lx\n", pc, rw ? "set" : "get", size * 8, (unsigned long)addr, (unsigned long)e68_get_mem32 (c, 8));
+	}
 }
 
 unsigned e68_get_exception_cnt (const e68000_t *c)
@@ -533,7 +545,7 @@ void e68_set_sr (e68000_t *c, unsigned short val)
 static
 void e68_double_exception (e68000_t *c, unsigned vct, const char *name)
 {
-	fprintf (stderr, "[%06lX] 68000: double exception (%u:%s)\n",
+	fprintf (stderr, "[%08lX] 68000: double exception (%u:%s)\n",
 		(unsigned long) e68_get_ir_pc (c), vct, name
 	);
 
@@ -575,7 +587,7 @@ void e68_exception (e68000_t *c, unsigned vct, unsigned fmt, const char *name)
 	e68_push32 (c, e68_get_pc (c));
 	e68_push16 (c, sr1);
 
-	addr = (e68_get_vbr (c) + (vct << 2)) & 0xffffffff;
+	addr = (e68_get_vbr (c) + (vct << 2)) & c->mem_mask;
 	addr = e68_get_mem32 (c, addr);
 
 	e68_set_pc_prefetch (c, addr);
@@ -810,9 +822,23 @@ void e68_reset (e68000_t *c)
 
 void e68_execute (e68000_t *c)
 {
+#if 0
+	e68_dasm_t da;
+	memset(&da, 0, sizeof(da));
+	e68_dasm_cur(c, &da);
+	pce_log(MSG_DEB, "%08lx: %s", (unsigned long)da.pc, da.op);
+	if (da.argn > 0)
+		pce_log(MSG_DEB, "  %s", da.arg1);
+	if (da.argn > 1)
+		pce_log(MSG_DEB, ",%s", da.arg2);
+	if (da.argn > 2)
+		pce_log(MSG_DEB, ",%s", da.arg3);
+	pce_log(MSG_DEB, "\n");
+#endif
+
+	c->bus_error = 0;
 	if (c->halt == 0) {
 		c->last_pc[++c->last_pc_idx & (E68_LAST_PC_CNT - 1)] = e68_get_pc (c);
-		c->bus_error = 0;
 		c->trace_sr = e68_get_sr (c);
 
 		c->ir[0] = c->ir[1];

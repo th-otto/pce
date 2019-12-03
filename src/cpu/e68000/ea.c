@@ -51,6 +51,7 @@ int e68_ea_full (e68000_t *c, unsigned ext, unsigned mask)
 	uint32_t ix, bd, od;
 	unsigned scale;
 	int      bs, is;
+	uint32_t addr;
 
 	/* base register is in c->ea_val */
 
@@ -151,12 +152,24 @@ int e68_ea_full (e68000_t *c, unsigned ext, unsigned mask)
 			return (1);
 		}
 
-		c->ea_val = e68_get_mem32 (c, c->ea_val + bd);
+		addr = c->ea_val + bd;
+		c->ea_val = e68_get_mem32 (c, addr);
+		if (c->bus_error)
+		{
+			e68_exception_bus (c, addr, 1, 0);
+			return 1;
+		}
 		c->ea_val += (ix << scale) + od;
 	}
 	else {
 		/* indirect preindexed */
-		c->ea_val = e68_get_mem32 (c, c->ea_val + bd + (ix << scale));
+		addr = c->ea_val + bd + (ix << scale);
+		c->ea_val = e68_get_mem32 (c, addr);
+		if (c->bus_error)
+		{
+			e68_exception_bus (c, addr, 1, 0);
+			return 1;
+		}
 		c->ea_val += od;
 	}
 

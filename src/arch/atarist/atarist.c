@@ -273,7 +273,10 @@ void st_setup_system (atari_st_t *sim, ini_sct_t *ini)
 		sim->model = PCE_ST_ST;
 	}
 	else if (strcmp (model, "mega") == 0) {
-		sim->model = PCE_ST_MEGA;
+		sim->model = PCE_ST_MEGA | PCE_ST_RTC;
+	}
+	else if (strcmp (model, "megaste") == 0) {
+		sim->model = PCE_ST_MEGA | PCE_ST_STE | PCE_ST_RTC;
 	}
 	else if (strcmp (model, "ste") == 0) {
 		sim->model = PCE_ST_STE;
@@ -451,17 +454,21 @@ void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 	}
 
 	e68_set_mem_fct (sim->cpu, sim->mem,
-		&mem_get_uint8,
-		&mem_get_uint16_be,
-		&mem_get_uint32_be,
-		&mem_set_uint8,
-		&mem_set_uint16_be,
-		&mem_set_uint32_be
+		mem_get_uint8,
+		mem_get_uint16_be,
+		mem_get_uint32_be,
+		mem_set_uint8,
+		mem_set_uint16_be,
+		mem_set_uint32_be
 	);
 
 	e68_set_inta_fct (sim->cpu, sim, st_inta);
 
 	e68_set_flags (sim->cpu, E68_FLAG_NORESET, 1);
+
+	e68_set_address_check (sim->cpu, 0);
+	sim->cpu->generate_buserrs = 1;
+	sim->cpu->report_buserrs = 1;
 
 	sim->speed_factor = speed;
 
@@ -835,8 +842,6 @@ void st_init (atari_st_t *sim, ini_sct_t *ini)
 	}
 
 	st_clock_discontinuity (sim);
-
-	sim->debug.report_buserrs = 1;
 }
 
 atari_st_t *st_new (ini_sct_t *ini)
@@ -995,23 +1000,29 @@ void st_reset (atari_st_t *sim)
 		sim->reset = 0;
 		return;
 	}
+	if (sim->ram == 0)
+	{
+		pce_log (MSG_ERR, "*** cannot run without RAM\n");
+		sim->reset = 0;
+		return;
+	}
 	mem_set_uint32_be (sim->mem, 0, mem_get_uint32_be (sim->mem, sim->rom_addr));
 	mem_set_uint32_be (sim->mem, 4, mem_get_uint32_be (sim->mem, sim->rom_addr + 4));
 
 	e68_reset (sim->cpu);
 
 	ramsize = mem_blk_get_size (sim->ram);
-	if (ramsize == 256 * 1024L)
+	if (ramsize <= 256 * 1024L)
 		sim->memcfg = 0x00; /* both banks 128K */
-	else if (ramsize == 512 * 1024L)
+	else if (ramsize <= 512 * 1024L)
 		sim->memcfg = 0x04; /* bank 0 = 512k, bank 1 empty */
-	else if (ramsize == 1024L * 1024L)
+	else if (ramsize <= 1024L * 1024L)
 		sim->memcfg = 0x05; /* both banks 512K */
-	else if (ramsize == 2 * 1024L * 1024L)
+	else if (ramsize <= 2 * 1024L * 1024L)
 		sim->memcfg = 0x08; /* bank 0 = 2M, bank 1 empty */
-	else if (ramsize == 2 * 1024L * 1024L + 512 * 1024L)
+	else if (ramsize <= 2 * 1024L * 1024L + 512 * 1024L)
 		sim->memcfg = 0x09; /* bank 0 = 2M, bank 1 512K */
-	else if (ramsize == 4 * 1024L * 1024L)
+	else if (ramsize <= 4 * 1024L * 1024L)
 		sim->memcfg = 0x0a; /* both banks 2M */
 	else
 		sim->memcfg = 0x0f;

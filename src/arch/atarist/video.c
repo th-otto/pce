@@ -302,6 +302,17 @@ unsigned char st_video_get_uint8 (void *ext, unsigned long addr)
 	unsigned char val;
 
 	switch (addr) {
+	case 0x00: /* No bus error here */
+	case 0x02:
+	case 0x04:
+	case 0x06:
+	case 0x08:
+	case 0x0b:
+	case 0x0c:
+	case 0x0e:
+		val = 0;
+		break;
+
 	case 0x01:
 		val = (vid->base >> 16) & 0xff;
 		break;
@@ -331,9 +342,15 @@ unsigned char st_video_get_uint8 (void *ext, unsigned long addr)
 		val = vid->sync_mode;
 		break;
 
+	case 0x0f: /* linewidth */
+		if ((sim->model & PCE_ST_STE) == 0)
+			e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 1, 1);
+		val = 0;
+		break;
+
 	case 0x40: /* palette */
 	case 0x5f:
-		st_log_deb ("video get palette (%06lX)\n", addr);
+		st_log_deb ("video get palette (%08lX)\n", addr + vid->reg.addr1);
 		val = 0;
 		break;
 
@@ -341,8 +358,15 @@ unsigned char st_video_get_uint8 (void *ext, unsigned long addr)
 		val = vid->shift_mode;
 		break;
 
+	case 0x64: /* STE horizontal fine scrolling */
+	case 0x65:
+		if ((sim->model & PCE_ST_STE) == 0)
+			e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 1, 1);
+		val = 0;
+		break;
+
 	default:
-		st_log_deb ("video: get 8: %06lX -> %04X\n", addr, 0);
+		e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 1, 0);
 		val = 0;
 		break;
 	}
@@ -370,7 +394,7 @@ unsigned short st_video_get_uint16 (void *ext, unsigned long addr)
 		val = vid->shift_mode << 8;
 	}
 	else {
-		st_log_deb ("video: get 16: %06lX -> %04X\n", addr, 0);
+		e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 2, 0);
 		val = 0;
 	}
 
@@ -384,7 +408,9 @@ unsigned long st_video_get_uint32 (void *ext, unsigned long addr)
 	unsigned long val;
 
 	val = st_video_get_uint16 (sim, addr);
-	val = (val << 16) | st_video_get_uint16 (sim, addr + 2);
+	val <<= 16;
+	if (!sim->cpu->bus_error)
+		val |= st_video_get_uint16 (sim, addr + 2);
 
 	return (val);
 }
@@ -433,14 +459,23 @@ void st_video_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 		st_video_set_sync_mode (vid, val);
 		break;
 
+	case 0x0f: /* linewidth */
+		break;
+
 	case 0x60:
 		st_video_set_shift_mode (vid, val);
+		break;
+
+	case 0x64: /* STE horizontal fine scrolling */
+	case 0x65:
+		if ((sim->model & PCE_ST_STE) == 0)
+			e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 1, 1);
 		break;
 
 	default:
 		st_log_deb ("video: set 8 %06lX <- %02X\n", vid->reg.addr1 + addr, val);
 		/* FIXME: byte access to palette registers? */
-		/* FIXME: others should generate bus-error */
+		e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 1, 1);
 		break;
 	}
 }
@@ -457,7 +492,7 @@ void st_video_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 		st_video_set_shift_mode (vid, val >> 8);
 	}
 	else {
-		st_log_deb ("video: set 16: %06lX <- %04X\n", addr, val);
+		e68_set_bus_error (sim->cpu, addr + vid->reg.addr1, 2, 1);
 	}
 }
 
@@ -475,7 +510,8 @@ void st_video_set_uint32 (void *ext, unsigned long addr, unsigned long val)
 	}
 	else {
 		st_video_set_uint16 (sim, addr, val >> 16);
-		st_video_set_uint16 (sim, addr + 2, val);
+		if (!sim->cpu->bus_error)
+			st_video_set_uint16 (sim, addr + 2, val);
 	}
 }
 

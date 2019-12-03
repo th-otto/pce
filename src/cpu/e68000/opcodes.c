@@ -153,7 +153,9 @@ static void op0100_08 (e68000_t *c)
 	addr = e68_get_areg32 (c, e68_ir_reg0 (c)) + e68_exts16 (c->ir[1]);
 
 	v = e68_get_mem8 (c, addr);
+	if (c->bus_error) return;
 	v = (v << 8) | e68_get_mem8 (c, addr + 2);
+	if (c->bus_error) return;
 
 	e68_set_clk (c, 16);
 	e68_set_dreg16 (c, e68_ir_reg9 (c), v);
@@ -215,9 +217,13 @@ static void op0140_01 (e68000_t *c)
 	addr = e68_get_areg32 (c, e68_ir_reg0 (c)) + e68_exts16 (c->ir[1]);
 
 	v = e68_get_mem8 (c, addr);
+	if (c->bus_error) return;
 	v = (v << 8) | e68_get_mem8 (c, addr + 2);
+	if (c->bus_error) return;
 	v = (v << 8) | e68_get_mem8 (c, addr + 4);
+	if (c->bus_error) return;
 	v = (v << 8) | e68_get_mem8 (c, addr + 6);
+	if (c->bus_error) return;
 
 	e68_set_clk (c, 24);
 	e68_set_dreg32 (c, e68_ir_reg9 (c), v);
@@ -1703,6 +1709,7 @@ static void op4c80_03 (e68000_t *c)
 	for (i = 0; i < 16; i++) {
 		if (r & 1) {
 			v = e68_get_mem16 (c, a);
+			if (c->bus_error) return;
 			v = e68_exts16 (v);
 			if (i < 8) {
 				e68_set_dreg32 (c, i, v);
@@ -1750,6 +1757,7 @@ static void op4c80_xx (e68000_t *c)
 	for (i = 0; i < 16; i++) {
 		if (r & 1) {
 			v = e68_get_mem16 (c, a);
+			if (c->bus_error) return;
 			v = e68_exts16 (v);
 			if (i < 8) {
 				e68_set_dreg32 (c, i, v);
@@ -1804,6 +1812,7 @@ static void op4cc0_03 (e68000_t *c)
 	for (i = 0; i < 16; i++) {
 		if (r & 1) {
 			v = e68_get_mem32 (c, a);
+			if (c->bus_error) return;
 			if (i < 8) {
 				e68_set_dreg32 (c, i, v);
 			}
@@ -1850,6 +1859,7 @@ static void op4cc0_xx (e68000_t *c)
 	for (i = 0; i < 16; i++) {
 		if (r & 1) {
 			v = e68_get_mem32 (c, a);
+			if (c->bus_error) return;
 			if (i < 8) {
 				e68_set_dreg32 (c, i, v);
 			}
@@ -1916,6 +1926,7 @@ static void op4e40_03 (e68000_t *c)
 {
 	unsigned r;
 	uint32_t a;
+	uint32_t v;
 
 	r = e68_ir_reg0 (c);
 	a = e68_get_areg32 (c, r);
@@ -1924,7 +1935,9 @@ static void op4e40_03 (e68000_t *c)
 
 	e68_set_clk (c, 12);
 	e68_set_areg32 (c, 7, a);
-	e68_set_areg32 (c, r, e68_get_mem32 (c, a));
+	v = e68_get_mem32 (c, a);
+	if (c->bus_error) return;
+	e68_set_areg32 (c, r, v);
 	e68_set_areg32 (c, 7, e68_get_areg32 (c, 7) + 4);
 	e68_op_prefetch (c);
 }
@@ -2000,10 +2013,13 @@ static void op4e73 (e68000_t *c)
 
 	sp = e68_get_ssp (c);
 	sr = e68_get_mem16 (c, sp);
+	if (c->bus_error) return;
 	pc = e68_get_mem32 (c, sp + 2);
+	if (c->bus_error) return;
 
 	if (c->flags & (E68_FLAG_68010|E68_FLAG_68020)) {
 		fmt = e68_get_mem16 (c, sp + 6);
+		if (c->bus_error) return;
 
 		switch ((fmt >> 12) & 0x0f) {
 		case 0:
@@ -2037,6 +2053,7 @@ static void op4e73 (e68000_t *c)
 static void op4e74 (e68000_t *c)
 {
 	uint32_t sp, im;
+	uint32_t v;
 
 	e68_op_68010 (c);
 	e68_op_prefetch (c);
@@ -2044,7 +2061,9 @@ static void op4e74 (e68000_t *c)
 	im = e68_exts16 (c->ir[1]);
 	sp = e68_get_areg32 (c, 7);
 
-	e68_set_ir_pc (c, e68_get_mem32 (c, sp));
+	v = e68_get_mem32 (c, sp);
+	if (c->bus_error) return;
+	e68_set_ir_pc (c, v);
 	e68_set_areg32 (c, 7, sp + 4 + im);
 
 	e68_set_clk (c, 16);
@@ -2057,10 +2076,13 @@ static void op4e74 (e68000_t *c)
 static void op4e75 (e68000_t *c)
 {
 	uint32_t sp;
+	uint32_t v;
 
 	sp = e68_get_areg32 (c, 7);
 
-	e68_set_ir_pc (c, e68_get_mem32 (c, sp));
+	v = e68_get_mem32 (c, sp);
+	if (c->bus_error) return;
+	e68_set_ir_pc (c, v);
 	e68_set_areg32 (c, 7, sp + 4);
 
 	e68_set_clk (c, 16);
@@ -2086,11 +2108,16 @@ static void op4e76 (e68000_t *c)
 static void op4e77 (e68000_t *c)
 {
 	uint32_t sp;
+	uint32_t v;
 
 	sp = e68_get_areg32 (c, 7);
 
-	e68_set_ccr (c, e68_get_mem16 (c, sp) & E68_CCR_MASK);
-	e68_set_ir_pc (c, e68_get_mem32 (c, sp + 2));
+	v = e68_get_mem16 (c, sp) & E68_CCR_MASK;
+	if (c->bus_error) return;
+	e68_set_ccr (c, v);
+	v = e68_get_mem32 (c, sp + 2);
+	if (c->bus_error) return;
+	e68_set_ir_pc (c, v);
 	e68_set_areg32 (c, 7, sp + 6);
 
 	e68_set_clk (c, 20);

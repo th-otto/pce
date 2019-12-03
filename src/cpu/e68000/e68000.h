@@ -121,7 +121,10 @@ typedef struct e68000_s {
 	void           (*set_uint32) (void *ext, unsigned long addr, unsigned long val);
 
 	unsigned char  *ram;
-	unsigned long  ram_cnt;
+	uint32_t       ram_cnt;
+	uint32_t       mem_mask;
+	int generate_buserrs;
+	int report_buserrs;
 
 	void           *reset_ext;
 	void           (*reset) (void *ext, unsigned char val);
@@ -240,13 +243,13 @@ uint8_t e68_get_mem8 (e68000_t *c, uint32_t addr)
 	}
 #endif
 
-	addr &= 0x00ffffff;
+	addr &= c->mem_mask;
 
 	if (addr < c->ram_cnt) {
 		return (c->ram[addr]);
 	}
 
-	return (c->get_uint8 (c->mem_ext, addr & 0x00ffffff));
+	return (c->get_uint8 (c->mem_ext, addr));
 }
 
 static inline
@@ -258,7 +261,7 @@ uint16_t e68_get_mem16 (e68000_t *c, uint32_t addr)
 	}
 #endif
 
-	addr &= 0x00ffffff;
+	addr &= c->mem_mask;
 
 	if ((addr + 1) < c->ram_cnt) {
 		return ((c->ram[addr] << 8) | c->ram[addr + 1]);
@@ -278,7 +281,7 @@ uint32_t e68_get_mem32 (e68000_t *c, uint32_t addr)
 	}
 #endif
 
-	addr &= 0x00ffffff;
+	addr &= c->mem_mask;
 
 	if ((addr + 3) < c->ram_cnt) {
 		val = c->ram[addr];
@@ -301,7 +304,7 @@ void e68_set_mem8 (e68000_t *c, uint32_t addr, uint8_t val)
 	}
 #endif
 
-	addr &= 0x00ffffff;
+	addr &= c->mem_mask;
 
 	if (addr < c->ram_cnt) {
 		c->ram[addr] = val;
@@ -320,7 +323,7 @@ void e68_set_mem16 (e68000_t *c, uint32_t addr, uint16_t val)
 	}
 #endif
 
-	addr &= 0x00ffffff;
+	addr &= c->mem_mask;
 
 	if ((addr + 1) < c->ram_cnt) {
 		c->ram[addr] = (val >> 8) & 0xff;
@@ -340,7 +343,7 @@ void e68_set_mem32 (e68000_t *c, uint32_t addr, uint32_t val)
 	}
 #endif
 
-	addr &= 0x00ffffff;
+	addr &= c->mem_mask;
 
 	if ((addr + 3) < c->ram_cnt) {
 		c->ram[addr] = (val >> 24) & 0xff;
@@ -419,7 +422,7 @@ unsigned long e68_get_delay (e68000_t *c);
 unsigned e68_get_halt (e68000_t *c);
 void e68_set_halt (e68000_t *c, unsigned val);
 
-void e68_set_bus_error (e68000_t *c, int val);
+void e68_set_bus_error (e68000_t *c, uint32_t addr, int size, int rw);
 
 /*!***************************************************************************
  * @short Get the number of exceptions

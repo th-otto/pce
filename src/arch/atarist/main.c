@@ -46,6 +46,10 @@
 #include <SDL.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 
 const char *par_terminal = NULL;
 
@@ -147,6 +151,9 @@ void sig_segv (int s)
 
 	pce_set_fd_interactive (0, 1);
 
+#ifdef __EMSCRIPTEN__
+	emscripten_cancel_main_loop();
+#endif
 	exit (1);
 }
 
