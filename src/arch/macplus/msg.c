@@ -144,7 +144,7 @@ int mac_set_msg_emu_iwm_ro (macplus_t *sim, const char *msg, const char *val)
 		mac_iwm_set_locked (&sim->iwm, 2, 1);
 	}
 	else {
-		pce_log (MSG_INF, "setting iwm drive %lu to read-only\n", drv);
+		pce_log (MSG_INF, "setting iwm drive %u to read-only\n", drv);
 		mac_iwm_set_locked (&sim->iwm, drv - 1, 1);
 	}
 
@@ -167,7 +167,7 @@ int mac_set_msg_emu_iwm_rw (macplus_t *sim, const char *msg, const char *val)
 		mac_iwm_set_locked (&sim->iwm, 2, 0);
 	}
 	else {
-		pce_log (MSG_INF, "setting iwm drive %lu to read/write\n", drv);
+		pce_log (MSG_INF, "setting iwm drive %u to read/write\n", drv);
 		mac_iwm_set_locked (&sim->iwm, drv - 1, 0);
 	}
 

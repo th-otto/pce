@@ -51,10 +51,10 @@ void dsk_print_info (disk_t *dsk)
 	unsigned p;
 
 	pce_printf ("ID=%-3u T=%-2u BLK=%-8lu",
-		dsk->drive, dsk->type, dsk_get_block_cnt (dsk)
+		dsk->drive, dsk->type, (unsigned long)dsk_get_block_cnt (dsk)
 	);
 
-	p = pce_printf ("CHS=%u/%u/%u",
+	p = pce_printf ("CHS=%lu/%lu/%lu",
 		(unsigned long) dsk->c,
 		(unsigned long) dsk->h,
 		(unsigned long) dsk->s

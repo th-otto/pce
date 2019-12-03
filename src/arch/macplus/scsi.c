@@ -477,7 +477,7 @@ void mac_scsi_cmd_read (mac_scsi_t *scsi, unsigned long lba, unsigned long cnt)
 #endif
 
 	if (mac_scsi_set_buf_max (scsi, 512UL * cnt)) {
-		mac_log_deb ("scsi: too many blocks (%u)\n", cnt);
+		mac_log_deb ("scsi: too many blocks (%lu)\n", cnt);
 		mac_scsi_set_phase_status (scsi, 0x02);
 		return;
 	}
@@ -546,7 +546,7 @@ void mac_scsi_cmd_write_finish (mac_scsi_t *scsi, unsigned long lba, unsigned lo
 	}
 
 	if ((512 * cnt) != scsi->buf_i) {
-		mac_log_deb ("scsi: write size mismatch (%u / %u)\n",
+		mac_log_deb ("scsi: write size mismatch (%lu / %lu)\n",
 			512 * cnt, scsi->buf_i
 		);
 		mac_scsi_set_phase_status (scsi, 0x02);

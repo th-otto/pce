@@ -234,7 +234,7 @@ void mac_prt_state_scc (macplus_t *sim)
 
 	for (i = 0; i < 2; i++) {
 		chn = scc->chn + i;
-		pce_printf ("CHN%u=%u%c%u%s\n",
+		pce_printf ("CHN%u=%lu%c%u%s\n",
 			i, chn->bps, p[chn->parity & 3], chn->bpc, s[chn->stop]
 		);
 	}

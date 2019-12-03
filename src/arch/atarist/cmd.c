@@ -175,7 +175,7 @@ void st_print_state_cpu (atari_st_t *sim)
 		(unsigned long) e68_get_dreg32 (c, 5),
 		(unsigned long) e68_get_areg32 (c, 1),
 		(unsigned long) e68_get_areg32 (c, 5),
-		e68_get_ir_pc (c),
+		(unsigned long) e68_get_ir_pc (c),
 		(unsigned long) e68_get_last_pc (c, 1)
 	);
 

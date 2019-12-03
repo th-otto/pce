@@ -1163,7 +1163,7 @@ void mac_setup_sony (macplus_t *sim, ini_sct_t *ini)
 
 		mac_sony_set_delay (&sim->sony, i, val);
 
-		pce_log_tag (MSG_INF, "SONY:", "drive=%u delay=%lu\n",
+		pce_log_tag (MSG_INF, "SONY:", "drive=%u delay=%u\n",
 			i + 1, val
 		);
 	}

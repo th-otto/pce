@@ -679,7 +679,7 @@ void pc_setup_dma (ibmpc_t *pc, ini_sct_t *ini)
 
 	ini_get_uint32 (sct, "address", &addr, 0);
 
-	pce_log_tag (MSG_INF, "DMAC:", "addr=0x%08x size=0x%04x\n", addr, 16);
+	pce_log_tag (MSG_INF, "DMAC:", "addr=0x%08lx size=0x%04x\n", addr, 16);
 
 	pc->dma_page[0] = 0;
 	pc->dma_page[1] = 0;
@@ -721,7 +721,7 @@ void pc_setup_pic (ibmpc_t *pc, ini_sct_t *ini)
 
 	ini_get_uint32 (sct, "address", &addr, 0x0020);
 
-	pce_log_tag (MSG_INF, "PIC:", "addr=0x%08x size=0x%04x\n", addr, 2);
+	pce_log_tag (MSG_INF, "PIC:", "addr=0x%08lx size=0x%04x\n", addr, 2);
 
 	e8259_init (&pc->pic);
 
@@ -793,7 +793,7 @@ void pc_setup_ppi (ibmpc_t *pc, ini_sct_t *ini)
 
 	ini_get_uint32 (sct, "address", &addr, 0x0060);
 
-	pce_log_tag (MSG_INF, "PPI:", "addr=0x%08x size=0x%04x\n", addr, 4);
+	pce_log_tag (MSG_INF, "PPI:", "addr=0x%08lx size=0x%04x\n", addr, 4);
 
 	e8255_init (&pc->ppi);
 
@@ -1539,7 +1539,7 @@ void pc_setup_serport (ibmpc_t *pc, ini_sct_t *ini)
 		pc->serport[i] = ser_new (addr, 0);
 
 		if (pc->serport[i] == NULL) {
-			pce_log (MSG_ERR, "*** serial port setup failed [%04X/%u -> %s]\n",
+			pce_log (MSG_ERR, "*** serial port setup failed [%04lX/%u -> %s]\n",
 				addr, irq, (driver == NULL) ? "<none>" : driver
 			);
 		}

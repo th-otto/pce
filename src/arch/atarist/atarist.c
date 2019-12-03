@@ -540,14 +540,14 @@ void st_setup_mfp (atari_st_t *sim, ini_sct_t *ini)
 static
 void st_setup_acia (atari_st_t *sim, ini_sct_t *ini)
 {
-	pce_log_tag (MSG_INF, "ACIA0:", "addr=0x%06lx size=0x%lx\n", 0xfffc00, 4);
+	pce_log_tag (MSG_INF, "ACIA0:", "addr=0x%06x size=0x%x\n", 0xfffc00, 4);
 
 	e6850_init (&sim->acia0);
 	e6850_set_irq_fct (&sim->acia0, &sim->mfp, e68901_set_inp_4);
 	e6850_set_send_fct (&sim->acia0, &sim->kbd, st_kbd_set_uint8);
 	e6850_set_recv_fct (&sim->acia0, &sim->kbd, st_kbd_get_uint8);
 
-	pce_log_tag (MSG_INF, "ACIA1:", "addr=0x%06lx size=0x%lx\n", 0xfffc04, 4);
+	pce_log_tag (MSG_INF, "ACIA1:", "addr=0x%06x size=0x%x\n", 0xfffc04, 4);
 
 	e6850_init (&sim->acia1);
 	e6850_set_irq_fct (&sim->acia1, &sim->mfp, e68901_set_inp_4);

@@ -351,7 +351,7 @@ void pc_int_15 (ibmpc_t *pc)
 		src |= (e86_get_mem8 (pc->cpu, seg, ofs + 0x14) & 0xff) << 16;
 		dst = e86_get_mem16 (pc->cpu, seg, ofs + 0x1a);
 		dst |= (e86_get_mem8 (pc->cpu, seg, ofs + 0x1c) & 0xff) << 16;
-		pce_log (MSG_DEB, "int15: copy %08x -> %08x, %04x\n",
+		pce_log (MSG_DEB, "int15: copy %08lx -> %08lx, %04lx\n",
 			src, dst, size
 		);
 		e86_set_cf (pc->cpu, 1);

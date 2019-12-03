@@ -27,7 +27,7 @@
 #include <config.h>
 
 
-void sim_log_deb (const char *msg, ...);
+void sim_log_deb (const char *msg, ...) __attribute__((format(printf, 1, 2)));
 
 
 #endif

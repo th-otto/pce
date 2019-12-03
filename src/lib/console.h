@@ -40,7 +40,7 @@ int pce_set_redir_out (const char *fname, const char *mode);
 int pce_gets (const char *prompt, char *str, unsigned max);
 int pce_putc (int c);
 int pce_puts (const char *str);
-int pce_printf (const char *msg, ...);
+int pce_printf (const char *msg, ...) __attribute__((format(printf, 1, 2)));
 int pce_vprintf (const char *msg, va_list va);
 
 void pce_prt_sep (const char *str);

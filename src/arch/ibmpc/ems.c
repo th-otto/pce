@@ -115,7 +115,7 @@ ems_t *ems_new (ini_sct_t *sct)
 		ems_set_uint8, ems_set_uint16, NULL
 	);
 
-	pce_log_tag (MSG_INF, "EMS:", "size=%luK (%lu pages) segment=0x%04x\n",
+	pce_log_tag (MSG_INF, "EMS:", "size=%luK (%u pages) segment=0x%04x\n",
 		16UL * pages, ems->pages_max, segm
 	);
 

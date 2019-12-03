@@ -402,7 +402,6 @@ void e8530_set_tx_underrun (e8530_t *scc, unsigned chn) {
 #ifdef SDLC_LOCALTALK_ENABLE
 static
 void e8530_send_sdlc_packet (e8530_t *scc, unsigned chn) {
-	unsigned       i;
 	e8530_chn_t   *c;
 
 	if(chn != 1) {
@@ -1080,7 +1079,7 @@ void e8530_set_wr4 (e8530_t *scc, unsigned chn, unsigned char val)
 
 #ifdef SDLC_LOCALTALK_ENABLE
 #ifdef SDLC_DEBUG
-	char *msg;
+	const char *msg;
 	switch((val >> 4) & 0x03) {
 		case 0x00: msg = "SCC %c: 8-Bit Sync Character\n"; break;
 		case 0x01: msg = "SCC %c: 16-Bit Sync Character\n"; break;
@@ -1090,7 +1089,7 @@ void e8530_set_wr4 (e8530_t *scc, unsigned chn, unsigned char val)
 	fprintf (stderr, msg, scc_get_chn (chn));
 #endif
 
-	if(((val >> 4) & 0x03) != 0x10) {
+	if(((val >> 4) & 0x03) != 0x02) {
 #ifdef SDLC_DEBUG
 		fprintf (stderr, "SCC %c: resetting End of Frame bit\n", scc_get_chn (chn));
 #endif

@@ -369,6 +369,7 @@ int st_kbd_set_joy (st_kbd_t *kbd, unsigned idx, unsigned event, pce_key_t key)
 /*
  * write a key code sequence into the key buffer
  */
+#if 0
 static void st_kbd_set_sequence (st_kbd_t *kbd, const unsigned char *buf, unsigned cnt)
 {
 	unsigned i;
@@ -379,6 +380,7 @@ static void st_kbd_set_sequence (st_kbd_t *kbd, const unsigned char *buf, unsign
 		}
 	}
 }
+#endif
 
 void st_kbd_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scancode)
 {

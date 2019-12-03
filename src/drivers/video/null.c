@@ -56,7 +56,6 @@ int null_close (null_t *nt)
 static
 int null_set_msg_trm (void *ext, const char *msg, const char *val)
 {
-	null_t *nt = (null_t *)ext;
 	if (strcmp (msg, "term.grab") == 0) {
 		return (0);
 	}

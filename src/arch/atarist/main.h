@@ -43,7 +43,7 @@ extern atari_st_t *par_sim;
 
 void sim_stop (void);
 
-void st_log_deb (const char *msg, ...);
+void st_log_deb (const char *msg, ...) __attribute__((format(printf, 1, 2)));
 
 
 #endif

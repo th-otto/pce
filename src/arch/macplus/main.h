@@ -55,7 +55,7 @@ extern macplus_t  *par_sim;
 
 extern unsigned   par_sig_int;
 
-void mac_log_deb (const char *msg, ...);
+void mac_log_deb (const char *msg, ...) __attribute__((format(printf, 1, 2)));
 
 
 #endif

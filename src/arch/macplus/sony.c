@@ -947,7 +947,7 @@ int mac_sony_format (disk_t *dsk, unsigned long blk)
 		return (1);
 	}
 
-	mac_log_deb ("sony: formatted disk (%lu blocks)\n", dsk_get_block_cnt (dsk));
+	mac_log_deb ("sony: formatted disk (%lu blocks)\n", (unsigned long)dsk_get_block_cnt (dsk));
 
 	return (0);
 }

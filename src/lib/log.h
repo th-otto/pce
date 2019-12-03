@@ -46,10 +46,10 @@ void pce_log_rmv_fp (FILE *fp);
 void pce_log_set_level (FILE *fp, unsigned level);
 unsigned pce_log_get_level (FILE *fp);
 
-void pce_log (unsigned level, const char *msg, ...);
-void pce_log_va (unsigned level, const char *msg, va_list va);
-void pce_log_deb (const char *msg, ...);
-void pce_log_tag (unsigned level, const char *tag, const char *msg, ...);
+void pce_log (unsigned level, const char *msg, ...) __attribute__((format(printf, 2, 3)));
+void pce_log_va (unsigned level, const char *msg, va_list va) __attribute__((format(printf, 2, 0)));
+void pce_log_deb (const char *msg, ...) __attribute__((format(printf, 1, 2)));
+void pce_log_tag (unsigned level, const char *tag, const char *msg, ...) __attribute__((format(printf, 3, 4)));
 
 
 #endif

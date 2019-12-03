@@ -207,7 +207,7 @@ void xms_prt_state (xms_t *xms)
 
 	pce_printf ("XMS: EMB: %luK/%luK  UMB: %luK/%luK  HMA: %luK/%luK\n",
 		xms->emb_used / 1024, xms->emb_max / 1024,
-		xms->umb_used / 64, xms->umb_size / 64,
+		(unsigned long)xms->umb_used / 64, (unsigned long)xms->umb_size / 64,
 		hma / 1024, hma / 1024
 	);
 
@@ -222,7 +222,7 @@ void xms_prt_state (xms_t *xms)
 	}
 
 	pce_printf ("UMB: blk=%u used=%lu max=%lu\n",
-		xms->umb_cnt, 16 * xms->umb_used, 16 * xms->umb_size
+		xms->umb_cnt, 16 * (unsigned long)xms->umb_used, 16 * (unsigned long)xms->umb_size
 	);
 
 	for (i = 0; i < xms->umb_cnt; i++) {

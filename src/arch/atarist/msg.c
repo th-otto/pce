@@ -273,7 +273,7 @@ static
 int st_set_msg_emu_psg_driver (atari_st_t *sim, const char *msg, const char *val)
 {
 	if (st_psg_set_driver (&sim->psg, val)) {
-		st_log_deb (MSG_ERR, "*** failed to open sound driver (%s)\n", val);
+		pce_log (MSG_ERR, "*** failed to open sound driver (%s)\n", val);
 		return (1);
 	}
 

@@ -124,11 +124,11 @@ int c80_set_msg_emu_disk_eject (cpm80_t *sim, const char *msg, const char *val)
 
 		if (dsk == NULL) {
 			pce_log (MSG_ERR,
-				"*** disk eject error: no such disk (%lu)\n", drv
+				"*** disk eject error: no such disk (%u)\n", drv
 			);
 		}
 		else {
-			pce_log (MSG_INF, "ejecting drive %lu\n", drv);
+			pce_log (MSG_INF, "ejecting drive %u\n", drv);
 
 			dsks_rmv_disk (sim->dsks, dsk);
 

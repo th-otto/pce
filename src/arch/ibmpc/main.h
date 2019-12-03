@@ -43,7 +43,7 @@ extern const char *par_video;
 
 void sim_stop (void);
 
-void pc_log_deb (const char *msg, ...);
+void pc_log_deb (const char *msg, ...) __attribute__((format(printf, 1, 2)));
 
 
 #endif
