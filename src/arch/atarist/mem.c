@@ -94,8 +94,6 @@ unsigned char st_mem_get_uint8 (void *ext, unsigned long addr)
 {
 	atari_st_t *sim = ext;
 
-	addr &= sim->cpu->mem_mask;
-
 	if (addr < 0xf00000)
 	{
 		if (st_mem_check_ram_addr(sim, addr))
@@ -213,8 +211,6 @@ unsigned short st_mem_get_uint16 (void *ext, unsigned long addr)
 {
 	atari_st_t *sim = ext;
 
-	addr &= sim->cpu->mem_mask;
-
 	if (addr < 0xf00000) {
 		if (st_mem_check_ram_addr(sim, addr))
 		{
@@ -304,8 +300,6 @@ unsigned long st_mem_get_uint32 (void *ext, unsigned long addr)
 void st_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 {
 	atari_st_t *sim = ext;
-
-	addr &= sim->cpu->mem_mask;
 
 	if (addr < 0xf00000) {
 		if (st_mem_check_ram_addr(sim, addr))
@@ -438,8 +432,6 @@ void st_mem_set_uint8 (void *ext, unsigned long addr, unsigned char val)
 void st_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 {
 	atari_st_t *sim = ext;
-
-	addr &= sim->cpu->mem_mask;
 
 	if (addr < 0xf00000) {
 		if (st_mem_check_ram_addr(sim, addr))

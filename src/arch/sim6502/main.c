@@ -337,7 +337,7 @@ int s6502_exec_off (sim6502_t *sim, unsigned short addr)
 
 void s6502_run (sim6502_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	while (1) {
 		s6502_clock (sim, 1);
@@ -405,7 +405,8 @@ void do_g_b (cmd_t *cmd, sim6502_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	while (1) {
 		s6502_exec (sim);
@@ -447,7 +448,8 @@ void do_p (cmd_t *cmd, sim6502_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	while (cnt > 0) {
 		e6502_disasm_cur (sim->cpu, &dis);
@@ -535,7 +537,8 @@ void do_t (cmd_t *cmd, sim6502_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	for (i = 0; i < n; i++) {
 		s6502_exec (sim);

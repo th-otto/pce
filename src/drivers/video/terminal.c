@@ -51,9 +51,12 @@ void trm_init (terminal_t *trm, void *ext)
 	trm->set_mouse = NULL;
 
 	trm->del = NULL;
+	trm->open = NULL;
+	trm->close = NULL;
 	trm->set_msg_trm = NULL;
 	trm->update = NULL;
 	trm->check = NULL;
+	trm->grab = NULL;
 
 	trm->is_open = 0;
 
@@ -596,6 +599,10 @@ int trm_set_key_magic (terminal_t *trm, pce_key_t key)
 		trm_screenshot (trm, NULL);
 		return (0);
 
+	case PCE_KEY_V:
+		trm_set_msg_emu (trm, "video.rez", "-2");
+		return (0);
+
 	case PCE_KEY_UP:
 	case PCE_KEY_KP_8:
 		trm_set_scale (trm, trm->scale + 1);
@@ -656,9 +663,13 @@ void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key, unsigned int s
 		}
 		else if (key == PCE_KEY_PAUSE) {
 			if ((trm->escape & (TRM_ESC_ALT | TRM_ESC_CTRL)) == 0) {
+#if 0
 				trm_set_msg_trm (trm, "term.release", "");
 				trm_set_msg_trm (trm, "term.fullscreen", "0");
 				trm_set_msg_emu (trm, "emu.exit", "1");
+#else
+				trm_set_msg_emu (trm, "emu.pause.toggle", "");
+#endif
 				return;
 			}
 		}

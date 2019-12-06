@@ -393,9 +393,7 @@ void st_kbd_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scan
 				st_log_deb ("keypad: keyboard\n");
 			}
 			else {
-				st_log_deb ("keypad: joystick %u\n",
-					(kbd->keypad_joy & 1) + 1
-				);
+				st_log_deb ("keypad: joystick %u\n", (kbd->keypad_joy & 1) + 1);
 			}
 		}
 		else {
@@ -405,9 +403,7 @@ void st_kbd_set_key (void *ext, unsigned event, pce_key_t key, unsigned int scan
 				}
 			}
 
-			pce_log (MSG_INF, "unhandled magic key (%u)\n",
-				(unsigned) key
-			);
+			pce_log (MSG_INF, "unhandled magic key (%u)\n", (unsigned) key);
 		}
 
 		return;

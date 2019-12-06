@@ -79,7 +79,7 @@ cpu {
 	# 8 MHz CPU. A higher value emulates a faster CPU
 	# but also takes up more host CPU time. A value of 0
 	# dynamically adjusts the CPU speed.
-	speed = 1
+	speed = 4
 }
 
 
@@ -96,7 +96,7 @@ ram {
 # Multiple "rom" sections may be present.
 rom {
 	# The file from which the rom code is loaded
-	file = "tos-1.04-us.rom"
+	file = "etos256us.img"
 
 	# The memory block is initialized with this value.
 	default = 0xff
@@ -121,7 +121,7 @@ rom {
 # one will be used unless a terminal type is specified
 # on the command line.
 terminal {
-	driver = "sdl"
+	driver = "x11"
 
 	# The terminal escape key. The default is "ESC".
 	#escape = "CtrlRight"

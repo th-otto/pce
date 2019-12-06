@@ -58,6 +58,8 @@ typedef struct {
 
 	int (*check) (void *ext);
 
+	void (*grab) (void *ext, int grab);
+
 	int           is_open;
 
 	pce_key_t     escape_key;

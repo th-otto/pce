@@ -235,8 +235,10 @@ void sdl2_init_keymap_user (sdl2_t *sdl, ini_sct_t *sct)
 }
 
 static
-void sdl2_grab_mouse (sdl2_t *sdl, int grab)
+void sdl2_grab_mouse (void *ext, int grab)
 {
+	sdl2_t *sdl = (sdl2_t *)ext;
+
 	sdl->grab = (grab != 0);
 
 	if (sdl->window != NULL) {
@@ -349,8 +351,9 @@ unsigned sdl2_map_key (sdl2_t *sdl, SDL_Scancode key)
 }
 
 static
-void sdl2_update (sdl2_t *sdl)
+void sdl2_update (void *ext)
 {
+	sdl2_t *sdl = (sdl2_t *)ext;
 	terminal_t *trm;
 	void       *pixels;
 	int        pitch;
@@ -731,8 +734,9 @@ void sdl2_event_window (sdl2_t *sdl, SDL_WindowEvent *evt)
 }
 
 static
-int sdl2_check (sdl2_t *sdl)
+int sdl2_check (void *ext)
 {
+	sdl2_t *sdl = (sdl2_t *)ext;
 	unsigned int i;
 	SDL_Event evt;
 
@@ -793,8 +797,10 @@ int sdl2_check (sdl2_t *sdl)
 }
 
 static
-int sdl2_set_msg_trm (sdl2_t *sdl, const char *msg, const char *val)
+int sdl2_set_msg_trm (void *ext, const char *msg, const char *val)
 {
+	sdl2_t *sdl = (sdl2_t *)ext;
+
 	if (val == NULL) {
 		val = "";
 	}
@@ -838,14 +844,15 @@ int sdl2_set_msg_trm (sdl2_t *sdl, const char *msg, const char *val)
 }
 
 static
-void sdl2_del (sdl2_t *sdl)
+void sdl2_del (void *sdl)
 {
 	free (sdl);
 }
 
 static
-int sdl2_open (sdl2_t *sdl, unsigned w, unsigned h)
+int sdl2_open (void *ext, unsigned w, unsigned h)
 {
+	sdl2_t *sdl = (sdl2_t *)ext;
 	unsigned x, y;
 	unsigned fx, fy;
 	unsigned flags;
@@ -908,8 +915,10 @@ int sdl2_open (sdl2_t *sdl, unsigned w, unsigned h)
 }
 
 static
-int sdl2_close (sdl2_t *sdl)
+int sdl2_close (void *ext)
 {
+	sdl2_t *sdl = (sdl2_t *)ext;
+
 	sdl2_grab_mouse (sdl, 0);
 
 	if (sdl->texture != NULL) {
@@ -937,12 +946,13 @@ void sdl2_init (sdl2_t *sdl, ini_sct_t *sct)
 
 	trm_init (&sdl->trm, sdl);
 
-	sdl->trm.del = (void *) sdl2_del;
-	sdl->trm.open = (void *) sdl2_open;
-	sdl->trm.close = (void *) sdl2_close;
-	sdl->trm.set_msg_trm = (void *) sdl2_set_msg_trm;
-	sdl->trm.update = (void *) sdl2_update;
-	sdl->trm.check = (void *) sdl2_check;
+	sdl->trm.del = sdl2_del;
+	sdl->trm.open = sdl2_open;
+	sdl->trm.close = sdl2_close;
+	sdl->trm.set_msg_trm = sdl2_set_msg_trm;
+	sdl->trm.update = sdl2_update;
+	sdl->trm.check = sdl2_check;
+	sdl->trm.grab = sdl2_grab_mouse;
 
 	sdl->window = NULL;
 	sdl->render = NULL;

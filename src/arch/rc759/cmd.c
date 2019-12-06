@@ -498,7 +498,7 @@ void rc759_exec (rc759_t *sim)
 
 void rc759_run (rc759_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	rc759_clock_discontinuity (sim);
 
@@ -527,7 +527,7 @@ void rc759_run (rc759_t *sim)
  */
 void rc759_run_emscripten (rc759_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	rc759_clock_discontinuity (sim);
 
@@ -661,7 +661,8 @@ void rc759_cmd_g_b (cmd_t *cmd, rc759_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	rc759_clock_discontinuity (sim);
 
@@ -687,7 +688,8 @@ void rc759_cmd_g_far (cmd_t *cmd, rc759_t *sim)
 
 	seg = e86_get_cs (sim->cpu);
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	rc759_clock_discontinuity (sim);
 
@@ -1007,7 +1009,8 @@ void rc759_cmd_p (cmd_t *cmd, rc759_t *sim)
 
 	brk = 0;
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	sim->current_int &= 0xff;
 
@@ -1211,7 +1214,8 @@ void rc759_cmd_t (cmd_t *cmd, rc759_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	rc759_clock_discontinuity (sim);
 

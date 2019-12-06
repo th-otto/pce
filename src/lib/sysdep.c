@@ -194,12 +194,8 @@ void pce_set_fd_interactive (int fd, int interactive)
 #endif
 }
 
-void pce_start (unsigned *brk)
+void pce_start (void)
 {
-	if (brk != NULL) {
-		*brk = 0;
-	}
-
 	pce_set_fd_interactive (0, 0);
 }
 

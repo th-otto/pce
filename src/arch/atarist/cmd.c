@@ -472,7 +472,7 @@ int st_check_break (atari_st_t *sim)
 {
 	unsigned long pc;
 
-	pc = e68_get_pc (sim->cpu) & 0x00ffffff;
+	pc = e68_get_pc (sim->cpu);
 
 	if (bps_check (&sim->bps, 0, pc, stdout)) {
 		return (1);
@@ -528,7 +528,7 @@ int st_exec_to (atari_st_t *sim, unsigned long addr)
  */
 void st_run (atari_st_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 
@@ -538,8 +538,18 @@ void st_run (atari_st_t *sim)
 		if (sim->brk) {
 			break;
 		}
+		if (sim->cpu->halt & 4)
+		{
+			if (trm_check(sim->trm) || sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
+			{
+				sim->cpu->halt &= ~4;
+			} else
+			{
+				pce_usleep(1000UL);
+			}
+		}
 
-		while (sim->pause) {
+		while (sim->pause && !sim->brk) {
 			pce_usleep (50UL * 1000UL);
 			trm_check (sim->trm);
 		}
@@ -560,7 +570,7 @@ void st_run (atari_st_t *sim)
  */
 void st_run_emscripten (atari_st_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 
@@ -599,6 +609,16 @@ void st_run_emscripten_step ()
 			emscripten_cancel_main_loop();
 #endif
 			return;
+		}
+		if (sim->cpu->halt & 4)
+		{
+			if (trm_check(sim->trm) || sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
+			{
+				sim->cpu->halt &= ~4;
+			} else
+			{
+				return;
+			}
 		}
 	}
 	/* emscripten_pause_main_loop(); */
@@ -791,7 +811,8 @@ void st_cmd_g_b (cmd_t *cmd, atari_st_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 
@@ -823,7 +844,8 @@ void st_cmd_g_e (cmd_t *cmd, atari_st_t *sim)
 
 	cnt = e68_get_exception_cnt (sim->cpu);
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 
@@ -973,7 +995,8 @@ void st_cmd_p (cmd_t *cmd, atari_st_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 
@@ -1028,7 +1051,8 @@ void st_cmd_n (cmd_t *cmd, atari_st_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 
@@ -1074,7 +1098,8 @@ void st_cmd_rte (cmd_t *cmd, atari_st_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	while (1) {
 		st_exec (sim);
@@ -1173,7 +1198,8 @@ void st_cmd_t (cmd_t *cmd, atari_st_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	st_clock_discontinuity (sim);
 

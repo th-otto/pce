@@ -108,7 +108,7 @@ mem_blk_t *mem_blk_clone (const mem_blk_t *blk)
 	return (ret);
 }
 
-void mem_blk_fix_fct (mem_blk_t *blk)
+static void mem_blk_fix_fct (mem_blk_t *blk)
 {
 	if (blk->data != NULL) {
 		return;
@@ -465,6 +465,12 @@ void mem_init_last (memory_t *mem)
 	}
 }
 
+static unsigned long mem_def_translate(memory_t *mem, unsigned long addr)
+{
+	addr &= mem->mem_mask;
+	return addr;
+}
+
 void mem_init (memory_t *mem)
 {
 	mem->cnt = 0;
@@ -479,6 +485,9 @@ void mem_init (memory_t *mem)
 	mem->set_uint8 = NULL;
 	mem->set_uint16 = NULL;
 	mem->set_uint32 = NULL;
+
+	mem->mem_mask = 0xffffffff;
+	mem->addr_translate = mem_def_translate;
 
 	mem->defval = 0xffffffff;
 }
@@ -627,6 +636,7 @@ void mem_move_to_front (memory_t *mem, unsigned long addr)
 	unsigned  i;
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk (mem, addr);
 
 	if (blk == NULL) {
@@ -680,6 +690,7 @@ mem_blk_t *mem_get_blk_inline (memory_t *mem, unsigned long addr, unsigned last)
 
 mem_blk_t *mem_get_blk (memory_t *mem, unsigned long addr)
 {
+	addr = mem->addr_translate(mem, addr);
 	return (mem_get_blk_inline (mem, addr, 0));
 }
 
@@ -687,7 +698,8 @@ void *mem_get_ptr (memory_t *mem, unsigned long addr, unsigned long size)
 {
 	mem_blk_t *blk;
 
-	if ((blk = mem_get_blk (mem, addr)) == NULL) {
+	addr = mem->addr_translate(mem, addr);
+	if ((blk = mem_get_blk_inline (mem, addr, 0)) == NULL) {
 		return (NULL);
 	}
 
@@ -708,6 +720,7 @@ unsigned char mem_get_uint8 (memory_t *mem, unsigned long addr)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 1);
 
 	if (blk != NULL) {
@@ -733,6 +746,7 @@ unsigned short mem_get_uint16_be (memory_t *mem, unsigned long addr)
 	unsigned short val;
 	mem_blk_t      *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 1);
 
 	if (blk != NULL) {
@@ -766,6 +780,7 @@ unsigned short mem_get_uint16_le (memory_t *mem, unsigned long addr)
 	unsigned short val;
 	mem_blk_t      *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 1);
 
 	if (blk != NULL) {
@@ -799,6 +814,7 @@ unsigned long mem_get_uint32_be (memory_t *mem, unsigned long addr)
 	unsigned long val;
 	mem_blk_t     *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 1);
 
 	if (blk != NULL) {
@@ -836,6 +852,7 @@ unsigned long mem_get_uint32_le (memory_t *mem, unsigned long addr)
 	unsigned long val;
 	mem_blk_t     *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 1);
 
 	if (blk != NULL) {
@@ -872,6 +889,7 @@ void mem_set_uint8_rw (memory_t *mem, unsigned long addr, unsigned char val)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk (mem, addr);
 
 	if (blk != NULL) {
@@ -893,6 +911,7 @@ void mem_set_uint8 (memory_t *mem, unsigned long addr, unsigned char val)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 2);
 
 	if (blk != NULL) {
@@ -918,6 +937,7 @@ void mem_set_uint16_be (memory_t *mem, unsigned long addr, unsigned short val)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 2);
 
 	if (blk != NULL) {
@@ -950,6 +970,7 @@ void mem_set_uint16_le (memory_t *mem, unsigned long addr, unsigned short val)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 2);
 
 	if (blk != NULL) {
@@ -982,6 +1003,7 @@ void mem_set_uint32_be (memory_t *mem, unsigned long addr, unsigned long val)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 2);
 
 	if (blk != NULL) {
@@ -1018,6 +1040,7 @@ void mem_set_uint32_le (memory_t *mem, unsigned long addr, unsigned long val)
 {
 	mem_blk_t *blk;
 
+	addr = mem->addr_translate(mem, addr);
 	blk = mem_get_blk_inline (mem, addr, 2);
 
 	if (blk != NULL) {

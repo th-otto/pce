@@ -122,7 +122,6 @@ typedef struct e68000_s {
 
 	unsigned char  *ram;
 	uint32_t       ram_cnt;
-	uint32_t       mem_mask;
 	int generate_buserrs;
 	int report_buserrs;
 
@@ -142,8 +141,6 @@ typedef struct e68000_s {
 	void           (*log_undef) (void *ext, unsigned long ir);
 	void           (*log_exception) (void *ext, unsigned tn);
 	void           (*log_mem) (void *ext, unsigned long addr, unsigned type);
-
-	void           (*sleep_until_interrupt) (struct e68000_s *c);
 
 	uint32_t       dreg[8];
 	uint32_t       areg[8];
@@ -243,8 +240,6 @@ uint8_t e68_get_mem8 (e68000_t *c, uint32_t addr)
 	}
 #endif
 
-	addr &= c->mem_mask;
-
 	if (addr < c->ram_cnt) {
 		return (c->ram[addr]);
 	}
@@ -260,8 +255,6 @@ uint16_t e68_get_mem16 (e68000_t *c, uint32_t addr)
 		c->log_mem (c->log_ext, addr, 4);
 	}
 #endif
-
-	addr &= c->mem_mask;
 
 	if ((addr + 1) < c->ram_cnt) {
 		return ((c->ram[addr] << 8) | c->ram[addr + 1]);
@@ -280,8 +273,6 @@ uint32_t e68_get_mem32 (e68000_t *c, uint32_t addr)
 		c->log_mem (c->log_ext, addr, 8);
 	}
 #endif
-
-	addr &= c->mem_mask;
 
 	if ((addr + 3) < c->ram_cnt) {
 		val = c->ram[addr];
@@ -304,8 +295,6 @@ void e68_set_mem8 (e68000_t *c, uint32_t addr, uint8_t val)
 	}
 #endif
 
-	addr &= c->mem_mask;
-
 	if (addr < c->ram_cnt) {
 		c->ram[addr] = val;
 	}
@@ -322,8 +311,6 @@ void e68_set_mem16 (e68000_t *c, uint32_t addr, uint16_t val)
 		c->log_mem (c->log_ext, addr, 5);
 	}
 #endif
-
-	addr &= c->mem_mask;
 
 	if ((addr + 1) < c->ram_cnt) {
 		c->ram[addr] = (val >> 8) & 0xff;
@@ -342,8 +329,6 @@ void e68_set_mem32 (e68000_t *c, uint32_t addr, uint32_t val)
 		c->log_mem (c->log_ext, addr, 9);
 	}
 #endif
-
-	addr &= c->mem_mask;
 
 	if ((addr + 3) < c->ram_cnt) {
 		c->ram[addr] = (val >> 24) & 0xff;

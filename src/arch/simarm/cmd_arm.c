@@ -329,7 +329,7 @@ int sarm_exec_off (simarm_t *sim, unsigned long addr)
 
 void sarm_run (simarm_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	sarm_clock_discontinuity (sim);
 
@@ -462,7 +462,8 @@ void do_g_b (cmd_t *cmd, simarm_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	sarm_clock_discontinuity (sim);
 
@@ -520,7 +521,8 @@ void do_p (cmd_t *cmd, simarm_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	sarm_clock_discontinuity (sim);
 
@@ -625,7 +627,8 @@ void do_t (cmd_t *cmd, simarm_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	sarm_clock_discontinuity (sim);
 

@@ -274,8 +274,10 @@ void xt_init_keymap_user (xterm_t *xt, ini_sct_t *sct)
 }
 
 static
-void xt_grab_mouse (xterm_t *xt, int grab)
+void xt_grab_mouse (void *ext, int grab)
 {
+	xterm_t *xt = (xterm_t *)ext;
+
 	if ((xt->grab != 0) == (grab != 0)) {
 		return;
 	}
@@ -593,8 +595,9 @@ void xt_set_window_size (xterm_t *xt, unsigned w, unsigned h)
  * Update the window from the terminal buffer
  */
 static
-void xt_update (xterm_t *xt)
+void xt_update (void *ext)
 {
+	xterm_t *xt = (xterm_t *)ext;
 	terminal_t          *trm;
 	const unsigned char *buf;
 	unsigned            fx, fy;
@@ -942,8 +945,9 @@ void xt_event_motion (xterm_t *xt, XEvent *event)
 }
 
 static
-int xt_check (xterm_t *xt)
+int xt_check (void *ext)
 {
+	xterm_t *xt = (xterm_t *)ext;
 	unsigned int i;
 	XEvent event;
 
@@ -1029,7 +1033,7 @@ int xt_set_msg_trm (void *ext, const char *msg, const char *val)
 }
 
 static
-void xt_del (xterm_t *xt)
+void xt_del (void *xt)
 {
 	free (xt);
 }
@@ -1113,8 +1117,9 @@ int xt_open_window (xterm_t *xt, unsigned w, unsigned h)
 }
 
 static
-int xt_open (xterm_t *xt, unsigned w, unsigned h)
+int xt_open (void *ext, unsigned w, unsigned h)
 {
+	xterm_t *xt = (xterm_t *)ext;
 	XGCValues values;
 
 	xt->mse_x = 0;
@@ -1149,8 +1154,10 @@ int xt_open (xterm_t *xt, unsigned w, unsigned h)
 }
 
 static
-int xt_close (xterm_t *xt)
+int xt_close (void *ext)
 {
+	xterm_t *xt = (xterm_t *)ext;
+
 	xt_grab_mouse (xt, 0);
 
 	xt_image_free (xt);
@@ -1176,12 +1183,13 @@ void xt_init (xterm_t *xt, ini_sct_t *sct)
 
 	trm_init (&xt->trm, xt);
 
-	xt->trm.del = (void *) xt_del;
-	xt->trm.open = (void *) xt_open;
-	xt->trm.close = (void *) xt_close;
-	xt->trm.set_msg_trm = (void *) xt_set_msg_trm;
-	xt->trm.update = (void *) xt_update;
-	xt->trm.check = (void *) xt_check;
+	xt->trm.del = xt_del;
+	xt->trm.open = xt_open;
+	xt->trm.close = xt_close;
+	xt->trm.set_msg_trm = xt_set_msg_trm;
+	xt->trm.update = xt_update;
+	xt->trm.check = xt_check;
+	xt->trm.grab = xt_grab_mouse;
 
 	xt->display = NULL;
 	xt->root = None;

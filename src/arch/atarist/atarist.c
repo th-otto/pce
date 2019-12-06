@@ -102,9 +102,7 @@ void st_interrupt (atari_st_t *sim, unsigned level, int val)
 		v >>= 1;
 	}
 
-	sim->int_level = i;
-
-	e68_interrupt (sim->cpu, sim->int_level);
+	e68_interrupt (sim->cpu, i);
 }
 
 static
@@ -393,6 +391,15 @@ static int st_get_rom (atari_st_t *sim, ini_sct_t *ini)
 	return (0);
 }
 
+
+static unsigned long st_mem_addr_translate(memory_t *mem, unsigned long addr)
+{
+	addr &= mem->mem_mask;
+	if (addr >= 0xff000000)
+		addr &= 0xffffff;
+	return addr;
+}
+
 static
 void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 {
@@ -402,6 +409,7 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 		st_mem_get_uint8, st_mem_get_uint16, st_mem_get_uint32,
 		st_mem_set_uint8, st_mem_set_uint16, st_mem_set_uint32
 	);
+	sim->mem->addr_translate = st_mem_addr_translate;
 
 	ini_get_ram (sim->mem, ini, &sim->ram);
 	st_get_rom (sim, ini);
@@ -415,20 +423,6 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 	if (sim->rom_addr == 0) {
 		pce_log (MSG_ERR, "*** can't determine ROM address\n");
 	}
-}
-
-static void st_sleep_until_interrupt(e68000_t *c)
-{
-#if 0
-	int i;
-
-	i = 0;
-	while (i < 10 && c->int_ipl <= 0 && !c->int_nmi && !trm_check(par_sim->trm))
-	{
-		i++;
-		pce_usleep(1000);
-	}
-#endif
 }
 
 static
@@ -471,8 +465,6 @@ void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 	sim->cpu->report_buserrs = 1;
 
 	sim->speed_factor = speed;
-
-	sim->cpu->sleep_until_interrupt = st_sleep_until_interrupt;
 }
 
 static
@@ -790,7 +782,6 @@ void st_init (atari_st_t *sim, ini_sct_t *ini)
 	sim->reset = 0;
 
 	sim->int_mask = 0;
-	sim->int_level = 0;
 
 	sim->pause = 0;
 	sim->brk = 0;
@@ -913,6 +904,8 @@ void st_set_pause (atari_st_t *sim, int pause)
 {
 	sim->pause = (pause != 0);
 
+	if (sim->trm && sim->trm->grab)
+		sim->trm->grab(sim->trm->ext, !pause);
 	if (sim->pause == 0) {
 		st_clock_discontinuity (sim);
 	}
@@ -930,6 +923,7 @@ void st_set_speed (atari_st_t *sim, unsigned factor)
 
 int st_set_cpu_model (atari_st_t *sim, const char *model)
 {
+	sim->mem->mem_mask = 0xffffff;
 	if (strcmp (model, "68000") == 0) {
 		e68_set_68000 (sim->cpu);
 	}
@@ -978,7 +972,6 @@ void st_reset (atari_st_t *sim)
 	st_log_deb ("st: reset\n");
 
 	sim->int_mask = 0;
-	sim->int_level = 0;
 
 	e68901_reset (&sim->mfp);
 	e6850_reset (&sim->acia0);

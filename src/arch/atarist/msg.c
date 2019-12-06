@@ -439,13 +439,45 @@ static int st_set_msg_video_rez(atari_st_t *sim, const char *msg, const char *va
 
 	if (msg_get_sint (val, &v) == 0)
 	{
+		if (v == -2)
+		{
+			/*
+			 * switch monitortype from color to mono
+			 */
+			switch (sim->video->shift_mode)
+			{
+			case ST_LOW:
+			case ST_MEDIUM:
+				v = ST_HIGH;
+				break;
+			case ST_HIGH:
+				v = ST_LOW;
+				break;
+			case TT_LOW:
+			case TT_MEDIUM:
+				v = TT_HIGH;
+				break;
+			case TT_HIGH:
+				if (sim->viking == NULL)
+					v = TT_MEDIUM;
+				else
+					v = sim->video->shift_mode;
+				break;
+			default:
+				v = sim->video->shift_mode;
+				break;
+			}
+		}
 		switch (v)
 		{
 		case ST_LOW:
 		case ST_MEDIUM:
 		case ST_HIGH:
-			sim->video->shift_mode = v;
-			st_vid_reschange(sim, v);
+			if (v != sim->video->shift_mode)
+			{
+				sim->video->shift_mode = v;
+				st_vid_reschange(sim, v);
+			}
 			break;
 		case TT_HIGH:
 			if (sim->viking != NULL)

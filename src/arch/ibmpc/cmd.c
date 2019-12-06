@@ -531,7 +531,7 @@ void pc_exec (ibmpc_t *pc)
 
 void pc_run (ibmpc_t *pc)
 {
-	pce_start (&pc->brk);
+	pce_start ();
 
 	pc_clock_discontinuity (pc);
 
@@ -571,7 +571,7 @@ void pc_run_emscripten (ibmpc_t *pc)
 {
 	ibmpc_sim = pc;
 
-	pce_start (&pc->brk);
+	pce_start ();
 
 	pc_clock_discontinuity (pc);
 
@@ -779,7 +779,8 @@ void pc_cmd_g_b (cmd_t *cmd, ibmpc_t *pc)
 		return;
 	}
 
-	pce_start (&pc->brk);
+	pc->brk = 0;
+	pce_start ();
 
 	pc_clock_discontinuity (pc);
 
@@ -809,7 +810,8 @@ void pc_cmd_g_far (cmd_t *cmd, ibmpc_t *pc)
 
 	seg = e86_get_cs (pc->cpu);
 
-	pce_start (&pc->brk);
+	pc->brk = 0;
+	pce_start ();
 
 	pc_clock_discontinuity (pc);
 
@@ -1151,7 +1153,8 @@ void pc_cmd_p (cmd_t *cmd, ibmpc_t *pc)
 
 	brk = 0;
 
-	pce_start (&pc->brk);
+	pc->brk = 0;
+	pce_start ();
 
 	pc->current_int &= 0xff;
 
@@ -1372,7 +1375,8 @@ void pc_cmd_t (cmd_t *cmd, ibmpc_t *pc)
 		return;
 	}
 
-	pce_start (&pc->brk);
+	pc->brk = 0;
+	pce_start ();
 
 	pc_clock_discontinuity (pc);
 

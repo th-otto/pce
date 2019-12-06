@@ -57,7 +57,7 @@ int pce_fd_readable (int fd, int t);
 int pce_fd_writeable (int fd, int t);
 
 
-void pce_start (unsigned *brk);
+void pce_start (void);
 
 void pce_stop (void);
 

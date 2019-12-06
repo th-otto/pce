@@ -81,7 +81,8 @@ typedef struct {
 } mem_lst_t;
 
 
-typedef struct {
+typedef struct _memory_t memory_t;
+struct _memory_t {
 	unsigned         cnt;
 	mem_lst_t        *lst;
 
@@ -96,8 +97,11 @@ typedef struct {
 	mem_set_uint16_f set_uint16;
 	mem_set_uint32_f set_uint32;
 
+	unsigned long (*addr_translate)(memory_t *mem, unsigned long addr);
+	unsigned long mem_mask;
+
 	unsigned long    defval;
-} memory_t;
+};
 
 
 
@@ -134,8 +138,6 @@ void mem_blk_free (mem_blk_t *blk);
 void mem_blk_del (mem_blk_t *blk);
 
 mem_blk_t *mem_blk_clone (const mem_blk_t *blk);
-
-void mem_blk_fix_fct (mem_blk_t *blk);
 
 void mem_blk_set_fget (mem_blk_t *blk, void *ext, mem_get_uint8_f g8, mem_get_uint16_f g16, mem_get_uint32_f g32);
 void mem_blk_set_fset (mem_blk_t *blk, void *ext, mem_set_uint8_f s8, mem_set_uint16_f s16, mem_set_uint32_f s32);

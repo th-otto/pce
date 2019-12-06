@@ -33,8 +33,9 @@ void null_free (null_t *nt)
 }
 
 static
-void null_del (null_t *nt)
+void null_del (void *ext)
 {
+	null_t *nt = (null_t *)ext;
 	if (nt != NULL) {
 		null_free (nt);
 		free (nt);
@@ -42,13 +43,13 @@ void null_del (null_t *nt)
 }
 
 static
-int null_open (null_t *nt, unsigned w, unsigned h)
+int null_open (void *ext, unsigned w, unsigned h)
 {
 	return (0);
 }
 
 static
-int null_close (null_t *nt)
+int null_close (void *ext)
 {
 	return (0);
 }
@@ -76,12 +77,12 @@ int null_set_msg_trm (void *ext, const char *msg, const char *val)
 }
 
 static
-void null_update (null_t *vt)
+void null_update (void *ext)
 {
 }
 
 static
-int null_check (null_t *vt)
+int null_check (void *ext)
 {
 	return 1;
 }
@@ -91,12 +92,13 @@ void null_init (null_t *nt, ini_sct_t *ini)
 {
 	trm_init (&nt->trm, nt);
 
-	nt->trm.del = (void *) null_del;
-	nt->trm.open = (void *) null_open;
-	nt->trm.close = (void *) null_close;
+	nt->trm.del = null_del;
+	nt->trm.open = null_open;
+	nt->trm.close = null_close;
 	nt->trm.set_msg_trm = null_set_msg_trm;
-	nt->trm.update = (void *) null_update;
-	nt->trm.check = (void *) null_check;
+	nt->trm.update = null_update;
+	nt->trm.check = null_check;
+	nt->trm.grab = 0;
 }
 
 terminal_t *null_new (ini_sct_t *ini)

@@ -214,7 +214,7 @@ int ss32_exec_off (sims32_t *sim, unsigned long addr)
 
 void ss32_run (sims32_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	while (1) {
 		ss32_clock (sim, 1);
@@ -306,7 +306,8 @@ void do_g_b (cmd_t *cmd, sims32_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	while (1) {
 		ss32_exec (sim);
@@ -362,7 +363,8 @@ void do_p (cmd_t *cmd, sims32_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	while (cnt > 0) {
 		s32_dasm_mem (sim->cpu, &da, s32_get_pc (sim->cpu), sim->cpu->asi_text, S32_XLAT_CPU);
@@ -410,7 +412,8 @@ void do_rett (cmd_t *cmd, sims32_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	while (1) {
 		s32_dasm_mem (sim->cpu, &da, s32_get_pc (sim->cpu), sim->cpu->asi_text, S32_XLAT_CPU);
@@ -493,7 +496,8 @@ void do_t (cmd_t *cmd, sims32_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	for (i = 0; i < n; i++) {
 		ss32_exec (sim);

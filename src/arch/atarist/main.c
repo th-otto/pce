@@ -388,6 +388,8 @@ int main (int argc, char *argv[])
 	}
 
 	if (par_sim->brk != PCE_BRK_ABORT) {
+		if (par_sim->trm && par_sim->trm->grab)
+			par_sim->trm->grab(par_sim->trm->ext, 0);
 		mon_run (&par_mon);
 	}
 

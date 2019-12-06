@@ -389,7 +389,7 @@ int mac_exec_to (macplus_t *sim, unsigned long addr)
  */
 void mac_run (macplus_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 	mac_clock_discontinuity (sim);
 
 	while (1) {
@@ -420,7 +420,7 @@ void mac_run (macplus_t *sim)
  */
 void mac_run_emscripten (macplus_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	mac_clock_discontinuity (sim);
 
@@ -632,7 +632,8 @@ void mac_cmd_g_b (cmd_t *cmd, macplus_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 	mac_clock_discontinuity (sim);
 
 	while (1) {
@@ -663,7 +664,8 @@ void mac_cmd_g_e (cmd_t *cmd, macplus_t *sim)
 
 	cnt = e68_get_exception_cnt (sim->cpu);
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 	mac_clock_discontinuity (sim);
 
 	while (1) {
@@ -812,7 +814,8 @@ void mac_cmd_p (cmd_t *cmd, macplus_t *sim)
 
 	ecnt = e68_get_exception_cnt (sim->cpu);
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 	mac_clock_discontinuity (sim);
 
 	while (cnt > 0) {
@@ -870,7 +873,8 @@ void mac_cmd_rte (cmd_t *cmd, macplus_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 	mac_clock_discontinuity (sim);
 
 	while (1) {
@@ -968,7 +972,8 @@ void mac_cmd_t (cmd_t *cmd, macplus_t *sim)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 	mac_clock_discontinuity (sim);
 
 	for (i = 0; i < n; i++) {

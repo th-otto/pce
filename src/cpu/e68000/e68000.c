@@ -67,8 +67,6 @@ void e68_init (e68000_t *c)
 	c->log_exception = NULL;
 	c->log_mem = NULL;
 
-	c->sleep_until_interrupt = 0;
-
 	c->hook_ext = NULL;
 	c->hook = NULL;
 
@@ -84,7 +82,6 @@ void e68_init (e68000_t *c)
 	c->except_addr = 0;
 	c->except_vect = 0;
 	c->except_name = "none";
-	c->mem_mask = 0x00ffffff;
 
 	c->oprcnt = 0;
 	c->clkcnt = 0;
@@ -587,7 +584,7 @@ void e68_exception (e68000_t *c, unsigned vct, unsigned fmt, const char *name)
 	e68_push32 (c, e68_get_pc (c));
 	e68_push16 (c, sr1);
 
-	addr = (e68_get_vbr (c) + (vct << 2)) & c->mem_mask;
+	addr = (e68_get_vbr (c) + (vct << 2));
 	addr = e68_get_mem32 (c, addr);
 
 	e68_set_pc_prefetch (c, addr);
@@ -742,6 +739,7 @@ void e68_exception_format (e68000_t *c)
 
 void e68_exception_avec (e68000_t *c, unsigned level)
 {
+	c->halt &= ~4;
 	e68_exception (c, 24 + level, 0, "AVEC");
 	e68_set_iml (c, level & 7);
 	e68_set_clk (c, 62);
@@ -755,6 +753,7 @@ void e68_exception_trap (e68000_t *c, unsigned n)
 
 void e68_exception_intr (e68000_t *c, unsigned level, unsigned vect)
 {
+	c->halt &= ~4;
 	e68_exception (c, vect, 0, "INTR");
 	e68_set_iml (c, level & 7);
 	e68_set_clk (c, 62);
@@ -762,6 +761,7 @@ void e68_exception_intr (e68000_t *c, unsigned level, unsigned vect)
 
 void e68_interrupt (e68000_t *c, unsigned level)
 {
+	c->halt &= ~4;
 	if ((level == 7) && (c->int_ipl != 7)) {
 		c->int_nmi = 1;
 	}
@@ -854,12 +854,6 @@ void e68_execute (e68000_t *c)
 	else {
 		e68_set_clk (c, 4);
 
-		if (c->halt & 4)
-		{
-			if (c->sleep_until_interrupt)
-				c->sleep_until_interrupt(c);
-			c->halt &= ~4;
-		}
 		if (c->halt & ~1U) {
 			return;
 		}
@@ -906,12 +900,15 @@ void e68_clock (e68000_t *c, unsigned long n)
 
 		e68_execute (c);
 
-		if (c->delay == 0) {
-			fprintf (stderr, "warning: delay == 0 at %08lx\n",
-				(unsigned long) e68_get_pc (c)
-			);
-			fflush (stderr);
-			break;
+		if (!(c->halt & 4))
+		{
+			if (c->delay == 0) {
+				fprintf (stderr, "warning: delay == 0 at %08lx\n",
+					(unsigned long) e68_get_pc (c)
+				);
+				fflush (stderr);
+				break;
+			}
 		}
 	}
 

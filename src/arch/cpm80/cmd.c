@@ -362,7 +362,7 @@ int c80_exec_off (cpm80_t *sim, unsigned short addr)
 
 void c80_run (cpm80_t *sim)
 {
-	pce_start (&sim->brk);
+	pce_start ();
 
 	c80_clock_discontinuity (sim);
 
@@ -469,7 +469,8 @@ void c80_cmd_g_b (cpm80_t *sim, cmd_t *cmd)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	c80_clock_discontinuity (sim);
 
@@ -556,7 +557,8 @@ void c80_cmd_p (cpm80_t *sim, cmd_t *cmd)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	c80_clock_discontinuity (sim);
 
@@ -656,7 +658,8 @@ void c80_cmd_t (cpm80_t *sim, cmd_t *cmd)
 		return;
 	}
 
-	pce_start (&sim->brk);
+	sim->brk = 0;
+	pce_start ();
 
 	c80_clock_discontinuity (sim);
 

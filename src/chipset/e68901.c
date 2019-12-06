@@ -306,7 +306,7 @@ void timer_set_cr (e68901_t *mfp, unsigned idx, unsigned char val)
 		0, 4, 10, 16, 50, 64, 100, 200
 	};
 
-	tmr = &mfp->timer[idx & 3];
+	tmr = &mfp->timer[idx];
 
 	tmr->cr = val & 0x0f;
 
@@ -336,7 +336,7 @@ void timer_pulse (e68901_t *mfp, unsigned idx)
 {
 	e68901_timer_t *tmr;
 
-	tmr = &mfp->timer[idx & 3];
+	tmr = &mfp->timer[idx];
 
 	tmr->dr[0] = (tmr->dr[0] - 1) & 0xff;
 
@@ -362,7 +362,7 @@ void timer_set_inp (e68901_t *mfp, unsigned idx, char val)
 {
 	e68901_timer_t *tmr;
 
-	tmr = &mfp->timer[idx & 3];
+	tmr = &mfp->timer[idx];
 
 	if (tmr->inp == val) {
 		return;
@@ -388,7 +388,7 @@ void timer_clock (e68901_t *mfp, unsigned idx, unsigned cnt)
 {
 	e68901_timer_t *tmr;
 
-	tmr = &mfp->timer[idx & 3];
+	tmr = &mfp->timer[idx];
 
 	if (tmr->clk_div == 0) {
 		return;
