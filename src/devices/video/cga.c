@@ -234,7 +234,7 @@ void cga_line_composite (cga_t *cga, unsigned char *dst, const unsigned char *sr
 			dst[1] = g;
 			dst[2] = b;
 
-			dst += 3;
+			dst += cga->video.buf_bpp;
 
 			R = 0.0;
 			G = 0.0;
@@ -320,7 +320,7 @@ void cga_line_blank (cga_t *cga, unsigned row)
 
 	ptr = pce_video_get_row_ptr (&cga->video, row);
 
-	memset (ptr, 0, 3 * cga->video.buf_w);
+	memset (ptr, 0, cga->video.buf_bpp * cga->video.buf_w);
 }
 
 /*
@@ -721,7 +721,7 @@ void cga_vsync (cga_t *cga)
 	}
 
 	if ((vid->buf_w != vid->buf_next_w) || (vid->buf_h != vid->buf_next_h)) {
-		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, 3);
+		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, vid->buf_bpp);
 		cga->mod_cnt = 1;
 	}
 

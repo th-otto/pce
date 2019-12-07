@@ -60,7 +60,8 @@ static int st_video_init (atari_st_t *sim, st_video_t *vid, unsigned long addr)
 
 	vid->mono = sim->mono != 0;
 
-	vid->rgb = malloc (3UL * 640UL * 400UL);
+	vid->vid_bpp = sim->trm->term_bpp;
+	vid->rgb = malloc (vid->vid_bpp * 640UL * 400UL);
 
 	if (vid->rgb == NULL) {
 		return (1);
@@ -553,7 +554,7 @@ void st_video_update_line_0 (st_video_t *vid)
 			dst[1] = col[1];
 			dst[2] = col[2];
 
-			dst += 3;
+			dst += vid->vid_bpp;
 		}
 
 		src += 8;
@@ -596,7 +597,7 @@ void st_video_update_line_1 (st_video_t *vid)
 			dst[1] = col[1];
 			dst[2] = col[2];
 
-			dst += 3;
+			dst += vid->vid_bpp;
 		}
 
 		src += 4;
@@ -640,7 +641,7 @@ void st_video_update_line_2 (st_video_t *vid)
 
 			msk >>= 1;
 
-			dst += 3;
+			dst += vid->vid_bpp;
 		}
 
 		src += 1;

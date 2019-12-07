@@ -156,7 +156,7 @@ void wy700_line_blank (wy700_t *wy, unsigned row)
 
 	p = pce_video_get_row_ptr (&wy->video, row);
 
-	memset (p, 0, 3 * wy->video.buf_w);
+	memset (p, 0, wy->video.buf_bpp * wy->video.buf_w);
 }
 
 static
@@ -349,7 +349,7 @@ void wy700_update_640x400x2 (wy700_t *wy)
 	unsigned char       *dst;
 	const unsigned char *src;
 
-	pce_video_set_buf_size (&wy->video, 640, 400, 3);
+	pce_video_set_buf_size (&wy->video, 640, 400, wy->video.buf_bpp);
 
 	dst = wy->video.buf;
 	ofs = 0;
@@ -374,7 +374,7 @@ void wy700_update_640x400x2 (wy700_t *wy)
 				}
 
 				val <<= 1;
-				dst += 3;
+				dst += wy->video.buf_bpp;
 			}
 		}
 	}
@@ -392,7 +392,7 @@ void wy700_update_320x400x4 (wy700_t *wy)
 	unsigned char       *dst;
 	const unsigned char *src;
 
-	pce_video_set_buf_size (&wy->video, 320, 400, 3);
+	pce_video_set_buf_size (&wy->video, 320, 400, wy->video.buf_bpp);
 
 	dst = wy->video.buf;
 	ofs = 0;
@@ -414,7 +414,7 @@ void wy700_update_320x400x4 (wy700_t *wy)
 				dst[2] = col;
 
 				val <<= 2;
-				dst += 3;
+				dst += wy->video.buf_bpp;
 			}
 		}
 	}
@@ -432,7 +432,7 @@ void wy700_update_1280x400x2 (wy700_t *wy)
 	unsigned char       *dst;
 	const unsigned char *src;
 
-	pce_video_set_buf_size (&wy->video, 1280, 400, 3);
+	pce_video_set_buf_size (&wy->video, 1280, 400, wy->video.buf_bpp);
 
 	dst = wy->video.buf;
 	ofs = 0;
@@ -457,7 +457,7 @@ void wy700_update_1280x400x2 (wy700_t *wy)
 				}
 
 				val <<= 1;
-				dst += 3;
+				dst += wy->video.buf_bpp;
 			}
 		}
 	}
@@ -475,7 +475,7 @@ void wy700_update_640x400x4 (wy700_t *wy)
 	unsigned char       *dst;
 	const unsigned char *src;
 
-	pce_video_set_buf_size (&wy->video, 640, 400, 3);
+	pce_video_set_buf_size (&wy->video, 640, 400, wy->video.buf_bpp);
 
 	dst = wy->video.buf;
 	ofs = 0;
@@ -497,7 +497,7 @@ void wy700_update_640x400x4 (wy700_t *wy)
 				dst[2] = col;
 
 				val <<= 2;
-				dst += 3;
+				dst += wy->video.buf_bpp;
 			}
 		}
 	}
@@ -515,7 +515,7 @@ void wy700_update_1280x800x2 (wy700_t *wy)
 	unsigned char       *dst;
 	const unsigned char *src;
 
-	pce_video_set_buf_size (&wy->video, 1280, 800, 3);
+	pce_video_set_buf_size (&wy->video, 1280, 800, wy->video.buf_bpp);
 
 	dst = wy->video.buf;
 	ofs = 0;
@@ -544,7 +544,7 @@ void wy700_update_1280x800x2 (wy700_t *wy)
 				}
 
 				val <<= 1;
-				dst += 3;
+				dst += wy->video.buf_bpp;
 			}
 		}
 	}
@@ -562,7 +562,7 @@ void wy700_update_640x800x4 (wy700_t *wy)
 	unsigned char       *dst;
 	const unsigned char *src;
 
-	pce_video_set_buf_size (&wy->video, 640, 800, 3);
+	pce_video_set_buf_size (&wy->video, 640, 800, wy->video.buf_bpp);
 
 	dst = wy->video.buf;
 	ofs = 0;
@@ -588,7 +588,7 @@ void wy700_update_640x800x4 (wy700_t *wy)
 				dst[2] = col;
 
 				val <<= 2;
-				dst += 3;
+				dst += wy->video.buf_bpp;
 			}
 		}
 	}
@@ -710,7 +710,7 @@ void wy700_vsync (wy700_t *wy)
 	}
 
 	if ((vid->buf_w != vid->buf_next_w) || (vid->buf_h != vid->buf_next_h)) {
-		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, 3);
+		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, vid->buf_bpp);
 		wy->mod_cnt = 2;
 	}
 

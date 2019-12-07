@@ -60,7 +60,7 @@ void mda_line_blank (mda_t *mda, unsigned row)
 
 	ptr = pce_video_get_row_ptr (&mda->video, row);
 
-	memset (ptr, 0, 3 * mda->video.buf_w);
+	memset (ptr, 0, mda->video.buf_bpp * mda->video.buf_w);
 }
 
 static
@@ -205,7 +205,7 @@ void mda_vsync (mda_t *mda)
 	}
 
 	if ((vid->buf_w != vid->buf_next_w) || (vid->buf_h != vid->buf_next_h)) {
-		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, 3);
+		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, vid->buf_bpp);
 		mda->mod_cnt = 1;
 	}
 

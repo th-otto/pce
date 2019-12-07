@@ -62,6 +62,7 @@ struct _st_video_t {
 
 	const unsigned char *src;
 	unsigned char       *rgb;
+	size_t              vid_bpp;
 	unsigned char       *dst;
 
 	unsigned            hb1;

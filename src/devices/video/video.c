@@ -34,7 +34,7 @@ void pce_video_init (video_t *vid)
 
 	vid->buf_w = 0;
 	vid->buf_h = 0;
-	vid->buf_bpp = 0;
+	vid->buf_bpp = 3;
 	vid->buf_next_w = 0;
 	vid->buf_next_h = 0;
 	vid->buf_max = 0;

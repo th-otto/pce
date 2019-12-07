@@ -71,6 +71,7 @@ typedef struct {
 
 	unsigned long buf_cnt;
 	unsigned char *buf;
+	size_t term_bpp;
 
 	unsigned      scale;
 

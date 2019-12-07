@@ -48,10 +48,9 @@ typedef struct {
 } st_viking_t;
 
 
-int st_viking_init (st_viking_t *vid, unsigned long addr);
 void st_viking_free (st_viking_t *vid);
 
-st_viking_t *st_viking_new (unsigned long addr);
+st_viking_t *st_viking_new (unsigned long addr, size_t bpp);
 void st_viking_del (st_viking_t *vid);
 
 void st_viking_set_input_clock (st_viking_t *vik, unsigned long clock);

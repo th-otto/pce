@@ -42,8 +42,9 @@ static void st_viking_set_uint16 (void *vik, unsigned long addr, unsigned short 
 static void st_viking_set_uint32 (void *vik, unsigned long addr, unsigned long val);
 
 
-int st_viking_init (st_viking_t *vik, unsigned long addr)
+static int st_viking_init (st_viking_t *vik, unsigned long addr, size_t bpp)
 {
+	memset(vik, 0, sizeof(*vik));
 	vik->mem = NULL;
 
 	if (mem_blk_init (&vik->ram, addr, 256UL * 1024UL, 1)) {
@@ -57,7 +58,7 @@ int st_viking_init (st_viking_t *vik, unsigned long addr)
 		st_viking_set_uint8, st_viking_set_uint16, st_viking_set_uint32
 	);
 
-	if ((vik->rgb = malloc (3UL * VIKING_W * VIKING_H)) == NULL) {
+	if ((vik->rgb = malloc (bpp * VIKING_W * VIKING_H)) == NULL) {
 		return (1);
 	}
 
@@ -82,7 +83,7 @@ void st_viking_free (st_viking_t *vik)
 	mem_blk_free (&vik->ram);
 }
 
-st_viking_t *st_viking_new (unsigned long addr)
+st_viking_t *st_viking_new (unsigned long addr, size_t bpp)
 {
 	st_viking_t *vik;
 
@@ -90,7 +91,7 @@ st_viking_t *st_viking_new (unsigned long addr)
 		return (NULL);
 	}
 
-	if (st_viking_init (vik, addr)) {
+	if (st_viking_init (vik, addr, bpp)) {
 		free (vik);
 		return (NULL);
 	}
@@ -254,7 +255,7 @@ void st_viking_update (st_viking_t *vik)
 	}
 
 	src = vik->ptr + vik->mod_y1 * (VIKING_W / 8);
-	dst = vik->rgb + vik->mod_y1 * (VIKING_W / 8) * 3UL;
+	dst = vik->rgb + vik->mod_y1 * (VIKING_W / 8) * vik->trm->term_bpp;
 
 	for (j = vik->mod_y1; j <= vik->mod_y2; j++) {
 		for (i = 0; i < (VIKING_W / 8); i++) {
@@ -262,15 +263,17 @@ void st_viking_update (st_viking_t *vik)
 
 			for (k = 0; k < 8; k++) {
 				if (val & 0x80) {
-					*(dst++) = 0x00;
-					*(dst++) = 0x00;
-					*(dst++) = 0x00;
+					*dst++ = 0x00;
+					*dst++ = 0x00;
+					*dst++ = 0x00;
 				}
 				else {
-					*(dst++) = 0xff;
-					*(dst++) = 0xff;
-					*(dst++) = 0xff;
+					*dst++ = 0xff;
+					*dst++ = 0xff;
+					*dst++ = 0xff;
 				}
+				if (vik->trm->term_bpp == 4)
+					*dst++ = 0xff;
 
 				val <<= 1;
 			}
@@ -309,7 +312,7 @@ void st_viking_clock (st_viking_t *vik, unsigned cnt)
 		st_viking_update (vik);
 
 		n = vik->mod_y2 - vik->mod_y1 + 1;
-		p = vik->rgb + 3UL * (VIKING_W / 8) * vik->mod_y1;
+		p = vik->rgb + vik->trm->term_bpp * (VIKING_W / 8) * vik->mod_y1;
 
 		trm_set_size (vik->trm, VIKING_W, VIKING_H);
 		trm_set_lines (vik->trm, p, vik->mod_y1, n);

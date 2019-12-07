@@ -224,7 +224,7 @@ void mac_video_update (mac_video_t *mv)
 					rgb[j + 2] = col1[2];
 				}
 
-				j += 3;
+				j += mv->trm->term_bpp;
 			}
 
 			trm_set_lines (mv->trm, rgb, y, n);

@@ -115,9 +115,7 @@ void mac_dasm_str (char *dst, e68_dasm_t *op)
 		break;
 
 	case 3:
-		sprintf (tmp, "%-8s %s, %s, %s",
-			ins, op->arg1, op->arg2, op->arg3
-		);
+		sprintf (tmp, "%-8s %s, %s, %s", ins, op->arg1, op->arg2, op->arg3);
 		break;
 
 	default:

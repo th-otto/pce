@@ -68,6 +68,7 @@ void trm_init (terminal_t *trm, void *ext)
 
 	trm->buf_cnt = 0;
 	trm->buf = NULL;
+	trm->term_bpp = 3;
 
 	trm->scale = 1;
 
@@ -246,7 +247,7 @@ int trm_screenshot (terminal_t *trm, const char *fname)
 		return (1);
 	}
 
-	cnt = 3 * (unsigned long) trm->w * (unsigned long) trm->h;
+	cnt = trm->term_bpp * (unsigned long) trm->w * (unsigned long) trm->h;
 
 	fprintf (fp, "P6\n%u %u\n%u\x0a", trm->w, trm->h, 255);
 
@@ -323,7 +324,7 @@ void trm_set_size (terminal_t *trm, unsigned w, unsigned h)
 		return;
 	}
 
-	cnt = 3 * (unsigned long) w * (unsigned long) h;
+	cnt = trm->term_bpp * (unsigned long) w * (unsigned long) h;
 
 	if (trm->buf_cnt != cnt) {
 		unsigned char *tmp;
@@ -372,7 +373,7 @@ void trm_set_pixel (terminal_t *trm, unsigned x, unsigned y, const unsigned char
 {
 	unsigned char *buf;
 
-	buf = trm->buf + 3 * (trm->w * y + x);
+	buf = trm->buf + trm->term_bpp * (trm->w * y + x);
 
 	buf[0] = col[0];
 	buf[1] = col[1];
@@ -415,7 +416,7 @@ void trm_set_lines (terminal_t *trm, const void *buf, unsigned y, unsigned cnt)
 	const unsigned char *src;
 	unsigned char       *dst;
 
-	w3 = 3UL * trm->w;
+	w3 = trm->term_bpp * trm->w;
 
 	src = buf;
 	dst = trm->buf + w3 * y;
@@ -774,7 +775,7 @@ unsigned char *trm_scale_get_buf (terminal_t *trm, unsigned w, unsigned h)
 	unsigned long cnt;
 	unsigned char *tmp;
 
-	cnt = 3 * (unsigned long) w * (unsigned long) h;
+	cnt = trm->term_bpp * (unsigned long) w * (unsigned long) h;
 
 	if (cnt > trm->scale_buf_cnt) {
 		tmp = realloc (trm->scale_buf, cnt);
@@ -790,11 +791,11 @@ unsigned char *trm_scale_get_buf (terminal_t *trm, unsigned w, unsigned h)
 }
 
 static
-void trm_scale_w1 (unsigned char *dst, const unsigned char *src, unsigned w, unsigned h, unsigned fy)
+void trm_scale_w1 (unsigned char *dst, const unsigned char *src, unsigned w, unsigned h, unsigned fy, size_t bpp)
 {
 	unsigned i, n, y;
 
-	n = 3 * w;
+	n = bpp * w;
 
 	for (y = 0; y < h; y++) {
 		memcpy (dst, src, n);
@@ -810,23 +811,26 @@ void trm_scale_w1 (unsigned char *dst, const unsigned char *src, unsigned w, uns
 }
 
 static
-void trm_scale_w2 (unsigned char *dst, const unsigned char *src, unsigned w, unsigned h, unsigned fy)
+void trm_scale_w2 (unsigned char *dst, const unsigned char *src, unsigned w, unsigned h, unsigned fy, size_t bpp)
 {
 	unsigned i, n, x, y;
 
-	n = 6 * w;
+	n = bpp * 2 * w;
 
 	for (y = 0; y < h; y++) {
 		for (x = 0; x < w; x++) {
-			dst[0] = src[0];
-			dst[1] = src[1];
-			dst[2] = src[2];
-			dst[3] = src[0];
-			dst[4] = src[1];
-			dst[5] = src[2];
+			*dst++ = src[0];
+			*dst++ = src[1];
+			*dst++ = src[2];
+			if (bpp == 4)
+				*dst++ = src[3];
+			*dst++ = src[0];
+			*dst++ = src[1];
+			*dst++ = src[2];
+			if (bpp == 4)
+				*dst++ = src[3];
 
-			dst += 6;
-			src += 3;
+			src += bpp;
 		}
 
 		for (i = 1; i < fy; i++) {
@@ -837,23 +841,23 @@ void trm_scale_w2 (unsigned char *dst, const unsigned char *src, unsigned w, uns
 }
 
 static
-void trm_scale_wx (unsigned char *dst, const unsigned char *src, unsigned w, unsigned h, unsigned fx, unsigned fy)
+void trm_scale_wx (unsigned char *dst, const unsigned char *src, unsigned w, unsigned h, unsigned fx, unsigned fy, size_t bpp)
 {
 	unsigned i, j, n, x, y;
 
-	n = 3 * fx * w;
+	n = bpp * fx * w;
 
 	for (y = 0; y < h; y++) {
 		for (x = 0; x < w; x++) {
 			for (i = 0; i < fx; i++) {
-				dst[0] = src[0];
-				dst[1] = src[1];
-				dst[2] = src[2];
-
-				dst += 3;
+				*dst++ = src[0];
+				*dst++ = src[1];
+				*dst++ = src[2];
+				if (bpp == 4)
+					*dst++ = src[3];
 			}
 
-			src += 3;
+			src += bpp;
 		}
 
 		for (j = 1; j < fy; j++) {
@@ -884,13 +888,13 @@ const unsigned char *trm_scale (terminal_t *trm,
 	}
 
 	if (fx == 1) {
-		trm_scale_w1 (dst, src, w, h, fy);
+		trm_scale_w1 (dst, src, w, h, fy, trm->term_bpp);
 	}
 	else if (fx == 2) {
-		trm_scale_w2 (dst, src, w, h, fy);
+		trm_scale_w2 (dst, src, w, h, fy, trm->term_bpp);
 	}
 	else {
-		trm_scale_wx (dst, src, w, h, fx, fy);
+		trm_scale_wx (dst, src, w, h, fx, fy, trm->term_bpp);
 	}
 
 	return (dst);

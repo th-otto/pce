@@ -469,7 +469,7 @@ int vga_set_buf_size (vga_t *vga, unsigned w, unsigned h)
 	unsigned long cnt;
 	unsigned char *tmp;
 
-	cnt = 3UL * (unsigned long) w * (unsigned long) h;
+	cnt = vga->video.buf_bpp * (unsigned long) w * (unsigned long) h;
 
 	if (cnt > vga->bufmax) {
 		tmp = realloc (vga->buf, cnt);
@@ -624,7 +624,7 @@ void vga_update_text (vga_t *vga)
 			h2 = ch;
 		}
 
-		dst = vga->buf + 3UL * y * w;
+		dst = vga->buf + vga->video.buf_bpp * y * w;
 
 		rptr = addr;
 
@@ -747,7 +747,7 @@ void vga_update_graphics (vga_t *vga)
 			}
 		}
 
-		dst = vga->buf + 3UL * y * w;
+		dst = vga->buf + vga->video.buf_bpp * y * w;
 
 		rptr = addr;
 

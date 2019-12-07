@@ -375,7 +375,7 @@ void sdl2_update (void *ext)
 	}
 
 	SDL_LockTexture (sdl->texture, NULL, &pixels, &pitch);
-	memcpy (pixels, trm->buf, 3UL * trm->w * trm->h);
+	memcpy (pixels, trm->buf, trm->term_bpp * trm->w * trm->h);
 	SDL_UnlockTexture (sdl->texture);
 
 	SDL_RenderCopy (sdl->render, sdl->texture, NULL, NULL);

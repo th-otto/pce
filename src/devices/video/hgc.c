@@ -71,7 +71,7 @@ void hgc_line_blank (hgc_t *hgc, unsigned row)
 
 	ptr = pce_video_get_row_ptr (&hgc->video, row);
 
-	memset (ptr, 0, 3 * hgc->video.buf_w);
+	memset (ptr, 0, hgc->video.buf_bpp * hgc->video.buf_w);
 }
 
 static
@@ -265,7 +265,7 @@ void hgc_vsync (hgc_t *hgc)
 	}
 
 	if ((vid->buf_w != vid->buf_next_w) || (vid->buf_h != vid->buf_next_h)) {
-		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, 3);
+		pce_video_set_buf_size (vid, vid->buf_next_w, vid->buf_next_h, vid->buf_bpp);
 		hgc->mod_cnt = 1;
 	}
 

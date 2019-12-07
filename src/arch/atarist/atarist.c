@@ -755,7 +755,7 @@ void st_setup_viking (atari_st_t *sim, ini_sct_t *ini)
 
 	pce_log_tag (MSG_INF, "VIKING:", "addr=0xc00000 boot=%d\n", boot);
 
-	if ((sim->viking = st_viking_new (0xc00000)) == NULL) {
+	if ((sim->viking = st_viking_new (0xc00000, sim->trm->term_bpp)) == NULL) {
 		return;
 	}
 

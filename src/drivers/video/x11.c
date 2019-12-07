@@ -433,7 +433,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 	unsigned      bpp;
 	unsigned long val;
 
-	src = src + 3 * w * y;
+	src = src + xt->trm.term_bpp * w * y;
 	dst = xt->img_buf + xt->img->bytes_per_line * y;
 
 	xt_decode_mask (xt->img->red_mask, &ri, &rn);
@@ -443,7 +443,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 	bpp = xt->img->bits_per_pixel / 8;
 
 	for (j = 0; j < h; j++) {
-		si = 3 * x;
+		si = xt->trm.term_bpp * x;
 		di = bpp * x;
 
 		switch ((bpp << 1) | (xt->img->byte_order == MSBFirst)) {
@@ -451,7 +451,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 		case ((1 << 1) | 1):
 			for (i = 0; i < w; i++) {
 				dst[di] = src[1];
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 1;
 			}
 			break;
@@ -463,7 +463,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 				dst[di + 0] = val & 0xff;
 				dst[di + 1] = (val >> 8) & 0xff;
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 2;
 			}
 			break;
@@ -475,7 +475,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 				dst[di + 0] = (val >> 8) & 0xff;
 				dst[di + 1] = val & 0xff;
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 2;
 			}
 			break;
@@ -488,7 +488,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 				dst[di + 1] = (val >> 8) & 0xff;
 				dst[di + 2] = (val >> 16) & 0xff;
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 3;
 			}
 			break;
@@ -501,7 +501,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 				dst[di + 1] = (val >> 8) & 0xff;
 				dst[di + 2] = val & 0xff;
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 3;
 			}
 			break;
@@ -515,7 +515,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 				dst[di + 2] = (val >> 16) & 0xff;
 				dst[di + 3] = (val >> 24) & 0xff;
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 4;
 			}
 			break;
@@ -529,7 +529,7 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 				dst[di + 2] = (val >> 8) & 0xff;
 				dst[di + 3] = val & 0xff;
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += 4;
 			}
 			break;
@@ -551,13 +551,13 @@ void xt_image_draw (xterm_t *xt, const unsigned char *src, unsigned x, unsigned 
 					}
 				}
 
-				si += 3;
+				si += xt->trm.term_bpp;
 				di += bpp;
 			}
 			break;
 		}
 
-		src += 3 * w;
+		src += xt->trm.term_bpp * w;
 		dst += xt->img->bytes_per_line;
 	}
 }

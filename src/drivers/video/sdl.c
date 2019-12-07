@@ -384,7 +384,7 @@ void sdl_update (void *ext)
 {
 	sdl_t *sdl = (sdl_t *)ext;
 	SDL_Surface         *s;
-	Uint32              rmask, gmask, bmask;
+	Uint32              rmask, gmask, bmask, amask;
 	terminal_t          *trm;
 	SDL_Rect            dst;
 	const unsigned char *buf;
@@ -411,10 +411,12 @@ void sdl_update (void *ext)
 	rmask = 0x00ff0000;
 	gmask = 0x0000ff00;
 	bmask = 0x000000ff;
+	amask = 0xff000000;
 #else
 	rmask = 0x000000ff;
 	gmask = 0x0000ff00;
 	bmask = 0x00ff0000;
+	amask = 0xff000000;
 #endif
 
 	buf = trm_scale (trm, trm->buf, trm->w, trm->h, fx, fy);
@@ -425,8 +427,8 @@ void sdl_update (void *ext)
 	uh = fy * trm->update_h;
 
 	s = SDL_CreateRGBSurfaceFrom (
-		(char *) buf + 3 * (dw * uy + ux), uw, uh, 24, 3 * dw,
-		rmask, gmask, bmask, 0
+		(char *) buf + trm->term_bpp * (dw * uy + ux), uw, uh, trm->term_bpp * 8, trm->term_bpp * dw,
+		rmask, gmask, bmask, trm->term_bpp == 3 ? 0 : amask
 	);
 
 	dst.x = ux + sdl->border[0];

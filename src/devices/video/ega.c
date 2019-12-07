@@ -497,7 +497,7 @@ int ega_set_buf_size (ega_t *ega, unsigned w, unsigned h)
 	unsigned long cnt;
 	unsigned char *tmp;
 
-	cnt = 3UL * (unsigned long) w * (unsigned long) h;
+	cnt = ega->video.buf_bpp * (unsigned long) w * (unsigned long) h;
 
 	if (cnt > ega->bufmax) {
 		tmp = realloc (ega->buf, cnt);
@@ -652,7 +652,7 @@ void ega_update_text (ega_t *ega)
 			h2 = ch;
 		}
 
-		dst = ega->buf + 3UL * y * w;
+		dst = ega->buf + ega->video.buf_bpp * y * w;
 
 		rptr = addr;
 
@@ -730,7 +730,7 @@ void ega_update_graphics (ega_t *ega)
 	y = 0;
 
 	while (y < h) {
-		dst = ega->buf + 3UL * y * w;
+		dst = ega->buf + ega->video.buf_bpp * y * w;
 
 		rptr = addr;
 
