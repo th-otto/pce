@@ -118,7 +118,7 @@ struct atari_st_s {
 	unsigned long sync_us;
 	long          sync_sleep;
 
-	unsigned long clk_cnt;
+	unsigned long long clk_cnt;
 	unsigned long clk_div[4];
 
 	unsigned      ser_buf_i;

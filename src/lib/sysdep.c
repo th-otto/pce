@@ -82,8 +82,8 @@ unsigned long pce_get_interval_us (unsigned long *val)
 		return (0);
 	}
 
-	clk1 = (1000000UL * (unsigned long) tv.tv_sec + tv.tv_usec) & 0xffffffff;
-	clk0 = (clk1 - *val) & 0xffffffff;
+	clk1 = 1000000UL * tv.tv_sec + tv.tv_usec;
+	clk0 = clk1 - *val;
 
 	*val = clk1;
 
