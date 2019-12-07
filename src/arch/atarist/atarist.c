@@ -717,9 +717,7 @@ void st_setup_video (atari_st_t *sim, ini_sct_t *ini)
 
 	ini_get_uint16 (sct, "frame_skip", &skip, 0);
 
-	pce_log_tag (MSG_INF, "VIDEO:", "mono=%d frame_skip=%u\n",
-		sim->mono, skip
-	);
+	pce_log_tag (MSG_INF, "VIDEO:", "mono=%d frame_skip=%u\n", sim->mono, skip);
 
 	if ((sim->video = st_video_new (sim, 0xff8200)) == NULL) {
 		return;

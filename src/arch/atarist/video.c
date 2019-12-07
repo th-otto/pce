@@ -48,7 +48,8 @@ static int st_video_init (atari_st_t *sim, st_video_t *vid, unsigned long addr)
 	vid->mem = NULL;
 	vid->base = 0;
 	vid->addr = 0;
-
+	vid->ste = sim->model & PCE_ST_STE;
+	
 	if (mem_blk_init (&vid->reg, addr, 128, 0)) {
 		return (1);
 	}
@@ -207,9 +208,6 @@ void st_video_set_timing (st_video_t *vid)
 		vid->vb2 = 400 + 101;
 		break;
 	}
-
-	vid->frame_rate[0] = 8000000;
-	vid->frame_rate[1] = (unsigned long) vid->hb2 * vid->vb2;
 }
 
 static void st_video_set_rez(st_video_t *vid)
@@ -279,9 +277,20 @@ void st_video_set_palette (st_video_t *vid, unsigned idx, unsigned short val)
 	pal[1] = (val << 1) & 0xe0;
 	pal[2] = (val << 5) & 0xe0;
 
-	pal[0] |= (pal[0] >> 3) | (pal[0] >> 6);
-	pal[1] |= (pal[1] >> 3) | (pal[1] >> 6);
-	pal[2] |= (pal[2] >> 3) | (pal[2] >> 6);
+	if (vid->ste)
+	{
+		pal[0] |= (val >> 7) & 0x10;
+		pal[1] |= (val >> 3) & 0x10;
+		pal[2] |= (val << 1) & 0x10;
+		pal[0] |= (pal[0] >> 4);
+		pal[1] |= (pal[1] >> 4);
+		pal[2] |= (pal[2] >> 4);
+	} else
+	{
+		pal[0] |= (pal[0] >> 3) | (pal[0] >> 6);
+		pal[1] |= (pal[1] >> 3) | (pal[1] >> 6);
+		pal[2] |= (pal[2] >> 3) | (pal[2] >> 6);
+	}
 
 	if (idx == 0) {
 		tmp = (val & 1) ? 0xff : 0x00;
@@ -389,7 +398,7 @@ unsigned short st_video_get_uint16 (void *ext, unsigned long addr)
 		val = (vid->base >> 8) & 0xff;
 	}
 	else if ((addr >= 0x0040) && (addr < 0x0060)) {
-		val = vid->palette[(addr - 64) >> 1];
+		val = vid->palette[(addr - 64) >> 1] & (vid->ste ? 0xfff : 0x777);
 	}
 	else if (addr == 0x0060) {
 		val = vid->shift_mode << 8;

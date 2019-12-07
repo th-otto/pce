@@ -46,6 +46,7 @@ struct _st_video_t {
 	memory_t            *mem;
 	unsigned long       base;
 	unsigned long       addr;
+	int ste;
 
 	mem_blk_t           reg;
 
@@ -75,8 +76,6 @@ struct _st_video_t {
 
 	unsigned            frame_skip;
 	unsigned            frame_skip_max;
-
-	unsigned long       frame_rate[2];
 
 	terminal_t          *trm;
 
