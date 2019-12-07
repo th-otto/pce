@@ -531,16 +531,16 @@ void st_run (atari_st_t *sim)
 	st_clock_discontinuity (sim);
 
 	while (1) {
-		st_clock (sim, 0);
+		st_clock (sim, 16);
 
 		if (sim->brk) {
 			break;
 		}
-		if (sim->cpu->halt & 4)
+		if (sim->cpu->halt & HALT_STOP)
 		{
 			if (trm_check(sim->trm) || sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
 			{
-				sim->cpu->halt &= ~4;
+				sim->cpu->halt &= ~HALT_STOP;
 			} else
 			{
 				pce_usleep(1000UL);
@@ -572,7 +572,6 @@ void st_run_emscripten (atari_st_t *sim)
 
 	st_clock_discontinuity (sim);
 
-
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(st_run_emscripten_step, 0, 1);
 #else
@@ -599,7 +598,7 @@ void st_run_emscripten_step ()
 	int i;
 	for (i = 0; i < 10000; ++i)
 	{	
-		st_clock (sim, 0);
+		st_clock (sim, 16);
 
 		if (sim->brk) {
 			pce_stop();
@@ -608,11 +607,11 @@ void st_run_emscripten_step ()
 #endif
 			return;
 		}
-		if (sim->cpu->halt & 4)
+		if (sim->cpu->halt & HALT_STOP)
 		{
-			if (trm_check(sim->trm) || sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
+			if (sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
 			{
-				sim->cpu->halt &= ~4;
+				sim->cpu->halt &= ~HALT_STOP;
 			} else
 			{
 				return;

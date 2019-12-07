@@ -25,7 +25,7 @@ system {
 	model = "st"
 
 	# Disable the startup memory test.
-	fastboot = 1
+	fastboot = 0
 
 	# The monitor type.
 	# If this is true, a mono monitor is attached, a color

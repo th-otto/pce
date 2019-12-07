@@ -1026,6 +1026,7 @@ void st_reset (atari_st_t *sim)
 		mem_set_uint8 (sim->mem, 0x0424, sim->memcfg);
 		mem_set_uint32_be (sim->mem, 0x042e, ramsize);
 		mem_set_uint32_be (sim->mem, 0x04ba, 16000);
+		mem_set_uint16_be (sim->mem, 0x0446, 2); /* bootdev */
 	}
 
 	st_clock_discontinuity (sim);
@@ -1077,10 +1078,6 @@ void st_realtime_sync (atari_st_t *sim, unsigned long n)
 void st_clock (atari_st_t *sim, unsigned n)
 {
 	unsigned long clk, cpuclk;
-
-	if (n == 0) {
-		n = 16;
-	}
 
 	if (sim->speed_factor == 0) {
 		cpuclk = n + sim->speed_clock_extra;

@@ -71,7 +71,7 @@ void e68_init (e68000_t *c)
 	c->hook = NULL;
 
 	c->supervisor = 1;
-	c->halt = 2;
+	c->halt = HALT_RESET;
 
 	c->int_ipl = 0;
 	c->int_nmi = 0;
@@ -247,7 +247,7 @@ unsigned e68_get_halt (e68000_t *c)
 
 void e68_set_halt (e68000_t *c, unsigned val)
 {
-	c->halt = val & 0x03;
+	c->halt = val & (HALT_RESET|HALT_NMI);
 }
 
 void e68_set_bus_error (e68000_t *c, uint32_t addr, int size, int rw)
@@ -546,7 +546,7 @@ void e68_double_exception (e68000_t *c, unsigned vct, const char *name)
 		(unsigned long) e68_get_ir_pc (c), vct, name
 	);
 
-	c->halt = 1;
+	c->halt = HALT_NMI;
 }
 
 static
@@ -739,7 +739,7 @@ void e68_exception_format (e68000_t *c)
 
 void e68_exception_avec (e68000_t *c, unsigned level)
 {
-	c->halt &= ~4;
+	c->halt &= ~HALT_STOP;
 	e68_exception (c, 24 + level, 0, "AVEC");
 	e68_set_iml (c, level & 7);
 	e68_set_clk (c, 62);
@@ -753,7 +753,7 @@ void e68_exception_trap (e68000_t *c, unsigned n)
 
 void e68_exception_intr (e68000_t *c, unsigned level, unsigned vect)
 {
-	c->halt &= ~4;
+	c->halt &= ~HALT_STOP;
 	e68_exception (c, vect, 0, "INTR");
 	e68_set_iml (c, level & 7);
 	e68_set_clk (c, 62);
@@ -761,7 +761,7 @@ void e68_exception_intr (e68000_t *c, unsigned level, unsigned vect)
 
 void e68_interrupt (e68000_t *c, unsigned level)
 {
-	c->halt &= ~4;
+	c->halt &= ~HALT_STOP;
 	if ((level == 7) && (c->int_ipl != 7)) {
 		c->int_nmi = 1;
 	}
@@ -854,13 +854,13 @@ void e68_execute (e68000_t *c)
 	else {
 		e68_set_clk (c, 4);
 
-		if (c->halt & ~1U) {
+		if (c->halt & ~HALT_NMI) {
 			return;
 		}
 	}
 
 	if (c->int_nmi) {
-		c->halt &= ~1U;
+		c->halt &= ~HALT_NMI;
 		e68_exception_avec (c, 7);
 		c->int_nmi = 0;
 	}
@@ -871,7 +871,7 @@ void e68_execute (e68000_t *c)
 		ipl = c->int_ipl;
 
 		if (iml < ipl) {
-			c->halt &= ~1U;
+			c->halt &= ~HALT_NMI;
 
 			if (c->inta != NULL) {
 				vec = c->inta (c->inta_ext, ipl);
@@ -900,7 +900,7 @@ void e68_clock (e68000_t *c, unsigned long n)
 
 		e68_execute (c);
 
-		if (!(c->halt & 4))
+		if (!(c->halt & HALT_STOP))
 		{
 			if (c->delay == 0) {
 				fprintf (stderr, "warning: delay == 0 at %08lx\n",

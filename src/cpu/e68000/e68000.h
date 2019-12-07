@@ -165,6 +165,9 @@ typedef struct e68000_s {
 
 	char           supervisor;
 	unsigned char  halt;
+#define HALT_NMI   0x01
+#define HALT_RESET 0x02
+#define HALT_STOP  0x04
 	char           bus_error;
 	char           exception;
 
