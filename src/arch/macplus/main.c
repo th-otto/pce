@@ -184,7 +184,7 @@ void mac_log_deb (const char *msg, ...)
 		pc = 0;
 	}
 
-	pce_log (MSG_DEB, "[%06lX] ", pc & 0xffffff);
+	pce_log (MSG_DEB, "[%08lX] ", pc);
 
 	va_start (va, msg);
 	pce_log_va (MSG_DEB, msg, va);

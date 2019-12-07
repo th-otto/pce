@@ -652,7 +652,7 @@ int e68_ea_get_val32 (e68000_t *c, uint32_t *val)
 {
 	switch (c->ea_typ) {
 	case E68_EA_TYPE_IMM:
-		*val = c->ea_val & 0xffffffff;
+		*val = c->ea_val;
 		return (0);
 
 	case E68_EA_TYPE_REG:

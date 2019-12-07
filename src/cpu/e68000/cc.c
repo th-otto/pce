@@ -58,7 +58,7 @@ void e68_cc_set_nz_32 (e68000_t *c, uint8_t msk, uint32_t val)
 {
 	uint16_t set = 0;
 
-	if ((val & 0xffffffff) == 0) {
+	if ((val) == 0) {
 		set |= E68_SR_Z;
 	}
 	else if (val & 0x80000000) {
@@ -123,7 +123,7 @@ void e68_cc_set_add_16 (e68000_t *c, uint16_t d, uint16_t s1, uint16_t s2)
 
 void e68_cc_set_add_32 (e68000_t *c, uint32_t d, uint32_t s1, uint32_t s2)
 {
-	e68_set_sr_z (c, (d & 0xffffffff) == 0);
+	e68_set_sr_z (c, (d) == 0);
 	e68_cc_set_add (c, d >> 31, s1 >> 31, s2 >> 31);
 }
 
@@ -149,7 +149,7 @@ void e68_cc_set_addx_32 (e68000_t *c, uint32_t d, uint32_t s1, uint32_t s2)
 {
 	e68_cc_set_add (c, d >> 31, s1 >> 31, s2 >> 31);
 
-	if (d & 0xffffffff) {
+	if (d) {
 		e68_set_sr_z (c, 0);
 	}
 }
@@ -217,7 +217,7 @@ void e68_cc_set_cmp_32 (e68000_t *c, uint32_t d, uint32_t s1, uint32_t s2)
 {
 	e68_cc_set_sub (c, E68_SR_NZVC, d >> 31, s1 >> 31, s2 >> 31);
 
-	if ((d & 0xffffffff) == 0) {
+	if ((d) == 0) {
 		c->sr |= E68_SR_Z;
 	}
 }
@@ -244,7 +244,7 @@ void e68_cc_set_sub_32 (e68000_t *c, uint32_t d, uint32_t s1, uint32_t s2)
 {
 	e68_cc_set_sub (c, E68_SR_XNZVC, d >> 31, s1 >> 31, s2 >> 31);
 
-	if ((d & 0xffffffff) == 0) {
+	if ((d) == 0) {
 		c->sr |= E68_SR_Z;
 	}
 }
@@ -271,7 +271,7 @@ void e68_cc_set_subx_32 (e68000_t *c, uint32_t d, uint32_t s1, uint32_t s2)
 {
 	e68_cc_set_sub (c, E68_SR_XNVC, d >> 31, s1 >> 31, s2 >> 31);
 
-	if (d & 0xffffffff) {
+	if (d) {
 		c->sr &= ~E68_SR_Z;
 	}
 }

@@ -57,30 +57,30 @@ struct e68000_s;
 
 #define e68_get_dreg8(c, n) ((c)->dreg[(n) & 7] & 0xff)
 #define e68_get_dreg16(c, n) ((c)->dreg[(n) & 7] & 0xffff)
-#define e68_get_dreg32(c, n) ((c)->dreg[(n) & 7] & 0xffffffff)
+#define e68_get_dreg32(c, n) ((c)->dreg[(n) & 7])
 #define e68_get_areg16(c, n) (((c)->areg[(n) & 7]) & 0xffff)
-#define e68_get_areg32(c, n) ((c)->areg[(n) & 7] & 0xffffffff)
-#define e68_get_pc(c) ((c)->pc & 0xffffffff)
-#define e68_get_ir_pc(c) ((c)->ir_pc & 0xffffffff)
-#define e68_get_usp(c) (((c)->supervisor ? (c)->usp : (c)->areg[7]) & 0xffffffff)
-#define e68_get_ssp(c) (((c)->supervisor ? (c)->areg[7] : (c)->ssp) & 0xffffffff)
+#define e68_get_areg32(c, n) ((c)->areg[(n) & 7])
+#define e68_get_pc(c) ((c)->pc)
+#define e68_get_ir_pc(c) ((c)->ir_pc)
+#define e68_get_usp(c) (((c)->supervisor ? (c)->usp : (c)->areg[7]))
+#define e68_get_ssp(c) (((c)->supervisor ? (c)->areg[7] : (c)->ssp))
 #define e68_get_sr(c) ((c)->sr & 0xffff)
 #define e68_get_ccr(c) ((c)->sr & 0xff)
-#define e68_get_vbr(c) ((c)->vbr & 0xffffffff)
-#define e68_get_sfc(c) ((c)->sfc & 0x00000003)
-#define e68_get_dfc(c) ((c)->dfc & 0x00000003)
-#define e68_get_cacr(c) ((c)->vbr & 0xffffffff)
-#define e68_get_caar(c) ((c)->vbr & 0xffffffff)
+#define e68_get_vbr(c) ((c)->vbr)
+#define e68_get_sfc(c) ((c)->sfc)
+#define e68_get_dfc(c) ((c)->dfc)
+#define e68_get_cacr(c) ((c)->cacr)
+#define e68_get_caar(c) ((c)->caar)
 #define e68_get_ipl(c) ((c)->int_ipl)
 #define e68_get_iml(c) (((c)->sr >> 8) & 7)
 
-#define e68_set_pc(c, v) do { (c)->pc = (v) & 0xffffffff; } while (0)
-#define e68_set_ir_pc(c, v) do { (c)->ir_pc = (v) & 0xffffffff; } while (0)
-#define e68_set_vbr(c, v) do { (c)->vbr = (v) & 0xffffffff; } while (0)
+#define e68_set_pc(c, v) do { (c)->pc = (v); } while (0)
+#define e68_set_ir_pc(c, v) do { (c)->ir_pc = (v); } while (0)
+#define e68_set_vbr(c, v) do { (c)->vbr = (v); } while (0)
 #define e68_set_sfc(c, v) do { (c)->sfc = (v) & 0x00000003; } while (0)
 #define e68_set_dfc(c, v) do { (c)->dfc = (v) & 0x00000003; } while (0)
-#define e68_set_cacr(c, v) do { (c)->cacr = (v) & 0xffffffff; } while (0)
-#define e68_set_caar(c, v) do { (c)->cacr = (v) & 0xffffffff; } while (0)
+#define e68_set_cacr(c, v) do { (c)->cacr = (v); } while (0)
+#define e68_set_caar(c, v) do { (c)->cacr = (v); } while (0)
 
 #define e68_get_sr_c(c) (((c)->sr & E68_SR_C) != 0)
 #define e68_get_sr_v(c) (((c)->sr & E68_SR_V) != 0)
@@ -210,7 +210,7 @@ void e68_set_dreg16 (e68000_t *c, unsigned reg, uint16_t val)
 static inline
 void e68_set_dreg32 (e68000_t *c, unsigned reg, uint32_t val)
 {
-	c->dreg[reg & 7] = val & 0xffffffff;
+	c->dreg[reg & 7] = val;
 }
 
 static inline
@@ -228,7 +228,7 @@ void e68_set_areg16 (e68000_t *c, unsigned reg, uint16_t val)
 static inline
 void e68_set_areg32 (e68000_t *c, unsigned reg, uint32_t val)
 {
-	c->areg[reg & 7] = val & 0xffffffff;
+	c->areg[reg & 7] = val;
 }
 
 static inline

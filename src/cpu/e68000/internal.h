@@ -96,7 +96,7 @@ void e68_push16 (e68000_t *c, uint16_t val)
 {
 	uint32_t sp;
 
-	sp = (e68_get_areg32 (c, 7) - 2) & 0xffffffff;
+	sp = (e68_get_areg32 (c, 7) - 2);
 
 	e68_set_mem16 (c, sp, val);
 	e68_set_areg32 (c, 7, sp);
@@ -107,7 +107,7 @@ void e68_push32 (e68000_t *c, uint32_t val)
 {
 	uint32_t sp;
 
-	sp = (e68_get_areg32 (c, 7) - 4) & 0xffffffff;
+	sp = (e68_get_areg32 (c, 7) - 4);
 
 	e68_set_mem32 (c, sp, val);
 	e68_set_areg32 (c, 7, sp);
