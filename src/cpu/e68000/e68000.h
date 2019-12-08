@@ -191,7 +191,6 @@ typedef struct e68000_s {
 	unsigned long  clkcnt;
 
 	e68_opcode_f   opcodes[1024];
-	e68_opcode_f   op49c0[8];
 } e68000_t;
 
 

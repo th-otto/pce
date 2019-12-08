@@ -134,23 +134,6 @@ static void op4100 (e68000_t *c)
 	e68_op_prefetch (c);
 }
 
-/* 49C0_00: EXTB.L Dx */
-static void op49c0_00 (e68000_t *c)
-{
-	unsigned r;
-	uint32_t s, d;
-
-	r = e68_ir_reg0 (c);
-	s = e68_get_dreg8 (c, r);
-
-	d = (s & 0x80) ? (s | 0xffffff00) : s;
-
-	e68_set_clk (c, 4);
-	e68_cc_set_nz_32 (c, E68_SR_NZVC, d);
-	e68_op_prefetch (c);
-	e68_set_dreg32 (c, r, d);
-}
-
 /* 4A00: TST.B <EA> */
 static void op4a00 (e68000_t *c)
 {
@@ -1114,10 +1097,6 @@ e68_opcode_f e68020_opcodes[1024] = {
 	  NULL,   NULL,   NULL,   NULL,   NULL,   NULL,   NULL,   NULL  /* FE00 */
 };
 
-static e68_opcode_f e68_op_49c0[8] = {
-	op49c0_00, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-};
-
 
 void e68_set_opcodes_020 (e68000_t *c)
 {
@@ -1128,12 +1107,6 @@ void e68_set_opcodes_020 (e68000_t *c)
 	for (i = 0; i < 1024; i++) {
 		if (e68020_opcodes[i] != NULL) {
 			c->opcodes[i] = e68020_opcodes[i];
-		}
-	}
-
-	for (i = 0; i < 8; i++) {
-		if (e68_op_49c0[i] != NULL) {
-			c->op49c0[i] = e68_op_49c0[i];
 		}
 	}
 }
