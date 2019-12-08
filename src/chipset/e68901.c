@@ -869,7 +869,7 @@ void e68901_reset (e68901_t *mfp)
 		mfp->tdr[i] = 0;
 	}
 
-	e68901_check_int (mfp);
+	/* e68901_check_int (mfp); */
 }
 
 void e68901_clock_usart (e68901_t *mfp, unsigned n)

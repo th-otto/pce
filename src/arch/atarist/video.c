@@ -667,8 +667,7 @@ void st_video_redraw (st_video_t *vid)
 
 void st_video_reset (st_video_t *vid, unsigned char shift_mode)
 {
-	vid->base = 0;
-	vid->addr = 0;
+	vid->addr = vid->base;
 
 	vid->sync_mode = 0;
 	vid->shift_mode = 0xff;
@@ -677,7 +676,7 @@ void st_video_reset (st_video_t *vid, unsigned char shift_mode)
 	vid->line = 0;
 	vid->frame = 0;
 
-	vid->src = mem_get_ptr (vid->mem, vid->addr, 32768);
+	vid->src = mem_get_ptr (vid->mem, vid->base, 32768);
 	vid->dst = vid->rgb;
 
 	st_video_set_shift_mode (vid, shift_mode);

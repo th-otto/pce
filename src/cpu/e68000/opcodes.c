@@ -1999,7 +1999,7 @@ static void op4e72 (e68000_t *c)
 	e68_op_prefetch (c);
 	e68_set_sr (c, c->ir[1]);
 	e68_set_clk (c, 4);
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && 0
 	c->halt |= HALT_NMI | HALT_STOP;
 #endif
 	e68_op_prefetch (c);

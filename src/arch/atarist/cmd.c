@@ -494,7 +494,7 @@ int st_exec (atari_st_t *sim)
 	old = e68_get_opcnt (sim->cpu);
 
 	while (e68_get_opcnt (sim->cpu) == old) {
-		st_clock (sim, 1);
+		st_clock (sim, 1, 1);
 
 		if (st_check_break (sim)) {
 			return (1);
@@ -511,7 +511,7 @@ static
 int st_exec_to (atari_st_t *sim, unsigned long addr)
 {
 	while (e68_get_pc (sim->cpu) != addr) {
-		st_clock (sim, 1);
+		st_clock (sim, 1, 1);
 
 		if (st_check_break (sim)) {
 			return (1);
@@ -531,19 +531,28 @@ void st_run (atari_st_t *sim)
 	st_clock_discontinuity (sim);
 
 	while (1) {
-		st_clock (sim, 16);
+		st_clock (sim, 16, 1);
 
 		if (sim->brk) {
 			break;
 		}
 		if (sim->cpu->halt & HALT_STOP)
 		{
-			if (trm_check(sim->trm) || sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
+			if (sim->cpu->int_ipl > 0 || sim->cpu->int_nmi)
 			{
 				sim->cpu->halt &= ~HALT_STOP;
 			} else
 			{
+#if 0
+				unsigned long start = 0;
+				unsigned long cycles;
+				pce_get_interval_us(&start);
 				pce_usleep(1000UL);
+				cycles = (pce_get_interval_us(&start) * ST_CPU_CLOCK) / 1000000;
+				st_clock(sim, cycles, 0);
+#else
+				sim->cpu->halt &= ~HALT_STOP;
+#endif
 			}
 		}
 
@@ -598,7 +607,7 @@ void st_run_emscripten_step ()
 	int i;
 	for (i = 0; i < 10000; ++i)
 	{	
-		st_clock (sim, 16);
+		st_clock (sim, 16, 1);
 
 		if (sim->brk) {
 			pce_stop();
@@ -783,7 +792,7 @@ void st_cmd_c (cmd_t *cmd, atari_st_t *sim)
 	}
 
 	while (cnt > 0) {
-		st_clock (sim, 1);
+		st_clock (sim, 1, 1);
 		cnt -= 1;
 	}
 

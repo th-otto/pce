@@ -417,18 +417,16 @@ int st_set_msg_emu_viking_toggle (atari_st_t *sim, const char *msg, const char *
 
 static void st_vid_reschange(atari_st_t *sim, int v)
 {
-	sim->mono = v == ST_HIGH;
-	st_video_reset(sim->video, v);
-	sim->mfp_inp = (sim->mfp_inp & 0x7f) | (sim->mono ? 0x80 : 0x00);
+	int mono;
+
+	mono = v == ST_HIGH;
+	sim->mfp_inp = (sim->mfp_inp & 0x7f) | (mono ? 0x80 : 0x00);
 	e68901_set_inp (&sim->mfp, sim->mfp_inp);
-	e68_set_pc_prefetch(sim->cpu, sim->rom_addr);
-	mem_set_uint32_be (sim->mem, 0x0420, 0);
-	mem_set_uint32_be (sim->mem, 0x043a, 0);
-	mem_set_uint32_be (sim->mem, 0x051a, 0);
-	mem_set_uint8 (sim->mem, 0x0424, 0);
-	mem_set_uint8 (sim->mem, 0x044a, sim->video->shift_mode);
-	memset (mem_get_ptr(sim->mem, 8, 0), 0, 64000);
-	e68_reset(sim->cpu);
+	/*
+	 * now wait for VBL interrupt to do the resolution change
+	 */
+	sim->newres = v;
+	sim->reschange_vbl = 2;
 }
 
 
@@ -475,7 +473,6 @@ static int st_set_msg_video_rez(atari_st_t *sim, const char *msg, const char *va
 		case ST_HIGH:
 			if (v != sim->video->shift_mode)
 			{
-				sim->video->shift_mode = v;
 				st_vid_reschange(sim, v);
 			}
 			break;

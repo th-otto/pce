@@ -71,6 +71,46 @@
 #define ST_VIDEO_HB 0x01
 #define ST_VIDEO_VB 0x02
 
+static void st_check_reschange(atari_st_t *sim)
+{
+	if (sim->reschange_vbl == 0 || sim->newres < 0)
+		return;
+	if (sim->video->shift_mode == sim->newres)
+	{
+		/*
+		 * VBL handler of OS already has changed resolution;
+		 * nothing to do
+		 */
+		sim->reschange_vbl = 0;
+		sim->newres = -1;
+		return;
+	}
+	if (--sim->reschange_vbl != 0)
+		return;
+	/*
+	 * VBL handler did not change resolution (ie. old versions
+	 * of EmuTOS which don't do this). Force a resolution change
+	 */
+	pce_log(MSG_INF, "force resolution change to %d\n", sim->newres);
+	sim->mono = sim->newres == ST_HIGH;
+#if 0
+	st_video_reset(sim->video, sim->newres);
+#endif
+	e68_reset(sim->cpu);
+	sim->mfp_inp = (sim->mfp_inp & 0x7f) | (sim->mono ? 0x80 : 0x00);
+	/* e68901_set_inp (&sim->mfp, sim->mfp_inp); */
+	sim->mfp.gpip_inp = sim->mfp_inp;
+#if 0
+	mem_set_uint32_be (sim->mem, 0x0420, 0);
+	mem_set_uint32_be (sim->mem, 0x043a, 0);
+	mem_set_uint32_be (sim->mem, 0x051a, 0);
+	mem_set_uint8 (sim->mem, 0x0424, 0);
+	mem_set_uint8 (sim->mem, 0x044a, sim->newres);
+	memset (mem_get_ptr(sim->mem, 8, 0), 0, 64000);
+#endif
+	sim->newres = -1;
+}
+
 
 void st_interrupt (atari_st_t *sim, unsigned level, int val)
 {
@@ -151,6 +191,7 @@ void st_set_vb (atari_st_t *sim, unsigned char val)
 {
 	if (val) {
 		sim->video_state |= ST_VIDEO_VB;
+		st_check_reschange(sim);
 	}
 	else {
 		sim->video_state &= ~ST_VIDEO_VB;
@@ -972,6 +1013,8 @@ void st_reset (atari_st_t *sim)
 	sim->int_mask = 0;
 
 	e68901_reset (&sim->mfp);
+	e68901_set_clk_div (&sim->mfp, 13);
+	e68901_set_inp (&sim->mfp, sim->mfp_inp);
 	e6850_reset (&sim->acia0);
 	e6850_reset (&sim->acia1);
 	st_acsi_reset (&sim->acsi);
@@ -979,7 +1022,7 @@ void st_reset (atari_st_t *sim)
 	st_fdc_reset (&sim->fdc);
 	st_dma_reset (&sim->dma);
 	st_kbd_reset (&sim->kbd);
-	st_video_reset (sim->video, sim->mono ? 2 : 0);
+	st_video_reset (sim->video, sim->newres >= 0 ? sim->newres : sim->mono ? ST_HIGH : ST_LOW);
 
 	if (sim->viking != NULL) {
 		st_viking_reset (sim->viking);
@@ -1075,7 +1118,7 @@ void st_realtime_sync (atari_st_t *sim, unsigned long n)
 	}
 }
 
-void st_clock (atari_st_t *sim, unsigned n)
+void st_clock (atari_st_t *sim, unsigned n, int runcpu)
 {
 	unsigned long clk, cpuclk;
 
@@ -1088,7 +1131,8 @@ void st_clock (atari_st_t *sim, unsigned n)
 
 	sim->clk_cnt += n;
 
-	e68_clock (sim->cpu, cpuclk);
+	if (runcpu)
+		e68_clock (sim->cpu, cpuclk);
 
 	st_video_clock (sim->video, n);
 

@@ -96,6 +96,8 @@ struct atari_st_s {
 
 	unsigned char video_state;
 	unsigned char memcfg;
+	int reschange_vbl;
+	int newres;
 
 	char          mono;
 	char          fastboot;
@@ -183,7 +185,7 @@ void st_reset (atari_st_t *sim);
  * @short Clock the simulator
  * @param n The number of clock cycles.
  *****************************************************************************/
-void st_clock (atari_st_t *sim, unsigned n);
+void st_clock (atari_st_t *sim, unsigned n, int runcpu);
 
 
 #endif

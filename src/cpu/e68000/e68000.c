@@ -822,22 +822,22 @@ void e68_reset (e68000_t *c)
 
 void e68_execute (e68000_t *c)
 {
-#if 0
-	e68_dasm_t da;
-	memset(&da, 0, sizeof(da));
-	e68_dasm_cur(c, &da);
-	pce_log(MSG_DEB, "%08lx: %s", (unsigned long)da.pc, da.op);
-	if (da.argn > 0)
-		pce_log(MSG_DEB, "  %s", da.arg1);
-	if (da.argn > 1)
-		pce_log(MSG_DEB, ",%s", da.arg2);
-	if (da.argn > 2)
-		pce_log(MSG_DEB, ",%s", da.arg3);
-	pce_log(MSG_DEB, "\n");
-#endif
-
 	c->bus_error = 0;
 	if (c->halt == 0) {
+#if 0
+		e68_dasm_t da;
+		memset(&da, 0, sizeof(da));
+		e68_dasm_cur(c, &da);
+		pce_log(MSG_DEB, "%08lx: %s", (unsigned long)da.pc, da.op);
+		if (da.argn > 0)
+			pce_log(MSG_DEB, "  %s", da.arg1);
+		if (da.argn > 1)
+			pce_log(MSG_DEB, ",%s", da.arg2);
+		if (da.argn > 2)
+			pce_log(MSG_DEB, ",%s", da.arg3);
+		pce_log(MSG_DEB, "\n");
+#endif
+
 		c->last_pc[++c->last_pc_idx & (E68_LAST_PC_CNT - 1)] = e68_get_pc (c);
 		c->trace_sr = e68_get_sr (c);
 
