@@ -33,6 +33,7 @@
 #include <drivers/video/x11.h>
 #include <lib/log.h>
 
+static Atom xa_wm_delete_window;
 
 static xt_keymap_t keymap[] = {
 	{ XK_Escape,      PCE_KEY_ESC },
@@ -984,6 +985,14 @@ int xt_check (void *ext)
 		case ConfigureNotify:
 			break;
 
+		case ClientMessage:
+			if ((Atom)event.xclient.data.l[0] == xa_wm_delete_window)
+			{
+				xt_grab_mouse (xt, 0);
+				trm_set_msg_emu (&xt->trm, "emu.exit", "1");
+			}
+			break;
+
 		default:
 			break;
 		}
@@ -1065,6 +1074,7 @@ int xt_open_window (xterm_t *xt, unsigned w, unsigned h)
 	XWMHints    wm;
 	XClassHint  cls;
 	unsigned    fx, fy;
+	Atom protocols[1];
 
 	if ((w == 0) || (h == 0)) {
 		w = 640;
@@ -1112,6 +1122,10 @@ int xt_open_window (xterm_t *xt, unsigned w, unsigned h)
 		ExposureMask | KeyPressMask | KeyReleaseMask | PointerMotionMask |
 		StructureNotifyMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask
 	);
+
+	xa_wm_delete_window = XInternAtom(xt->display, "WM_DELETE_WINDOW", False);
+	protocols[0] = xa_wm_delete_window;
+	XSetWMProtocols(xt->display, xt->wdw, protocols, 1);
 
 	return (0);
 }
