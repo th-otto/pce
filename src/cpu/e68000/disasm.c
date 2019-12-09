@@ -284,21 +284,13 @@ void dasm_ea_full (e68_dasm_t *da, char *dst, const uint8_t *src)
 
 	case 2:
 		v = dasm_next_word (da, src);
-		sprintf (bd, "%s%s%04X",
-			(v & 0x8000) ? "-" : "",
-			hex_prefix,
-			(v & 0x8000) ? ((~v + 1) & 0xffff) : v
-		);
+		sprintf (bd, "%s%04X.w", hex_prefix, v);
 		break;
 
 	case 3:
 		v = dasm_next_word (da, src);
 		v = (v << 16) | dasm_next_word (da, src);
-		sprintf (bd, "%s%s%08X",
-			(v & 0x80000000) ? "-" : "",
-			hex_prefix,
-			(v & 0x80000000) ? ((~v + 1) & 0xffffffff) : v
-		);
+		sprintf (bd, "%s%08X.l", hex_prefix, v);
 		break;
 	}
 
@@ -309,21 +301,13 @@ void dasm_ea_full (e68_dasm_t *da, char *dst, const uint8_t *src)
 		break;
 	case 2:
 		v = dasm_next_word (da, src);
-		sprintf (od, "%s%s%04X",
-			(v & 0x8000) ? "-" : "",
-			hex_prefix,
-			(v & 0x8000) ? ((~v + 1) & 0xffff) : v
-		);
+		sprintf (od, "%s%04X.w", hex_prefix, v);
 		break;
 
 	case 3:
 		v = dasm_next_word (da, src);
 		v = (v << 16) | dasm_next_word (da, src);
-		sprintf (od, "%s%s%08X",
-			(v & 0x80000000) ? "-" : "",
-			hex_prefix,
-			(v & 0x80000000) ? ((~v + 1) & 0xffffffff) : v
-		);
+		sprintf (od, "%s%08X.l", hex_prefix, v);
 		break;
 	}
 
@@ -401,11 +385,7 @@ void dasm_ea (e68_dasm_t *da, char *dst, const uint8_t *src, unsigned ea, unsign
 		switch (ea & 7) {
 		case 0x00: /* XXXX */
 			v = dasm_next_word (da, src);
-			sprintf (dst, "%s%s%04X",
-				(v & 0x8000) ? "-" : "",
-				hex_prefix,
-				((v & 0x8000) ? (~v + 1) : v) & 0xffff
-			);
+			sprintf (dst, "%s%04X.w", hex_prefix, v);
 			break;
 
 		case 0x01: /* XXXXXXXX */
