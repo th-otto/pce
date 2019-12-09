@@ -776,11 +776,11 @@ void e68_interrupt (e68000_t *c, unsigned level)
 static
 void e68_set_reset (e68000_t *c, unsigned char val)
 {
-	if ((c->reset_val != 0) == (val != 0)) {
+	if (c->reset_val == val) {
 		return;
 	}
 
-	c->reset_val = (val != 0);
+	c->reset_val = val;
 
 	if (c->reset != NULL) {
 		c->reset (c->reset_ext, val);
@@ -818,6 +818,8 @@ void e68_reset (e68000_t *c)
 	c->halt = 0;
 	c->bus_error = 0;
 	c->exception = 0;
+	c->int_ipl = 0;
+	c->int_nmi = 0;
 
 	e68_exception_reset (c);
 

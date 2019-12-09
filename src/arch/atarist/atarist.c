@@ -97,8 +97,8 @@ static void st_check_reschange(atari_st_t *sim)
 #if 0
 	st_video_reset(sim->video, sim->newres);
 #endif
-	e68_reset(sim->cpu);
 	sim->mfp_inp = (sim->mfp_inp & 0x7f) | (sim->mono ? 0x80 : 0x00);
+	e68_reset(sim->cpu);
 	/* e68901_set_inp (&sim->mfp, sim->mfp_inp); */
 	sim->mfp.gpip_inp = sim->mfp_inp;
 #if 0
@@ -467,6 +467,13 @@ void st_setup_mem (atari_st_t *sim, ini_sct_t *ini)
 	}
 }
 
+static void st_set_reset (void *ext, unsigned char val)
+{
+	atari_st_t *sim = (atari_st_t *)ext;
+	if (val)
+		st_reset(sim);
+}
+
 static
 void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 {
@@ -503,6 +510,7 @@ void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 	e68_set_flags (sim->cpu, E68_FLAG_NORESET, 1);
 
 	e68_set_address_check (sim->cpu, 0);
+	e68_set_reset_fct(sim->cpu, sim, st_set_reset);
 	sim->cpu->generate_buserrs = 1;
 	sim->cpu->report_buserrs = 1;
 
