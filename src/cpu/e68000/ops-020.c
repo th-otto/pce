@@ -140,7 +140,6 @@ static void op4a00 (e68000_t *c)
 	uint8_t s;
 
 	e68_op_get_ea8 (c, 1, e68_ir_ea1 (c), 0x0ffd, &s);
-
 	e68_set_clk (c, 8);
 	e68_cc_set_nz_8 (c, E68_SR_NZVC, s);
 	e68_op_prefetch (c);
@@ -152,7 +151,6 @@ static void op4a40 (e68000_t *c)
 	uint16_t s;
 
 	e68_op_get_ea16 (c, 1, e68_ir_ea1 (c), 0x0fff, &s);
-
 	e68_set_clk (c, 8);
 	e68_cc_set_nz_16 (c, E68_SR_NZVC, s);
 	e68_op_prefetch (c);
@@ -164,7 +162,6 @@ static void op4a80 (e68000_t *c)
 	uint32_t s;
 
 	e68_op_get_ea32 (c, 1, e68_ir_ea1 (c), 0x0fff, &s);
-
 	e68_set_clk (c, 8);
 	e68_cc_set_nz_32 (c, E68_SR_NZVC, s);
 	e68_op_prefetch (c);
@@ -349,7 +346,7 @@ static void op4c40 (e68000_t *c)
 }
 
 /* TRAPcc.X */
-void e68_op_trapcc (e68000_t *c, int cond)
+static void e68_op_trapcc (e68000_t *c, int cond)
 {
 	switch (c->ir[0] & 7) {
 	case 2:

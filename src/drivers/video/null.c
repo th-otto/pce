@@ -91,6 +91,7 @@ static
 void null_init (null_t *nt, ini_sct_t *ini)
 {
 	trm_init (&nt->trm, nt);
+	nt->trm.name = "null";
 
 	nt->trm.del = null_del;
 	nt->trm.open = null_open;

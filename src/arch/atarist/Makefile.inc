@@ -45,6 +45,7 @@ PCE_ATARIST_BAS := \
 	main \
 	mem \
 	msg \
+	natfeat \
 	psg \
 	rp5c15 \
 	smf \

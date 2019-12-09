@@ -49,8 +49,8 @@
 
 static void e68_op_undefined (e68000_t *c)
 {
-	e68_exception_illegal (c);
 	e68_set_clk (c, 2);
+	e68_exception_illegal (c);
 }
 
 /* 0000: ORI.B #XX, <EA> */
@@ -3043,6 +3043,38 @@ static void op7000 (e68000_t *c)
 	e68_op_prefetch (c);
 }
 
+static void op7300 (e68000_t *c)
+{
+	switch (c->ir[0] & 0x3f)
+	{
+	case 0x00: /* NATFEAT_ID */
+		if (c->nf_get_id)
+		{
+			e68_set_dreg32(c, 0, c->nf_get_id(c->nf_ext, e68_get_areg32(c, 7) + 4));
+			e68_set_clk (c, 4);
+			e68_op_prefetch (c);
+		} else
+		{
+			e68_op_undefined(c);
+		}
+		break;
+	case 0x01: /* NATFEAT_CALL */
+		if (c->nf_call)
+		{
+			e68_set_dreg32(c, 0, c->nf_call(c->nf_ext, e68_get_areg32(c, 7) + 4));
+			e68_set_clk (c, 4);
+			e68_op_prefetch (c);
+		} else
+		{
+			e68_op_undefined(c);
+		}
+		break;
+	default:
+		e68_op_undefined(c);
+		break;
+	}
+}
+
 /* 8000: OR.B <EA>, Dx */
 static void op8000 (e68000_t *c)
 {
@@ -5308,7 +5340,7 @@ e68_opcode_f e68_opcodes[1024] = {
 	op6c00, op6c00, op6c00, op6c00, op6d00, op6d00, op6d00, op6d00, /* 6C00 */
 	op6e00, op6e00, op6e00, op6e00, op6f00, op6f00, op6f00, op6f00, /* 6E00 */
 	op7000, op7000, op7000, op7000,   NULL,   NULL,   NULL,   NULL, /* 7000 */
-	op7000, op7000, op7000, op7000,   NULL,   NULL,   NULL,   NULL, /* 7200 */
+	op7000, op7000, op7000, op7000, op7300,   NULL,   NULL,   NULL, /* 7200 */
 	op7000, op7000, op7000, op7000,   NULL,   NULL,   NULL,   NULL, /* 7400 */
 	op7000, op7000, op7000, op7000,   NULL,   NULL,   NULL,   NULL, /* 7600 */
 	op7000, op7000, op7000, op7000,   NULL,   NULL,   NULL,   NULL, /* 7800 */

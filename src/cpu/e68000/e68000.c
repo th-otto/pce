@@ -70,6 +70,10 @@ void e68_init (e68000_t *c)
 	c->hook_ext = NULL;
 	c->hook = NULL;
 
+	c->nf_ext = NULL;
+	c->nf_get_id = 0;
+	c->nf_call = 0;
+
 	c->supervisor = 1;
 	c->halt = HALT_RESET;
 
@@ -88,7 +92,7 @@ void e68_init (e68000_t *c)
 
 	e68_set_opcodes (c);
 
-	c->sr = E68_SR_S;
+	c->sr = E68_SR_S | E68_SR_I;
 
 	for (i = 0; i < 8; i++) {
 		e68_set_dreg32 (c, i, 0);

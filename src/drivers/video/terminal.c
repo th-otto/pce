@@ -589,7 +589,7 @@ int trm_set_key_magic (terminal_t *trm, pce_key_t key)
 	case PCE_KEY_Q:
 		trm_set_msg_trm (trm, "term.release", "");
 		trm_set_msg_trm (trm, "term.fullscreen", "0");
-		trm_set_msg_emu (trm, "emu.exit", "1");
+		trm_set_msg_emu (trm, "emu.exit", "0");
 		return (0);
 
 	case PCE_KEY_R:
@@ -667,7 +667,7 @@ void trm_set_key (terminal_t *trm, unsigned event, pce_key_t key, unsigned int s
 #if 0
 				trm_set_msg_trm (trm, "term.release", "");
 				trm_set_msg_trm (trm, "term.fullscreen", "0");
-				trm_set_msg_emu (trm, "emu.exit", "1");
+				trm_set_msg_emu (trm, "emu.exit", "0");
 #else
 				trm_set_msg_emu (trm, "emu.pause.toggle", "");
 #endif

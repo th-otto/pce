@@ -772,7 +772,7 @@ int sdl2_check (void *ext)
 
 		case SDL_QUIT:
 			sdl2_grab_mouse (sdl, 0);
-			trm_set_msg_emu (&sdl->trm, "emu.exit", "1");
+			trm_set_msg_emu (&sdl->trm, "emu.exit", "0");
 			break;
 
 		case SDL_AUDIODEVICEADDED:
@@ -945,6 +945,7 @@ void sdl2_init (sdl2_t *sdl, ini_sct_t *sct)
 	int fs, rep;
 
 	trm_init (&sdl->trm, sdl);
+	sdl->trm.name = "sdl2";
 
 	sdl->trm.del = sdl2_del;
 	sdl->trm.open = sdl2_open;

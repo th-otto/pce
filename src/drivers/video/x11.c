@@ -989,7 +989,7 @@ int xt_check (void *ext)
 			if ((Atom)event.xclient.data.l[0] == xa_wm_delete_window)
 			{
 				xt_grab_mouse (xt, 0);
-				trm_set_msg_emu (&xt->trm, "emu.exit", "1");
+				trm_set_msg_emu (&xt->trm, "emu.exit", "0");
 			}
 			break;
 
@@ -1196,6 +1196,7 @@ void xt_init (xterm_t *xt, ini_sct_t *sct)
 	int rep;
 
 	trm_init (&xt->trm, xt);
+	xt->trm.name = "x11";
 
 	xt->trm.del = xt_del;
 	xt->trm.open = xt_open;

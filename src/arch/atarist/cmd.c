@@ -725,6 +725,8 @@ void st_log_exception (void *ext, unsigned tn)
 		return;
 
 	case 0x04: /* ILLG */
+	case 0x06: /* CHK */
+	case 0x08: /* PRIV */
 	case 0x09: /* TRACE */
 	case 0x0a: /* AXXX */
 	case 0x0b: /* FXXX */
@@ -752,8 +754,6 @@ void st_log_exception (void *ext, unsigned tn)
 		st_log_trap_bios (sim, iw);
 		return;
 
-	case 0x06:
-	case 0x08:
 	case 0x42: /* MFP RS232 CTS */
 	case 0x44: /* MFP Timer D */
 	case 0x45: /* MFP Timer C */

@@ -142,6 +142,10 @@ typedef struct e68000_s {
 	void           (*log_exception) (void *ext, unsigned tn);
 	void           (*log_mem) (void *ext, unsigned long addr, unsigned type);
 
+	void           *nf_ext;
+	uint32_t       (*nf_get_id)(void *ext, uint32_t args);
+	int32_t        (*nf_call)(void *ext, uint32_t args);
+
 	uint32_t       dreg[8];
 	uint32_t       areg[8];
 	uint32_t       pc;

@@ -35,6 +35,8 @@
  * @short The terminal structure
  *****************************************************************************/
 typedef struct {
+	const char *name;
+
 	void *ext;
 
 	void *set_msg_emu_ext;

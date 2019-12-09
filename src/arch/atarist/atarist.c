@@ -21,6 +21,7 @@
 
 
 #include "main.h"
+#include <string.h>
 #include "atarist.h"
 #include "acsi.h"
 #include "ikbd.h"
@@ -32,7 +33,7 @@
 #include "video.h"
 #include "viking.h"
 
-#include <string.h>
+#include "natfeat.h"
 
 #include <cpu/e68000/e68000.h>
 
@@ -403,7 +404,6 @@ static int st_get_rom (atari_st_t *sim, ini_sct_t *ini)
 			return (1);
 		}
 
-		free (path);
 		if (sim->rom_addr == 0)
 		{
 			sim->rom_addr = buf_get_uint32_be(data, 4) & 0xffff00UL;
@@ -413,6 +413,7 @@ static int st_get_rom (atari_st_t *sim, ini_sct_t *ini)
 			}
 		}
 		pce_log_tag (MSG_INF, "ROM:", "addr=0x%08lx size=%lu file=%s\n", base, size, path);
+		free (path);
 
 		rom = mem_blk_new (base, size, 1);
 		if (rom == NULL) {
@@ -506,6 +507,10 @@ void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 	sim->cpu->report_buserrs = 1;
 
 	sim->speed_factor = speed;
+	
+	sim->cpu->nf_ext = sim;
+	sim->cpu->nf_get_id = nf_get_id;
+	sim->cpu->nf_call = nf_call;
 }
 
 static

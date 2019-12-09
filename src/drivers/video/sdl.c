@@ -894,7 +894,7 @@ int sdl_check (void *ext)
 
 		case SDL_QUIT:
 			sdl_grab_mouse (sdl, 0);
-			trm_set_msg_emu (&sdl->trm, "emu.exit", "1");
+			trm_set_msg_emu (&sdl->trm, "emu.exit", "0");
 			break;
 
 		default:
@@ -1023,6 +1023,7 @@ void sdl_init (sdl_t *sdl, ini_sct_t *sct)
 	int fs, rep;
 
 	trm_init (&sdl->trm, sdl);
+	sdl->trm.name = "sdl";
 
 	sdl->trm.del = sdl_del;
 	sdl->trm.open = sdl_open;
