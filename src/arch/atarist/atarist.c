@@ -256,7 +256,7 @@ void st_set_port_a (atari_st_t *sim, unsigned char val)
 	wd179x_select_head (&sim->fdc.wd179x, ~val & 1, 0);
 
 	if ((sim->psg_port_a ^ val) & ~val & 0x20) {
-		if (sim->parport_drv != NULL) {
+		if (sim->parport_drv != NULL && (sim->mfp.gpip_ddr & 0x80)) {
 			chr_write (sim->parport_drv, &sim->psg_port_b, 1);
 		}
 	}
