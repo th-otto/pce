@@ -41,7 +41,7 @@ int stdio_check_reopen (char_stdio_t *drv)
 #ifdef HAVE_SYS_STAT_H
 	struct stat st;
 
-	if (drv->reopen == 0) {
+	if (drv->fp != NULL && drv->reopen == 0) {
 		return (0);
 	}
 
@@ -49,7 +49,7 @@ int stdio_check_reopen (char_stdio_t *drv)
 		return (0);
 	}
 
-	if (stat (drv->fname, &st) == 0) {
+	if (drv->fp != NULL && stat (drv->fname, &st) == 0) {
 		return (0);
 	}
 
@@ -132,11 +132,6 @@ int chr_stdio_init (char_stdio_t *drv, const char *name)
 			drv->reopen = 0;
 		}
 		else {
-			drv->fp = fopen (drv->fname, "wb");
-
-			if (drv->fp == NULL) {
-				return (1);
-			}
 		}
 	}
 
