@@ -179,7 +179,7 @@ void st_set_parport_drv (atari_st_t *sim, char_drv_t *drv);
 /*****************************************************************************
  * @short Reset the simulation
  *****************************************************************************/
-void st_reset (atari_st_t *sim);
+void st_reset (atari_st_t *sim, int boot);
 
 /*****************************************************************************
  * @short Clock the simulator

@@ -355,7 +355,7 @@ int main (int argc, char *argv[])
 	cmd_init (par_sim, cmd_get_sym, cmd_set_sym);
 	mac_cmd_init (par_sim, &par_mon);
 
-	mac_reset (par_sim);
+	mac_reset (par_sim, 1);
 
 #ifdef __EMSCRIPTEN__
 	mac_run_emscripten(par_sim);

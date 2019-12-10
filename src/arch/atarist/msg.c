@@ -324,7 +324,7 @@ int st_set_msg_emu_realtime_toggle (atari_st_t *sim, const char *msg, const char
 static
 int st_set_msg_emu_reset (atari_st_t *sim, const char *msg, const char *val)
 {
-	st_reset (sim);
+	st_reset (sim, 1);
 
 	return (0);
 }
@@ -426,7 +426,7 @@ static void st_vid_reschange(atari_st_t *sim, int v)
 	 * now wait for VBL interrupt to do the resolution change
 	 */
 	sim->newres = v;
-	sim->reschange_vbl = 2;
+	sim->reschange_vbl = 3;
 }
 
 

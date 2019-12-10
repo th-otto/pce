@@ -547,7 +547,7 @@ void mac_log_exception (void *ext, unsigned tn)
 
 	switch (tn) {
 	case 0x00:
-		mac_reset (sim);
+		mac_reset (sim, 1);
 		return;
 
 	case 0x0a:
@@ -854,7 +854,7 @@ void mac_cmd_reset (cmd_t *cmd, macplus_t *sim)
 		return;
 	}
 
-	mac_reset (sim);
+	mac_reset (sim, 1);
 
 	mac_prt_state_cpu (sim->cpu);
 }

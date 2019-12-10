@@ -594,21 +594,12 @@ void e68_exception (e68000_t *c, unsigned vct, unsigned fmt, const char *name)
 	e68_set_pc_prefetch (c, addr);
 }
 
-void e68_exception_reset (e68000_t *c)
+static void e68_exception_reset (e68000_t *c)
 {
 	c->except_cnt += 1;
 	c->except_addr = e68_get_pc (c);
 	c->except_vect = 0;
 	c->except_name = "RSET";
-
-	e68_set_sr (c, E68_SR_S | E68_SR_I);
-
-	e68_set_areg32 (c, 7, e68_get_mem32 (c, 0));
-
-	e68_set_ir_pc (c, e68_get_mem32 (c, 4));
-	e68_prefetch (c);
-	e68_prefetch (c);
-	e68_set_pc (c, e68_get_ir_pc (c) - 4);
 
 	c->exception = 0;
 
@@ -787,17 +778,11 @@ void e68_set_reset (e68000_t *c, unsigned char val)
 	}
 }
 
-void e68_reset (e68000_t *c)
+void e68_boot (e68000_t *c)
 {
 	unsigned i;
 
-	if (c->reset_val) {
-		return;
-	}
-
-	e68_set_reset (c, 1);
-
-	e68_set_sr (c, E68_SR_S);
+	e68_set_sr (c, E68_SR_S | E68_SR_I);
 
 	for (i = 0; i < 8; i++) {
 		e68_set_dreg32 (c, i, 0);
@@ -821,6 +806,38 @@ void e68_reset (e68000_t *c)
 	c->int_ipl = 0;
 	c->int_nmi = 0;
 
+	e68_set_sr (c, E68_SR_S | E68_SR_I);
+
+	e68_set_areg32 (c, 7, e68_get_mem32 (c, 0));
+
+	e68_set_ir_pc (c, e68_get_mem32 (c, 4));
+	e68_prefetch (c);
+	e68_prefetch (c);
+	e68_set_pc (c, e68_get_ir_pc (c) - 4);
+}
+
+void e68_reset (e68000_t *c)
+{
+	unsigned i;
+
+	if (c->reset_val) {
+		return;
+	}
+
+	e68_set_reset (c, 1);
+
+	e68_set_sfc (c, 0);
+	e68_set_dfc (c, 0);
+
+	e68_set_cacr (c, 0);
+	e68_set_caar (c, 0);
+
+	c->halt = 0;
+	c->bus_error = 0;
+	c->exception = 0;
+	c->int_ipl = 0;
+	c->int_nmi = 0;
+
 	e68_exception_reset (c);
 
 	e68_set_reset (c, 0);
@@ -831,6 +848,7 @@ void e68_execute (e68000_t *c)
 	c->bus_error = 0;
 	if (c->halt == 0) {
 #if 0
+		if (do_disasm) {
 		e68_dasm_t da;
 		memset(&da, 0, sizeof(da));
 		e68_dasm_cur(c, &da);
@@ -842,6 +860,7 @@ void e68_execute (e68000_t *c)
 		if (da.argn > 2)
 			pce_log(MSG_DEB, ",%s", da.arg3);
 		pce_log(MSG_DEB, "\n");
+		}
 #endif
 
 		c->last_pc[++c->last_pc_idx & (E68_LAST_PC_CNT - 1)] = e68_get_pc (c);

@@ -461,8 +461,6 @@ int e68_set_reg (e68000_t *c, const char *reg, unsigned long val);
  *****************************************************************************/
 void e68_set_pc_prefetch (e68000_t *c, unsigned long val);
 
-void e68_exception_reset (e68000_t *c);
-
 void e68_exception_bus (e68000_t *c, uint32_t addr, int data, int wr);
 
 void e68_exception_address (e68000_t *c, uint32_t addr, int data, int wr);
@@ -498,6 +496,7 @@ void e68_interrupt (e68000_t *c, unsigned level);
  * @short Reset a 68000 cpu core
  *****************************************************************************/
 void e68_reset (e68000_t *c);
+void e68_boot (e68000_t *c);
 
 /*!***************************************************************************
  * @short Execute one instruction

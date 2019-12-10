@@ -471,7 +471,7 @@ static void st_set_reset (void *ext, unsigned char val)
 {
 	atari_st_t *sim = (atari_st_t *)ext;
 	if (val)
-		st_reset(sim);
+		st_reset(sim, 0);
 }
 
 static
@@ -506,8 +506,6 @@ void st_setup_cpu (atari_st_t *sim, ini_sct_t *ini)
 	);
 
 	e68_set_inta_fct (sim->cpu, sim, st_inta);
-
-	e68_set_flags (sim->cpu, E68_FLAG_NORESET, 1);
 
 	e68_set_address_check (sim->cpu, 0);
 	e68_set_reset_fct(sim->cpu, sim, st_set_reset);
@@ -1011,7 +1009,7 @@ void st_set_parport_drv (atari_st_t *sim, char_drv_t *drv)
 	}
 }
 
-void st_reset (atari_st_t *sim)
+void st_reset (atari_st_t *sim, int boot)
 {
 	unsigned long ramsize;
 
@@ -1056,7 +1054,8 @@ void st_reset (atari_st_t *sim)
 	mem_set_uint32_be (sim->mem, 0, mem_get_uint32_be (sim->mem, sim->rom_addr));
 	mem_set_uint32_be (sim->mem, 4, mem_get_uint32_be (sim->mem, sim->rom_addr + 4));
 
-	e68_reset (sim->cpu);
+	if (boot)
+		e68_boot (sim->cpu);
 
 	ramsize = mem_blk_get_size (sim->ram);
 	if (ramsize <= 256 * 1024L)

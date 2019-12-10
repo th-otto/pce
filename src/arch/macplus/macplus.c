@@ -254,7 +254,7 @@ void mac_set_reset (void *ext, unsigned char val)
 		return;
 	}
 
-	mac_reset (ext);
+	mac_reset (ext, 0);
 }
 
 static
@@ -1487,6 +1487,7 @@ int mac_set_msg_trm (macplus_t *sim, const char *msg, const char *val)
 
 int mac_set_cpu_model (macplus_t *sim, const char *model)
 {
+	sim->mem->mem_mask = 0xffffff;
 	if (strcmp (model, "68000") == 0) {
 		e68_set_68000 (sim->cpu);
 	}
@@ -1503,7 +1504,7 @@ int mac_set_cpu_model (macplus_t *sim, const char *model)
 	return (0);
 }
 
-void mac_reset (macplus_t *sim)
+void mac_reset (macplus_t *sim, int boot)
 {
 	if (sim->reset) {
 		return;
@@ -1550,7 +1551,8 @@ void mac_reset (macplus_t *sim)
 		adb_reset (sim->adb);
 	}
 
-	e68_reset (sim->cpu);
+	if (boot)
+		e68_boot (sim->cpu);
 
 	mac_clock_discontinuity (sim);
 

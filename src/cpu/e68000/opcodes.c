@@ -2015,6 +2015,7 @@ static void op4e70 (e68000_t *c)
 
 	e68_set_clk (c, 132);
 	e68_reset (c);
+	e68_op_prefetch (c);
 }
 
 /* 4E71: NOP */

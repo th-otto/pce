@@ -268,7 +268,7 @@ int mac_set_msg_emu_realtime_toggle (macplus_t *sim, const char *msg, const char
 static
 int mac_set_msg_emu_reset (macplus_t *sim, const char *msg, const char *val)
 {
-	mac_reset (sim);
+	mac_reset (sim, 1);
 
 	return (0);
 }

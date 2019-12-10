@@ -366,7 +366,7 @@ int main (int argc, char *argv[])
 	cmd_init (par_sim, cmd_get_sym, cmd_set_sym);
 	st_cmd_init (par_sim, &par_mon);
 
-	st_reset (par_sim);
+	st_reset (par_sim, 1);
 
 #ifdef __EMSCRIPTEN__
 	st_run_emscripten(par_sim);

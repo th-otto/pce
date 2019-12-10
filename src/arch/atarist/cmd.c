@@ -718,7 +718,7 @@ void st_log_exception (void *ext, unsigned tn)
 
 	switch (tn) {
 	case 0x00:
-		st_reset (sim);
+		st_reset (sim, 1);
 		return;
 
 	case 0x02: /* BUSE */
@@ -1087,7 +1087,7 @@ void st_cmd_reset (cmd_t *cmd, atari_st_t *sim)
 		return;
 	}
 
-	st_reset (sim);
+	st_reset (sim, 1);
 
 	st_print_state_cpu (sim);
 }

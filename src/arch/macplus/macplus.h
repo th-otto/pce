@@ -175,7 +175,7 @@ int mac_set_cpu_model (macplus_t *sim, const char *model);
 /*****************************************************************************
  * @short Reset the simulator
  *****************************************************************************/
-void mac_reset (macplus_t *sim);
+void mac_reset (macplus_t *sim, int boot);
 
 /*****************************************************************************
  * @short Clock the simulator
