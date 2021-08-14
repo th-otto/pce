@@ -98,6 +98,7 @@ function toggleconsole() {
 function togglecolor() {
    var toggle = document.getElementById('togglecolor');
    emu_msg('video.rez', toggle.checked ? "0" : "2");
+   emu_msg('emu.reset', '1');
    var output = document.getElementById('output');
 }
 toggleconsole();
