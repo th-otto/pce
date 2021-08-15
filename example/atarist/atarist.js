@@ -9,9 +9,9 @@ atarist((function() {
   var mono = toggle.checked ? "0" : "1";
   var speed = document.getElementById('speedsel');
   var factor = speed.value;
-  // var tos = document.getElementById('tossel');
+  var tos = document.getElementById('tossel');
   return {
-  'arguments': ['-c','pce-config.cfg','-r','-v','-I','system.mono='+mono,'-I','emu.cpu.speed='+factor],
+  'arguments': ['-c','pce-config.cfg','-r','-v','-I','system.mono='+mono,'-I','emu.cpu.speed='+factor,'-I','rom.file="'+tos.value+'"'],
   // ,'-I','rom.file="'+tos.value+'"'
   autoloadFiles: [
     'tos100us.rom',
