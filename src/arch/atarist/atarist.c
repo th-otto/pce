@@ -1124,7 +1124,9 @@ void st_realtime_sync (atari_st_t *sim, unsigned long n)
 		}
 
 		if (sim->sync_sleep < -1000000) {
+#if 0
 			st_log_deb ("system too slow, skipping 1 second\n");
+#endif
 			sim->sync_sleep += 1000000;
 		}
 	}

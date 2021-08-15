@@ -47,7 +47,7 @@
 
     </style>
   </head>
-  <body>
+  <body onload="setdefaults();">
     <div class="pcejs pcejs-container">
       <h1>Atari ST</h1>
       <div class="pcejs pcejs-loading-status" id="pcejs-loading-status">Downloading...</div>
@@ -67,8 +67,21 @@
   <!-- <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span> -->
   </td></tr>
   <tr><td align="left"><span><input type="button" value="Reset" onclick="emu_msg('emu.reset', '1')"></span></td></tr>
-  <tr><td align="left"><span><input type="button" value="Zoom in" onclick="emu_msg('term.scale', '+1')"></span></tr></td>
-  <tr><td align="left"><span><input type="button" value="Zoom out" onclick="emu_msg('term.scale', '-1')"></span></tr></td>
+  <tr><td align="left"><span><input type="button" value="Zoom in" onclick="emu_msg('term.scale', '+1')"></span></td></tr>
+  <tr><td align="left"><span><input type="button" value="Zoom out" onclick="emu_msg('term.scale', '-1')"></span></td></tr>
+  <tr><td></td></tr>
+  <tr>
+  <td>Select floppy:</td>
+  <td>
+  <select id="floppysel" onchange="loadfloppy('floppysel', 'floppyerror', '0');">
+  <option value="">None</option>
+  <option value="fd0.st">NeoChrome</option>
+  <option value="1943.st">1943</option>
+  </select>
+  </td>
+  <td><span id='floppyerror'></span></td>
+  </tr>
+  <tr><td></td></tr>
   </table>
 </div>
       <div>
@@ -101,8 +114,42 @@ function togglecolor() {
    emu_msg('emu.reset', '1');
    var output = document.getElementById('output');
 }
-toggleconsole();
-document.getElementById('output').value = '';
+function loadfloppy(sel, error, floppynum) {
+   var floppy = document.getElementById(sel);
+   var errorDisplay = document.getElementById(error);
+   if (floppy.value !== "")
+   {
+      var filename = floppy.value;
+      fetch(filename).then(function(response) {
+         if (!response.ok) {
+            throw new Error("HTTP error, status = " + response.status);
+         }
+         return response.arrayBuffer();
+      }).then(function(buffer) {
+         var basename = Module.PATH.basename(filename);
+         data = new Uint8Array(buffer);
+         try {
+            Module.FS.unlink("/" + basename);
+         } catch (e) {}
+         Module.FS.createDataFile("/", basename, data, true, true, false);
+         emu_msg('disk.eject', floppynum);
+         emu_msg('disk.insert', basename);
+         errorDisplay.innerHTML = '';
+      }).catch(function(error) {
+         Module.printErr(error.message);
+         errorDisplay.appendChild(document.createTextNode(error.message));
+      });
+   } else
+   {
+      emu_msg('disk.eject', floppynum);
+   }
+}
+function setdefaults() {
+   toggleconsole();
+   document.getElementById('output').value = '';
+   var floppy = document.getElementById('floppysel');
+   floppy.value = "fd0.st";
+}
 </script>
 
 <!--
