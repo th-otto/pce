@@ -6,12 +6,16 @@ var loadingStatus = utils.loadingStatus(document.getElementById('pcejs-loading-s
 
 atarist((function() {
   var toggle = document.getElementById('togglecolor');
-  var mono = toggle === 'undefined' ? "0" : toggle.checked ? "0" : "1";
+  var mono = toggle.checked ? "0" : "1";
+  var speed = document.getElementById('speedsel');
+  var factor = speed.value;
+  // var tos = document.getElementById('tossel');
   return {
-  'arguments': ['-c','pce-config.cfg','-r','-v','-I','system.mono='+mono],
+  'arguments': ['-c','pce-config.cfg','-r','-v','-I','system.mono='+mono,'-I','emu.cpu.speed='+factor],
+  // ,'-I','rom.file="'+tos.value+'"'
   autoloadFiles: [
-    'tos-1.00-us.rom',
-    'tos-1.04-us.rom',
+    'tos100us.rom',
+    'tos104us.rom',
     'etos256us.img',
     'etos256de.img',
     'pce-config.cfg',

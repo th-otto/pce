@@ -77,10 +77,34 @@
   <option value="">None</option>
   <option value="fd0.st">NeoChrome</option>
   <option value="1943.st">1943</option>
+  <option value="arkanoid_2.st">Arkanoid 2 (DoH)</option>
   </select>
   </td>
   <td><span id='floppyerror'></span></td>
   </tr>
+  <tr>
+  <td>Speed:</td>
+  <td>
+  <select id="speedsel" onchange="changespeed();">
+  <option value="0">Max</option>
+  <option value="1">8MHz</option>
+  <option value="2">16MHz</option>
+  <option value="4" selected="selected">32MHz</option>
+  </select>
+  </td>
+  </tr>
+  <!--
+  <tr><td></td></tr>
+  <td>TOS:</td>
+  <td>
+  <select id="tossel" onchange="changetos();">
+  <option value="etos256us.img" selected="selected">EmuTOS 1.1.1 (us)</option>
+  <option value="tos104us.rom">TOS 1.04 (us)</option>
+  </select>
+  </td>
+  <td><span id='toserror'></span></td>
+  </tr>
+  -->
   <tr><td></td></tr>
   </table>
 </div>
@@ -112,7 +136,11 @@ function togglecolor() {
    var toggle = document.getElementById('togglecolor');
    emu_msg('video.rez', toggle.checked ? "0" : "2");
    emu_msg('emu.reset', '1');
-   var output = document.getElementById('output');
+}
+function changespeed() {
+   var speed = document.getElementById('speedsel');
+   emu_msg('emu.cpu.speed', speed.value);
+   emu_msg('emu.reset', '1');
 }
 function loadfloppy(sel, error, floppynum) {
    var floppy = document.getElementById(sel);
@@ -142,6 +170,15 @@ function loadfloppy(sel, error, floppynum) {
    } else
    {
       emu_msg('disk.eject', floppynum);
+   }
+}
+function changetos() {
+   var tos = document.getElementById('tossel');
+   var errorDisplay = document.getElementById('toserror');
+   if (tos.value !== "")
+   {
+      /* filename will be append to commandline parameters */
+      window.location.reload();
    }
 }
 function setdefaults() {
