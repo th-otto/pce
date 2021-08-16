@@ -877,7 +877,9 @@ int sdl2_open (void *ext, unsigned w, unsigned h)
 	sdl->render = NULL;
 	sdl->texture = NULL;
 
+#ifndef __EMSCRIPTEN__
 	SDL_EventState (SDL_MOUSEMOTION, SDL_ENABLE);
+#endif
 
 	SDL_SetHint (SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 	SDL_SetHint (SDL_HINT_GRAB_KEYBOARD, "1");

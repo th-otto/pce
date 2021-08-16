@@ -17,18 +17,8 @@ copy_if_present() {
 
 PCEJS_REPO_ROOT=$(git rev-parse --show-toplevel)
 
-cp "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.bc"
-# EMCC_DEBUG=2 
-echo "${PCEJS_EMSDK_PATH}/emcc" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.bc" \
-  -o "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}" \
-  "$PCEJS_EMFLAGS" \
-  "$PCEJS_MAKE_CFLAGS"
-"${PCEJS_EMSDK_PATH}/emcc" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.bc" \
-  -o "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}" \
-  $PCEJS_EMFLAGS \
-  -s "EXPORTED_FUNCTIONS=['_main', '_emu_msg']" \
-  -s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap']"
-  $PCEJS_MAKE_CFLAGS
+cp "src/arch/${PCEJS_TARGET}/pce-${PCEJS_TARGET}.wasm" "${PCEJS_PREFIX}/bin"
+cp "src/arch/${PCEJS_TARGET}/pce-${PCEJS_TARGET}" "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}"
 
 
 cp "${PCEJS_PREFIX}/bin/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}" "${PCEJS_PACKAGEDIR}/pce-${PCEJS_TARGET}.${PCEJS_OUTPUT_FORMAT}"

@@ -995,7 +995,9 @@ int sdl_open (void *ext, unsigned w, unsigned h)
 	SDL_WM_SetCaption ("pce", "pce");
 #endif
 	SDL_EnableKeyRepeat (SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+#ifndef __EMSCRIPTEN__
 	SDL_EventState (SDL_MOUSEMOTION, SDL_ENABLE);
+#endif
 
 	sdl_set_window_size (sdl, fx * w + bx, fy * h + by, 0);
 

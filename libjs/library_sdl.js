@@ -1,9 +1,5 @@
 // additions and overrides to emscripten's builtin SDL library
 
-LibrarySDL = {
-  SDL_EventState: function() {},
-};
-
 var PCEJS_SDL_CreateRGBSurfaceFrom = true; // enable PCEJS custom implementation of SDL_CreateRGBSurfaceFrom
 if (PCEJS_SDL_CreateRGBSurfaceFrom) {
   LibrarySDL.SDL_CreateRGBSurfaceFrom = function(pixels, width, height, depth, pitch, rmask, gmask, bmask, amask) {
