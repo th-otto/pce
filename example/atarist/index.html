@@ -80,7 +80,8 @@
   <option value="arkanoid_2.st">Arkanoid 2 (DoH)</option>
   <option value="battle_chess_1.st">Battle Chess</option>
   <option value="defender_of_the_crown.st"">Defender of the Crown</option>
-  <option value="populous.st"">Populous</option>
+  <option value="populous.st">Populous</option>
+<!--  <option value="woi.st">Wall's of Illusion</option> -->
   </select>
   </td>
   <td><span id='floppyerror'></span></td>
@@ -129,25 +130,32 @@
 
 <script type="text/javascript">
 var emu_msg = Module.cwrap('emu_msg', 'number', ['string', 'string']);
+function focuscanvas() {
+   document.getElementById('pcejs-canvas').focus();
+}
 function toggleconsole() {
    var toggle = document.getElementById('toggleconsole');
    var output = document.getElementById('output');
    output.style.display = toggle.checked ? "block" : "none";
    output.scrollTop = 99999;
+   focuscanvas();
 }
 function togglecolor() {
    var toggle = document.getElementById('togglecolor');
    emu_msg('video.rez', toggle.checked ? "0" : "2");
    emu_msg('emu.reset', '1');
+   focuscanvas();
 }
 function changespeed() {
    var speed = document.getElementById('speedsel');
    emu_msg('emu.cpu.speed', speed.value);
    emu_msg('emu.reset', '1');
+   focuscanvas();
 }
 function loadfloppy(sel, error, floppynum) {
    var floppy = document.getElementById(sel);
    var errorDisplay = document.getElementById(error);
+   focuscanvas();
    if (floppy.value !== "")
    {
       var filename = floppy.value;
@@ -183,6 +191,7 @@ function changetos() {
       /* filename will be appended to commandline parameters */
       window.location.reload();
    }
+   focuscanvas();
 }
 function setdefaults() {
    toggleconsole();
