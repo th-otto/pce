@@ -16,6 +16,7 @@ atarist((function() {
   autoloadFiles: [
     'tos100us.rom',
     'tos104us.rom',
+    'tos104de.rom',
     'etos256us.img',
     'etos256de.img',
     'pce-config.cfg',

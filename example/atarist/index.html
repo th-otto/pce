@@ -101,7 +101,9 @@
   <td>
   <select id="tossel" onchange="changetos();">
   <option value="etos256us.img" selected="selected">EmuTOS 1.1.1 (us)</option>
+  <option value="etos256de.img">EmuTOS 1.1.1 (de)</option>
   <option value="tos104us.rom">TOS 1.04 (us)</option>
+  <option value="tos104de.rom">TOS 1.04 (de)</option>
   </select>
   </td>
   <td><span id='toserror'></span></td>
@@ -178,7 +180,7 @@ function changetos() {
    var errorDisplay = document.getElementById('toserror');
    if (tos.value !== "")
    {
-      /* filename will be append to commandline parameters */
+      /* filename will be appended to commandline parameters */
       window.location.reload();
    }
 }

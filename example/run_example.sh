@@ -44,7 +44,7 @@ NODE_PATH="$PCEJS_MODULES_DIR:$PCEJS_DIR/node_modules:"$(dirname $EMSDK_NODE)"/.
   "browserify" "$PCEJS_ARCH_EXAMPLE_DIR/$PCEJS_ARCH.js" \
     --noparse="$PCEJS_ARCH_MODULE_DIR/lib/pcejs-${PCEJS_ARCH}.js" \
     > "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js"
-js-beautify "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js" | sed -s '/xhr_onload/ixhr.setRequestHeader("Cache-Control", "no-cache");' > "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js.tmp"
+js-beautify "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js" | sed -s '/xhr.onload = function/ixhr.setRequestHeader("Cache-Control", "no-cache");' > "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js.tmp"
 mv "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js.tmp" "$PCEJS_ARCH_EXAMPLE_DIR/bundle.js"
 echo "bundle.js built"
 
