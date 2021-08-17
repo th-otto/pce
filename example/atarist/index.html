@@ -79,9 +79,9 @@
   <option value="1943.st">1943</option>
   <option value="arkanoid_2.st">Arkanoid 2 (DoH)</option>
   <option value="battle_chess_1.st">Battle Chess</option>
-  <option value="defender_of_the_crown.st"">Defender of the Crown</option>
+  <option value="defender_of_the_crown.st">Defender of the Crown</option>
   <option value="populous.st">Populous</option>
-<!--  <option value="woi.st">Wall's of Illusion</option> -->
+  <option value="woi.st">Wall's of Illusion</option>
   </select>
   </td>
   <td><span id='floppyerror'></span></td>
@@ -159,7 +159,11 @@ function loadfloppy(sel, error, floppynum) {
    if (floppy.value !== "")
    {
       var filename = floppy.value;
-      fetch(filename).then(function(response) {
+      fetch(filename, {
+        headers: {
+          'Cache-Control' : 'no-cache',
+        },
+      }).then(function(response) {
          if (!response.ok) {
             throw new Error("HTTP error, status = " + response.status);
          }
