@@ -44,9 +44,6 @@ if [ -n "$PCEJS_conf_emscripten" ]; then
     emflags+=" -s OUTLINING_LIMIT=${PCEJS_conf_outlining}"
   fi
 
-  emflags+=" -s \"EXPORTED_FUNCTIONS=['_main', '_emu_msg']\""
-  emflags+=" -s \"EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap']\""
-
   if [ -n "$PCEJS_conf_optlvl" ]; then
     emflags+=" -${PCEJS_conf_optlvl}"
   fi
@@ -80,9 +77,14 @@ if [ -n "$PCEJS_conf_emscripten" ]; then
   export PCEJS_EMFLAGS="$emflags"
   export PCEJS_CFLAGS="-Qunused-arguments -include src/include/pcedeps.h $emflags"
   export PCEJS_CONFIGURE="${PCEJS_EMSDK_PATH}/emconfigure ./configure"
+
   export PCEJS_MAKE_CFLAGS="$pcejs_make_cflags"
+
+  # cannot be passed to configure
+  export PCEJS_MAKE_LDFLAGS=
 else
-  export PCEJS_CFLAGS="-I/usr/local/opt/emscripten/system/include/emscripten/"
+  export PCEJS_EMSCRIPTEN=
+  export PCEJS_CFLAGS=
   export PCEJS_CONFIGURE="./configure"
   export PCEJS_MAKE_CFLAGS=""
 fi

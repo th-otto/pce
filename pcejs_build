@@ -27,7 +27,7 @@ pcejs_init_env_from_config () {
   # initialise build env from config
   # should be called after changing any PCEJS_conf var
   source ./scripts/pcejs_build_env.sh
-  if [[ -z $PCEJS_EMSDK_PATH ]]; then
+  if [ -z "$PCEJS_EMSDK_PATH" -a -n "$PCEJS_conf_emscripten" ]; then
     echo "ERROR: could't resolve emsdk path from env or config"
     exit 1
   fi
