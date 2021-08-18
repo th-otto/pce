@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/chipset/e6522.h                                          *
  * Created:     2007-11-09 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2007-2011 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2007-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -48,6 +48,7 @@ typedef struct {
 	unsigned char  ifr;
 	unsigned char  ier;
 
+	char           t1_reload;
 	unsigned short t1_latch;
 	unsigned short t1_val;
 	int            t1_hot;
@@ -70,6 +71,10 @@ typedef struct {
 	void           (*set_orb) (void *ext, unsigned char val);
 	unsigned char  set_orb_val;
 
+	void           *set_ca2_ext;
+	void           (*set_ca2) (void *ext, unsigned char val);
+	unsigned char  set_ca2_val;
+
 	void           *set_cb2_ext;
 	void           (*set_cb2) (void *ext, unsigned char val);
 	unsigned char  set_cb2_val;
@@ -88,6 +93,7 @@ void e6522_free (e6522_t *via);
 
 void e6522_set_ora_fct (e6522_t *via, void *ext, void *fct);
 void e6522_set_orb_fct (e6522_t *via, void *ext, void *fct);
+void e6522_set_ca2_fct (e6522_t *via, void *ext, void *fct);
 void e6522_set_cb2_fct (e6522_t *via, void *ext, void *fct);
 void e6522_set_shift_out_fct (e6522_t *via, void *ext, void *fct);
 void e6522_set_irq_fct (e6522_t *via, void *ext, void *fct);
@@ -106,14 +112,9 @@ void e6522_set_irb_inp (e6522_t *via, unsigned char val);
 
 void e6522_set_shift_inp (e6522_t *via, unsigned char val);
 
-void e6522_set_ora (e6522_t *via, unsigned char val);
-void e6522_set_ddra (e6522_t *via, unsigned char val);
-void e6522_set_orb (e6522_t *via, unsigned char val);
-void e6522_set_ddrb (e6522_t *via, unsigned char val);
-
-unsigned char e6522_get_uint8 (void *via, unsigned long addr);
-unsigned short e6522_get_uint16 (void *via, unsigned long addr);
-unsigned long e6522_get_uint32 (void *via, unsigned long addr);
+unsigned char e6522_get_uint8 (void *ext, unsigned long addr);
+unsigned short e6522_get_uint16 (void *ext, unsigned long addr);
+unsigned long e6522_get_uint32 (void *ext, unsigned long addr);
 
 void e6522_set_uint8 (void *via, unsigned long addr, unsigned char val);
 void e6522_set_uint16 (void *via, unsigned long addr, unsigned short val);

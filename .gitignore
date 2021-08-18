@@ -36,6 +36,7 @@ src/arch/macplus/pce-macplus
 src/arch/cpm80/pce-cpm80
 src/arch/dos/pce-dos
 src/arch/rc759/pce-rc759
+src/arch/vic20/pce-vic20
 src/arch/sim405/pce-sim405
 src/arch/sim6502/pce-sim6502
 src/arch/simarm/pce-simarm
@@ -48,6 +49,7 @@ src/utils/pri/pri
 src/utils/psi/psi
 src/utils/aym/aym
 src/utils/pfi/pfi
+src/utils/pti/pti
 
 # examples system files
 example/**/*.rom

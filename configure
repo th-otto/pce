@@ -636,9 +636,9 @@ PCE_ENABLE_CHAR_PTY
 PCE_ENABLE_CHAR_PPP
 PCE_ENABLE_CHAR_POSIX
 PCE_ENABLE_TUN
+PCE_BUILD_VIC20
 PCE_BUILD_SIMARM
 PCE_BUILD_SIMS32
-PCE_BUILD_SIM6502
 PCE_BUILD_SIM405
 PCE_BUILD_RC759
 PCE_BUILD_MACPLUS_ROM
@@ -752,9 +752,9 @@ enable_macplus
 enable_macplus_rom
 enable_rc759
 enable_sim405
-enable_sim6502
 enable_sims32
 enable_simarm
+enable_vic20
 enable_tun
 enable_char_posix
 enable_char_ppp
@@ -1401,9 +1401,9 @@ Optional Features:
   --enable-macplus-rom    Build the Mac Plus ROM from source [no]
   --enable-rc759          Enable the RC759 Piccoline [yes]
   --enable-sim405         Enable the PPC405 simulator [yes]
-  --enable-sim6502        Enable the 6502 simulator [yes]
   --enable-sims32         Enable the sparc32 simulator [yes]
   --enable-simarm         Enable the arm simulator [yes]
+  --enable-vic20          Enable the VIC20 emulator [yes]
   --enable-tun            Enable tun networking [guessed]
   --enable-char-posix     Enable the posix file character driver [guessed]
   --enable-char-ppp       Enable the PPP character driver [guessed]
@@ -1587,48 +1587,6 @@ fi
 
 } # ac_fn_c_try_cpp
 
-# ac_fn_c_try_run LINENO
-# ----------------------
-# Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
-# that executables *can* be run.
-ac_fn_c_try_run ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  if { { ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_link") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; } && { ac_try='./conftest$ac_exeext'
-  { { case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
-$as_echo "$ac_try_echo"; } >&5
-  (eval "$ac_try") 2>&5
-  ac_status=$?
-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; }; then :
-  ac_retval=0
-else
-  $as_echo "$as_me: program exited with status $ac_status" >&5
-       $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-       ac_retval=$ac_status
-fi
-  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-  as_fn_set_status $ac_retval
-
-} # ac_fn_c_try_run
-
 # ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
 # Tests whether HEADER exists, giving a warning if it cannot be compiled using
@@ -1715,6 +1673,48 @@ fi
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_check_header_mongrel
+
+# ac_fn_c_try_run LINENO
+# ----------------------
+# Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
+# that executables *can* be run.
+ac_fn_c_try_run ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  if { { ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; } && { ac_try='./conftest$ac_exeext'
+  { { case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:${as_lineno-$LINENO}: $ac_try_echo\""
+$as_echo "$ac_try_echo"; } >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; }; then :
+  ac_retval=0
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+       $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+       ac_retval=$ac_status
+fi
+  rm -rf conftest.dSYM conftest_ipa8_conftest.oo
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+  as_fn_set_status $ac_retval
+
+} # ac_fn_c_try_run
 
 # ac_fn_c_check_header_compile LINENO HEADER VAR INCLUDES
 # -------------------------------------------------------
@@ -4542,7 +4542,7 @@ if test "$ac_x_libraries" = no; then
 int
 main ()
 {
-XOpenDisplay (0)
+XrmInitialize ()
   ;
   return 0;
 }
@@ -4755,9 +4755,9 @@ if test -d "$srcdir/src/arch/ibmpc"; then have_ibmpc=1; else have_ibmpc=0; fi
 if test -d "$srcdir/src/arch/macplus"; then have_macplus=1; else have_macplus=0; fi
 if test -d "$srcdir/src/arch/rc759"; then have_rc759=1; else have_rc759=0; fi
 if test -d "$srcdir/src/arch/sim405"; then have_sim405=1; else have_sim405=0; fi
-if test -d "$srcdir/src/arch/sim6502"; then have_sim6502=1; else have_sim6502=0; fi
 if test -d "$srcdir/src/arch/simarm"; then have_simarm=1; else have_simarm=0; fi
 if test -d "$srcdir/src/arch/sims32"; then have_sims32=1; else have_sims32=0; fi
+if test -d "$srcdir/src/arch/vic20"; then have_vic20=1; else have_vic20=0; fi
 
 
 
@@ -5036,44 +5036,6 @@ fi
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the 6502 simulator" >&5
-$as_echo_n "checking whether to build the 6502 simulator... " >&6; }
-if test "x$have_sim6502" != "x1" ; then
-	PCE_BUILD_SIM6502=0
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (no source)" >&5
-$as_echo "no (no source)" >&6; }
-else
-	# Check whether --enable-sim6502 was given.
-if test "${enable_sim6502+set}" = set; then :
-  enableval=$enable_sim6502;
-		if test "x$enableval" = "xyes" ; then
-			PCE_BUILD_SIM6502=1
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes (forced)" >&5
-$as_echo "yes (forced)" >&6; }
-		else
-			PCE_BUILD_SIM6502=0
-			{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (forced)" >&5
-$as_echo "no (forced)" >&6; }
-		fi
-
-else
-
-		PCE_BUILD_SIM6502=1
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes (default)" >&5
-$as_echo "yes (default)" >&6; }
-
-
-fi
-
-fi
-
-if test "x$PCE_BUILD_SIM6502" = "x1" ; then
-	$as_echo "#define PCE_BUILD_SIM6502 1" >>confdefs.h
-
-fi
-
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the sparc32 simulator" >&5
 $as_echo_n "checking whether to build the sparc32 simulator... " >&6; }
 if test "x$have_sims32" != "x1" ; then
@@ -5145,6 +5107,37 @@ fi
 
 if test "x$PCE_BUILD_SIMARM" = "x1" ; then
 	$as_echo "#define PCE_BUILD_SIMARM 1" >>confdefs.h
+
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build the VIC20 emulator" >&5
+$as_echo_n "checking whether to build the VIC20 emulator... " >&6; }
+# Check whether --enable-vic20 was given.
+if test "${enable_vic20+set}" = set; then :
+  enableval=$enable_vic20;
+	if test "x$enableval" = "xyes" ; then
+		PCE_BUILD_VIC20=1
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes (forced)" >&5
+$as_echo "yes (forced)" >&6; }
+	else
+		PCE_BUILD_VIC20=0
+		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no (forced)" >&5
+$as_echo "no (forced)" >&6; }
+	fi
+
+else
+
+	PCE_BUILD_VIC20=1
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes (default)" >&5
+$as_echo "yes (default)" >&6; }
+
+
+fi
+
+
+if test $PCE_BUILD_VIC20 -eq 1 ; then
+	$as_echo "#define PCE_BUILD_VIC20 1" >>confdefs.h
 
 fi
 
@@ -5754,12 +5747,6 @@ else
 	emu2="$emu2 sim405"
 fi
 
-if test "x$PCE_BUILD_SIM6502" = "x1" ; then
-	emu1="$emu1 sim6502"
-else
-	emu2="$emu2 sim6502"
-fi
-
 if test "x$PCE_BUILD_SIMARM" = "x1" ; then
 	emu1="$emu1 simarm"
 else
@@ -5770,6 +5757,12 @@ if test "x$PCE_BUILD_SIMS32" = "x1" ; then
 	emu1="$emu1 sims32"
 else
 	emu2="$emu2 sims32"
+fi
+
+if test "x$PCE_BUILD_VIC20" = "x1" ; then
+	emu1="$emu1 vic20"
+else
+	emu2="$emu2 vic20"
 fi
 
 

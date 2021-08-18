@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pri/text-ibm-fm.c                                  *
  * Created:     2017-10-29 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2017-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2017-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -129,13 +129,7 @@ int txt_fm_dec_track (pri_text_t *ctx)
 	unsigned long bit;
 	unsigned long type, val;
 
-	if (ctx->first_track == 0) {
-		fputs ("\n\n", ctx->fp);
-	}
-
-	ctx->first_track = 0;
-
-	fprintf (ctx->fp, "TRACK %lu %lu\n\n", ctx->c, ctx->h);
+	fprintf (ctx->fp, "\nTRACK %lu %lu\n\n", ctx->c, ctx->h);
 	fprintf (ctx->fp, "MODE IBM-FM\n");
 	fprintf (ctx->fp, "RATE %lu\n\n", pri_trk_get_clock (ctx->trk));
 
@@ -230,6 +224,18 @@ int fm_enc_byte (pri_text_t *ctx, unsigned char val, unsigned char clk)
 }
 
 static
+int fm_enc_bytes (pri_text_t *ctx, unsigned char val, unsigned char clk, unsigned cnt)
+{
+	while (cnt-- > 0) {
+		if (fm_enc_byte (ctx, val, clk)) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+static
 int fm_enc_am (pri_text_t *ctx)
 {
 	unsigned long val;
@@ -316,6 +322,41 @@ int fm_enc_check (pri_text_t *ctx)
 }
 
 static
+int fm_enc_dam (pri_text_t *ctx)
+{
+	if (fm_enc_bytes (ctx, 0xff, 0x00, 6)) {
+		return (1);
+	}
+
+	if (fm_enc_byte (ctx, 0xfb, 0xc7)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int fm_enc_eot (pri_text_t *ctx)
+{
+	unsigned long max;
+
+	max = 50000;
+
+	if (ctx->bit_cnt < max) {
+		while (ctx->bit_cnt < max) {
+			if (fm_enc_byte (ctx, 0xff, 0xff)) {
+				return (1);
+			}
+		}
+
+		ctx->bit_cnt = max;
+		pri_trk_set_pos (ctx->trk, max);
+	}
+
+	return (0);
+}
+
+static
 int fm_enc_fill (pri_text_t *ctx)
 {
 	unsigned long max;
@@ -361,6 +402,22 @@ int fm_enc_fill (pri_text_t *ctx)
 }
 
 static
+int fm_enc_gap (pri_text_t *ctx)
+{
+	unsigned long cnt;
+
+	if (txt_match_uint (ctx, 10, &cnt) == 0) {
+		return (1);
+	}
+
+	if (fm_enc_bytes (ctx, 0xff, 0xff, cnt)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
 int fm_enc_hex (pri_text_t *ctx, unsigned val)
 {
 	unsigned      clk;
@@ -377,6 +434,52 @@ int fm_enc_hex (pri_text_t *ctx, unsigned val)
 	}
 
 	if (fm_enc_byte (ctx, val, clk)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int fm_enc_iam (pri_text_t *ctx)
+{
+	unsigned long gap4a, gap1;
+
+	if (txt_match_uint (ctx, 10, &gap4a) == 0) {
+		return (1);
+	}
+
+	if (txt_match_uint (ctx, 10, &gap1) == 0) {
+		return (1);
+	}
+
+	if (fm_enc_bytes (ctx, 0xff, 0xff, gap4a)) {
+		return (1);
+	}
+
+	if (fm_enc_bytes (ctx, 0x00, 0xff, 6)) {
+		return (1);
+	}
+
+	if (fm_enc_byte (ctx, 0xfc, 0xd7)) {
+		return (1);
+	}
+
+	if (fm_enc_bytes (ctx, 0xff, 0xff, gap1)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int fm_enc_idam (pri_text_t *ctx)
+{
+	if (fm_enc_bytes (ctx, 0xff, 0x00, 6)) {
+		return (1);
+	}
+
+	if (fm_enc_byte (ctx, 0xfe, 0xc7)) {
 		return (1);
 	}
 
@@ -497,8 +600,23 @@ int txt_encode_pri0_fm (pri_text_t *ctx)
 	else if (txt_match (ctx, "CRC", 1)) {
 		return (fm_enc_check_stop (ctx, 1));
 	}
+	else if (txt_match (ctx, "DAM", 1)) {
+		return (fm_enc_dam (ctx));
+	}
+	else if (txt_match (ctx, "EOT", 1)) {
+		return (fm_enc_eot (ctx));
+	}
 	else if (txt_match (ctx, "FILL", 1)) {
 		return (fm_enc_fill (ctx));
+	}
+	else if (txt_match (ctx, "GAP", 1)) {
+		return (fm_enc_gap (ctx));
+	}
+	else if (txt_match (ctx, "IAM", 1)) {
+		return (fm_enc_iam (ctx));
+	}
+	else if (txt_match (ctx, "IDAM", 1)) {
+		return (fm_enc_idam (ctx));
 	}
 	else if (txt_match (ctx, "REP", 1)) {
 		return (fm_enc_rep (ctx));

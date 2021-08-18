@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/ibmpc/msg.c                                         *
  * Created:     2004-09-25 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2004-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2004-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -21,10 +21,11 @@
 
 
 #include "main.h"
-#include "cassette.h"
 #include "ibmpc.h"
 
 #include <string.h>
+
+#include <devices/cassette.h>
 
 #include <drivers/block/block.h>
 
@@ -142,6 +143,36 @@ int pc_set_msg_emu_fdc_accurate (ibmpc_t *pc, const char *msg, const char *val)
 }
 
 static
+int pc_set_msg_emu_par1_file (ibmpc_t *pc, const char *msg, const char *val)
+{
+	if (pc_set_parport_file (pc, 0, val)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int pc_set_msg_emu_par2_file (ibmpc_t *pc, const char *msg, const char *val)
+{
+	if (pc_set_parport_file (pc, 1, val)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int pc_set_msg_emu_par3_file (ibmpc_t *pc, const char *msg, const char *val)
+{
+	if (pc_set_parport_file (pc, 2, val)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
 int pc_set_msg_emu_parport_driver (ibmpc_t *pc, const char *msg, const char *val)
 {
 	unsigned idx;
@@ -245,216 +276,6 @@ int pc_set_msg_emu_stop (ibmpc_t *pc, const char *msg, const char *val)
 	return (0);
 }
 
-static
-int pc_set_msg_emu_tape_append (ibmpc_t *pc, const char *msg, const char *val)
-{
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	pc_cas_append (pc->cas);
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_file (ibmpc_t *pc, const char *msg, const char *val)
-{
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	if (*val == 0) {
-		val = NULL;
-	}
-
-	if (pc_cas_set_fname (pc->cas, val)) {
-		return (1);
-	}
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_load (ibmpc_t *pc, const char *msg, const char *val)
-{
-	unsigned long v;
-
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	pc_cas_set_mode (pc->cas, 0);
-
-	if (*val != 0) {
-		if (strcmp (val, "end") == 0) {
-			pc_cas_append (pc->cas);
-		}
-		else {
-			if (msg_get_ulng (val, &v)) {
-				return (1);
-			}
-
-			if (pc_cas_set_position (pc->cas, v)) {
-				return (1);
-			}
-		}
-	}
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_pcm (ibmpc_t *pc, const char *msg, const char *val)
-{
-	int pcm;
-
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	if (msg_get_bool (val, &pcm)) {
-		return (1);
-	}
-
-	pc_cas_set_pcm (pc->cas, pcm);
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_read (ibmpc_t *pc, const char *msg, const char *val)
-{
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	if (*val == 0) {
-		val = NULL;
-	}
-
-	if (pc_cas_set_fname (pc->cas, val)) {
-		return (1);
-	}
-
-	pc_cas_set_mode (pc->cas, 0);
-
-	if (pc_cas_set_position (pc->cas, 0)) {
-		return (1);
-	}
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-static
-int pc_set_msg_emu_tape_rewind (ibmpc_t *pc, const char *msg, const char *val)
-{
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	pc_cas_rewind (pc->cas);
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_save (ibmpc_t *pc, const char *msg, const char *val)
-{
-	unsigned long v;
-
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	pc_cas_set_mode (pc->cas, 1);
-
-	if (*val != 0) {
-		if (strcmp (val, "end") == 0) {
-			pc_cas_append (pc->cas);
-		}
-		else {
-			if (msg_get_ulng (val, &v)) {
-				return (1);
-			}
-
-			if (pc_cas_set_position (pc->cas, v)) {
-				return (1);
-			}
-		}
-	}
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_srate (ibmpc_t *pc, const char *msg, const char *val)
-{
-	unsigned long v;
-
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	if (msg_get_ulng (val, &v)) {
-		return (1);
-	}
-
-	pc_cas_set_srate (pc->cas, v);
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_state (ibmpc_t *pc, const char *msg, const char *val)
-{
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
-static
-int pc_set_msg_emu_tape_write (ibmpc_t *pc, const char *msg, const char *val)
-{
-	if (pc->cas == NULL) {
-		return (1);
-	}
-
-	if (*val == 0) {
-		val = NULL;
-	}
-
-	if (pc_cas_set_fname (pc->cas, val)) {
-		return (1);
-	}
-
-	pc_cas_set_mode (pc->cas, 1);
-
-	if (pc_cas_set_position (pc->cas, 0)) {
-		return (1);
-	}
-
-	pc_cas_print_state (pc->cas);
-
-	return (0);
-}
-
 
 static pc_msg_list_t set_msg_list[] = {
 	{ "emu.config.save", pc_set_msg_emu_config_save },
@@ -464,6 +285,9 @@ static pc_msg_list_t set_msg_list[] = {
 	{ "emu.disk.boot", pc_set_msg_emu_disk_boot },
 	{ "emu.exit", pc_set_msg_emu_exit },
 	{ "emu.fdc.accurate", pc_set_msg_emu_fdc_accurate },
+	{ "emu.par1.file", pc_set_msg_emu_par1_file },
+	{ "emu.par2.file", pc_set_msg_emu_par2_file },
+	{ "emu.par3.file", pc_set_msg_emu_par3_file },
 	{ "emu.parport.driver", pc_set_msg_emu_parport_driver },
 	{ "emu.parport.file", pc_set_msg_emu_parport_file },
 	{ "emu.pause", pc_set_msg_emu_pause },
@@ -472,16 +296,6 @@ static pc_msg_list_t set_msg_list[] = {
 	{ "emu.serport.driver", pc_set_msg_emu_serport_driver },
 	{ "emu.serport.file", pc_set_msg_emu_serport_file },
 	{ "emu.stop", pc_set_msg_emu_stop },
-	{ "emu.tape.append", pc_set_msg_emu_tape_append },
-	{ "emu.tape.file", pc_set_msg_emu_tape_file },
-	{ "emu.tape.load", pc_set_msg_emu_tape_load },
-	{ "emu.tape.pcm", pc_set_msg_emu_tape_pcm },
-	{ "emu.tape.read", pc_set_msg_emu_tape_read },
-	{ "emu.tape.rewind", pc_set_msg_emu_tape_rewind },
-	{ "emu.tape.save", pc_set_msg_emu_tape_save },
-	{ "emu.tape.srate", pc_set_msg_emu_tape_srate },
-	{ "emu.tape.state", pc_set_msg_emu_tape_state },
-	{ "emu.tape.write", pc_set_msg_emu_tape_write },
 	{ NULL, NULL }
 };
 
@@ -513,6 +327,12 @@ int pc_set_msg (void *ext, const char *msg, const char *val)
 		}
 
 		lst += 1;
+	}
+
+	if (pc->cas != NULL) {
+		if ((r = cas_set_msg (pc->cas, msg, val)) >= 0) {
+			return (r);
+		}
 	}
 
 	if ((r = msg_dsk_set_msg (msg, val, pc->dsk, &pc->disk_id)) >= 0) {

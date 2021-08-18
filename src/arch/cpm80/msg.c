@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/cpm80/msg.c                                         *
  * Created:     2012-11-30 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2012-2016 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2012-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -47,12 +47,104 @@ extern cpm80_t   *par_sim;
 
 
 static
+int c80_set_msg_emu_aux_read (cpm80_t *sim, const char *msg, const char *val)
+{
+	if (c80_set_aux_read (sim, (*val == 0) ? NULL : val)) {
+		pce_log (MSG_ERR, "*** can't open file (%s)\n", val);
+	}
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_aux_write (cpm80_t *sim, const char *msg, const char *val)
+{
+	if (c80_set_aux_write (sim, (*val == 0) ? NULL : val, 1)) {
+		pce_log (MSG_ERR, "*** can't open file (%s)\n", val);
+	}
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_con_read (cpm80_t *sim, const char *msg, const char *val)
+{
+	if (c80_set_con_read (sim, (*val == 0) ? NULL : val)) {
+		pce_log (MSG_ERR, "*** can't open file (%s)\n", val);
+	}
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_con_write (cpm80_t *sim, const char *msg, const char *val)
+{
+	if (c80_set_con_write (sim, (*val == 0) ? NULL : val, 1)) {
+		pce_log (MSG_ERR, "*** can't open file (%s)\n", val);
+	}
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_cpu_model (cpm80_t *sim, const char *msg, const char *val)
+{
+	if (c80_set_cpu_model (sim, val)) {
+		pce_log (MSG_ERR, "*** failed to set CPU model (%s)\n", val);
+	}
+
+	return (0);
+}
+
+static
 int c80_set_msg_emu_cpu_speed (cpm80_t *sim, const char *msg, const char *val)
 {
 	unsigned v;
 
 	if (msg_get_uint (val, &v)) {
 		return (1);
+	}
+
+	if (v > 4) {
+		v = 8 * (v - 4);
+	}
+
+	c80_set_speed (sim, v);
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_cpu_speed_double (cpm80_t *sim, const char *msg, const char *val)
+{
+	c80_set_speed (sim, 2 * sim->speed);
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_cpu_speed_half (cpm80_t *sim, const char *msg, const char *val)
+{
+	if (sim->speed > 1) {
+		c80_set_speed (sim, sim->speed / 2);
+	}
+
+	return (0);
+}
+
+static
+int c80_set_msg_emu_cpu_speed_step (cpm80_t *sim, const char *msg, const char *val)
+{
+	int v;
+
+	if (msg_get_sint (val, &v)) {
+		return (1);
+	}
+
+	v += (int) sim->speed;
+
+	if (v <= 0) {
+		v = 1;
 	}
 
 	c80_set_speed (sim, v);
@@ -176,7 +268,15 @@ int c80_set_msg_emu_stop (cpm80_t *sim, const char *msg, const char *val)
 }
 
 static c80_msg_list_t set_msg_list[] = {
+	{ "emu.aux.read", c80_set_msg_emu_aux_read },
+	{ "emu.aux.write", c80_set_msg_emu_aux_write },
+	{ "emu.con.read", c80_set_msg_emu_con_read },
+	{ "emu.con.write", c80_set_msg_emu_con_write },
+	{ "emu.cpu.model", c80_set_msg_emu_cpu_model },
 	{ "emu.cpu.speed", c80_set_msg_emu_cpu_speed },
+	{ "emu.cpu.speed.double", c80_set_msg_emu_cpu_speed_double },
+	{ "emu.cpu.speed.half", c80_set_msg_emu_cpu_speed_half },
+	{ "emu.cpu.speed.step", c80_set_msg_emu_cpu_speed_step },
 	{ "emu.disk.commit", c80_set_msg_emu_disk_commit },
 	{ "emu.disk.eject", c80_set_msg_emu_disk_eject },
 	{ "emu.disk.insert", c80_set_msg_emu_disk_insert },

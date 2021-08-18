@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/drivers/pri/pri-enc-mfm.c                                *
  * Created:     2012-02-01 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2012-2018 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2012-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -33,6 +33,9 @@
 
 typedef struct {
 	pri_trk_t     *trk;
+
+	unsigned      c;
+	unsigned      h;
 
 	char          last;
 	char          clock;
@@ -100,16 +103,14 @@ unsigned char mfm_decode_byte (mfm_code_t *mfm)
 	unsigned i;
 	unsigned val;
 
-	if (mfm->clock) {
-		mfm_get_bit (mfm);
-	}
-
 	val = 0;
 
 	for (i = 0; i < 8; i++) {
-		val = (val << 1) | (mfm_get_bit (mfm) != 0);
+		if (mfm->clock) {
+			mfm_get_bit (mfm);
+		}
 
-		mfm_get_bit (mfm);
+		val = (val << 1) | (mfm_get_bit (mfm) != 0);
 	}
 
 	return (val);
@@ -226,6 +227,10 @@ psi_sct_t *mfm_decode_idam (mfm_code_t *mfm)
 	psi_sct_set_flags (sct, PSI_FLAG_NO_DAM, 1);
 
 	if (mfm->crc != crc) {
+		fprintf (stderr, "mfm: sector %u/%u/%u: id crc error\n",
+			mfm->c, mfm->h, s
+		);
+
 		psi_sct_set_flags (sct, PSI_FLAG_CRC_ID, 1);
 	}
 
@@ -243,7 +248,11 @@ static
 int mfm_decode_weak (psi_sct_t *sct, pri_trk_t *trk)
 {
 	unsigned long ofs, val, idx;
+	unsigned long ofs1, ofs2;
 	pri_evt_t     *evt, *e;
+
+	ofs1 = trk->idx;
+	ofs2 = (ofs1 + 16UL * sct->n) % trk->size;
 
 	evt = pri_trk_evt_get_idx (trk, PRI_EVENT_WEAK, 0);
 
@@ -255,25 +264,26 @@ int mfm_decode_weak (psi_sct_t *sct, pri_trk_t *trk)
 			continue;
 		}
 
-		if (e->pos < trk->idx) {
-			ofs = trk->size + e->pos - trk->idx;
+		if (ofs1 < ofs2) {
+			if (((e->pos + 32) <= ofs1) || (e->pos >= ofs2)) {
+				continue;
+			}
 		}
 		else {
-			ofs = e->pos - trk->idx;
+			if ((e->pos >= ofs2) && ((e->pos + 32) <= ofs1)) {
+				continue;
+			}
 		}
 
+		ofs = (trk->size + e->pos - trk->idx) % trk->size;
 		val = e->val;
-
-		if (ofs >= (16UL * sct->n)) {
-			continue;
-		}
 
 		if (psi_weak_alloc (sct)) {
 			return (1);
 		}
 
 		while (val != 0) {
-			if ((ofs & 1) == 0) {
+			if (ofs & 1) {
 				idx = ofs >> 1;
 				if (val & 0x80000000) {
 					sct->weak[idx >> 3] |= 0x80 >> (idx & 7);
@@ -282,6 +292,10 @@ int mfm_decode_weak (psi_sct_t *sct, pri_trk_t *trk)
 
 			ofs += 1;
 			val = (val << 1) & 0xffffffff;
+
+			if (ofs >= trk->size) {
+				ofs = 0;
+			}
 		}
 	}
 
@@ -372,6 +386,10 @@ int mfm_decode_dam (mfm_code_t *mfm, psi_sct_t *sct, unsigned mark)
 	mfm->crc = mfm_crc (mfm->crc, sct->data, sct->n);
 
 	if (mfm->crc != crc) {
+		fprintf (stderr, "mfm: sector %u/%u/%u: data crc error\n",
+			mfm->c, mfm->h, sct->s
+		);
+
 		psi_sct_set_flags (sct, PSI_FLAG_CRC_DATA, 1);
 	}
 
@@ -430,19 +448,22 @@ int mfm_decode_mark (mfm_code_t *mfm, psi_trk_t *trk, unsigned mark)
 
 	case 0xfb: /* data address mark */
 	case 0xf8: /* deleted data address mark */
-		fprintf (stderr, "mfm: dam without idam\n");
+		fprintf (stderr, "mfm: track %u/%u: dam without idam\n",
+			mfm->c, mfm->h
+		);
 		break;
 
 	default:
 		fprintf (stderr,
-			"mfm: unknown mark (0x%02x)\n", mark
+			"mfm: track %u/%u: unknown mark (0x%02x)\n",
+			mfm->c, mfm->h, mark
 		);
 	}
 
 	return (0);
 }
 
-psi_trk_t *pri_decode_mfm_trk (pri_trk_t *trk, unsigned h, pri_dec_mfm_t *par)
+psi_trk_t *pri_decode_mfm_trk (pri_trk_t *trk, unsigned c, unsigned h, pri_dec_mfm_t *par)
 {
 	unsigned char mark;
 	psi_trk_t     *dtrk;
@@ -460,6 +481,8 @@ psi_trk_t *pri_decode_mfm_trk (pri_trk_t *trk, unsigned h, pri_dec_mfm_t *par)
 	}
 
 	mfm.trk = trk;
+	mfm.c = c;
+	mfm.h = h;
 	mfm.clock = 0;
 	mfm.min_sct_size = par->min_sct_size;
 
@@ -511,7 +534,7 @@ psi_img_t *pri_decode_mfm (pri_img_t *img, pri_dec_mfm_t *par)
 				dtrk = psi_trk_new (h);
 			}
 			else {
-				dtrk = pri_decode_mfm_trk (trk, h, par);
+				dtrk = pri_decode_mfm_trk (trk, c, h, par);
 			}
 
 			if (dtrk == NULL) {

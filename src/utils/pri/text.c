@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pri/text.c                                         *
  * Created:     2014-08-18 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2014-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2014-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -31,6 +31,14 @@
 #include "main.h"
 #include "text.h"
 
+
+static
+void txt_init (pri_text_t *ctx, FILE *fp)
+{
+	memset (ctx, 0, sizeof (pri_text_t));
+
+	ctx->fp = fp;
+}
 
 void txt_save_pos (const pri_text_t *ctx, pri_text_pos_t *pos)
 {
@@ -69,6 +77,10 @@ unsigned txt_guess_encoding (pri_trk_t *trk)
 		case 0xf56f:
 		case 0xf56a:
 			return (PRI_TEXT_FM);
+		}
+
+		if ((val & 0x00ffffff) == 0xd5aa96) {
+			return (PRI_TEXT_MAC);
 		}
 
 		if ((val & 0xffffffff) == 0xcff3fcff) {
@@ -165,15 +177,13 @@ void txt_dec_event (pri_text_t *ctx, unsigned long type, unsigned long val)
 static
 void txt_dec_init (pri_text_t *ctx, FILE *fp, pri_img_t *img, pri_trk_t *trk, unsigned long c, unsigned long h)
 {
-	memset (ctx, 0, sizeof (pri_text_t));
+	txt_init (ctx, fp);
 
-	ctx->fp = fp;
 	ctx->img = img;
 	ctx->trk = trk;
 	ctx->c = c;
 	ctx->h = h;
 	ctx->s = 0;
-	ctx->first_track = 1;
 
 	ctx->mac_no_slip = par_mac_no_slip;
 }
@@ -257,7 +267,7 @@ int pri_decode_text (pri_img_t *img, const char *fname, unsigned enc)
 		return (1);
 	}
 
-	fprintf (fp, "PRI 0\n\n");
+	fprintf (fp, "PRI 0\n");
 
 	if (enc == PRI_TEXT_AUTO) {
 		r = pri_for_all_tracks (img, pri_decode_text_auto_cb, fp);
@@ -280,14 +290,6 @@ int pri_decode_text (pri_img_t *img, const char *fname, unsigned enc)
 	return (r);
 }
 
-
-static
-void txt_init (pri_text_t *ctx, FILE *fp)
-{
-	ctx->fp = fp;
-	ctx->cnt = 0;
-	ctx->line = 0;
-}
 
 static
 int txt_getc (pri_text_t *ctx, unsigned idx)
@@ -319,6 +321,17 @@ int txt_error (pri_text_t *ctx, const char *str)
 	fprintf (stderr, "pri-text:%u: error (%s), next = %02X\n", ctx->line + 1, str, c);
 
 	return (1);
+}
+
+unsigned long txt_get_position (pri_text_t *ctx)
+{
+	unsigned long val;
+
+	val = (ctx->bit_cnt + ctx->offset) & 0xffffffff;
+
+	ctx->offset = 0;
+
+	return (val);
 }
 
 static
@@ -445,6 +458,97 @@ int txt_match (pri_text_t *ctx, const char *str, int skip)
 	return (1);
 }
 
+int txt_match_string (pri_text_t *ctx, char *str, unsigned max)
+{
+	int      c, esc;
+	unsigned idx;
+
+	txt_match_space (ctx);
+
+	if ((c = txt_getc (ctx, 0)) != '"') {
+		return (0);
+	}
+
+	txt_skip (ctx, 1);
+
+	idx = 0;
+	esc = 0;
+
+	while (1) {
+		if (idx >= max) {
+			return (0);
+		}
+
+		if ((c = txt_getc (ctx, 0)) == EOF) {
+			return (0);
+		}
+
+		txt_skip (ctx, 1);
+
+		esc = 0;
+
+		if (c == '\\') {
+			esc = 1;
+
+			if ((c = txt_getc (ctx, 0)) == EOF) {
+				return (0);
+			}
+
+			txt_skip (ctx, 1);
+		}
+
+		if (esc) {
+			if (c == 'n') {
+				c = 0x0a;
+			}
+			else if (c == 't') {
+				c = 0x09;
+			}
+		}
+		else {
+			if (c == '"') {
+				break;
+			}
+		}
+
+		str[idx++] = c;
+	}
+
+	if (idx >= max) {
+		return (0);
+	}
+
+	str[idx] = 0;
+
+	return (1);
+}
+
+int txt_match_hex_digit (pri_text_t *ctx, unsigned *val)
+{
+	int c;
+
+	txt_match_space (ctx);
+
+	c = txt_getc (ctx, 0);
+
+	if ((c >= '0') && (c <= '9')) {
+		*val = c - '0';
+	}
+	else if ((c >= 'A') && (c <= 'F')) {
+		*val = c - 'A' + 10;
+	}
+	else if ((c >= 'a') && (c <= 'f')) {
+		*val = c - 'a' + 10;
+	}
+	else {
+		return (0);
+	}
+
+	txt_skip (ctx, 1);
+
+	return (1);
+}
+
 int txt_match_uint (pri_text_t *ctx, unsigned base, unsigned long *val)
 {
 	unsigned i, dig;
@@ -528,7 +632,7 @@ int txt_enc_bits_raw (pri_text_t *ctx, unsigned long val, unsigned cnt)
 static
 int txt_enc_clock (pri_text_t *ctx)
 {
-	unsigned long val, old;
+	unsigned long pos, val, old;
 
 	if (txt_match_uint (ctx, 10, &val) == 0) {
 		return (1);
@@ -539,7 +643,37 @@ int txt_enc_clock (pri_text_t *ctx)
 		val = (65536ULL * val + (old / 2)) / old;
 	}
 
-	if (pri_trk_evt_add (ctx->trk, PRI_EVENT_CLOCK, ctx->bit_cnt, val) == NULL) {
+	pos = txt_get_position (ctx);
+
+	if (pri_trk_evt_add (ctx->trk, PRI_EVENT_CLOCK, pos, val) == NULL) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int txt_enc_comm (pri_text_t *ctx)
+{
+	unsigned      cnt;
+	char          str[256];
+
+	if (txt_match (ctx, "RESET", 1)) {
+		pri_img_set_comment (ctx->img, NULL, 0);
+		return (0);
+	}
+
+	if (txt_match_string (ctx, str, 256) == 0) {
+		return (1);
+	}
+
+	cnt = strlen (str);
+
+	if (cnt < 256) {
+		str[cnt++] = 0x0a;
+	}
+
+	if (pri_img_add_comment (ctx->img, (unsigned char *) str, cnt)) {
 		return (1);
 	}
 
@@ -549,7 +683,7 @@ int txt_enc_clock (pri_text_t *ctx)
 static
 int txt_enc_index (pri_text_t *ctx)
 {
-	ctx->index_position = ctx->bit_cnt;
+	ctx->index_position = txt_get_position (ctx);
 
 	return (0);
 }
@@ -579,6 +713,20 @@ int txt_enc_mode (pri_text_t *ctx)
 		ctx->encoding = PRI_TEXT_RAW;
 		return (1);
 	}
+
+	return (0);
+}
+
+static
+int txt_enc_offset (pri_text_t *ctx)
+{
+	unsigned long val;
+
+	if (txt_match_uint (ctx, 10, &val) == 0) {
+		return (1);
+	}
+
+	ctx->offset = val;
 
 	return (0);
 }
@@ -624,6 +772,20 @@ int txt_enc_raw (pri_text_t *ctx)
 }
 
 static
+int txt_enc_rotate (pri_text_t *ctx)
+{
+	unsigned long val;
+
+	if (txt_match_uint (ctx, 10, &val) == 0) {
+		return (1);
+	}
+
+	ctx->rotate = val;
+
+	return (0);
+}
+
+static
 int txt_enc_track_finish (pri_text_t *ctx)
 {
 	if (ctx->trk == NULL) {
@@ -634,13 +796,18 @@ int txt_enc_track_finish (pri_text_t *ctx)
 		return (1);
 	}
 
-	if (ctx->index_position != 0) {
-		unsigned long cnt, max;
+	if ((ctx->index_position != 0) || (ctx->rotate != 0)) {
+		unsigned long cnt, max, rot;
 
 		max = pri_trk_get_size (ctx->trk);
+		rot = ctx->rotate;
 
 		if (max > 0) {
-			cnt = ctx->index_position % max;
+			if (-rot < rot) {
+				rot = max - (-rot % max);
+			}
+
+			cnt = (ctx->index_position + rot) % max;
 			pri_trk_rotate (ctx->trk, cnt);
 		}
 	}
@@ -697,16 +864,93 @@ int txt_enc_track (pri_text_t *ctx)
 }
 
 static
-int txt_enc_weak (pri_text_t *ctx)
+int txt_enc_weak_run (pri_text_t *ctx)
 {
-	unsigned long val;
+	unsigned long pos, cnt, val;
 
-	if (txt_match_uint (ctx, 16, &val) == 0) {
+	if (txt_match_uint (ctx, 10, &cnt) == 0) {
 		return (1);
 	}
 
-	if (pri_trk_evt_add (ctx->trk, PRI_EVENT_WEAK, ctx->bit_cnt, val) == NULL) {
-		return (1);
+	pos = txt_get_position (ctx);
+	val = 0xffffffff;
+
+	while (cnt >= 32) {
+		if (pri_trk_evt_add (ctx->trk, PRI_EVENT_WEAK, pos, val) == NULL) {
+			return (1);
+		}
+
+		pos += 32;
+		cnt -= 32;
+	}
+
+	if (cnt > 0) {
+		val = (val << (32 - cnt)) & 0xffffffff;
+
+		if (pri_trk_evt_add (ctx->trk, PRI_EVENT_WEAK, pos, val) == NULL) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+static
+int txt_enc_weak (pri_text_t *ctx)
+{
+	unsigned      dig, cnt;
+	unsigned long pos, val;
+
+	if (txt_match (ctx, "RUN", 1)) {
+		return (txt_enc_weak_run (ctx));
+	}
+
+	pos = txt_get_position (ctx);
+	val = 0;
+	cnt = 0;
+
+	while (txt_match_eol (ctx) == 0) {
+		if (txt_match_hex_digit (ctx, &dig) == 0) {
+			break;
+		}
+
+		val |= (unsigned long) (dig & 0x0f) << (28 - cnt);
+		cnt += 4;
+
+		if (cnt >= 32) {
+			if (pri_trk_evt_add (ctx->trk, PRI_EVENT_WEAK, pos, val) == NULL) {
+				return (1);
+			}
+
+			pos += 32;
+			val = 0;
+			cnt = 0;
+		}
+	}
+
+	if (cnt > 0) {
+		if (pri_trk_evt_add (ctx->trk, PRI_EVENT_WEAK, pos, val) == NULL) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+static
+int txt_clean_comment (pri_text_t *ctx)
+{
+	pri_img_t *img;
+
+	img = ctx->img;
+
+	while (img->comment_size > 0) {
+		if (img->comment[img->comment_size - 1] == 0x0a) {
+			img->comment_size -= 1;
+		}
+		else {
+			break;
+		}
 	}
 
 	return (0);
@@ -754,6 +998,11 @@ int txt_encode_pri0 (pri_text_t *ctx)
 				return (1);
 			}
 		}
+		else if (txt_match (ctx, "COMM", 1)) {
+			if (txt_enc_comm (ctx)) {
+				return (1);
+			}
+		}
 		else if (txt_match (ctx, "INDEX", 1)) {
 			if (txt_enc_index (ctx)) {
 				return (1);
@@ -761,6 +1010,11 @@ int txt_encode_pri0 (pri_text_t *ctx)
 		}
 		else if (txt_match (ctx, "MODE", 1)) {
 			if (txt_enc_mode (ctx)) {
+				return (1);
+			}
+		}
+		else if (txt_match (ctx, "OFFSET", 1)) {
+			if (txt_enc_offset (ctx)) {
 				return (1);
 			}
 		}
@@ -774,6 +1028,11 @@ int txt_encode_pri0 (pri_text_t *ctx)
 		}
 		else if (txt_match (ctx, "RAW", 1)) {
 			if (txt_enc_raw (ctx)) {
+				return (1);
+			}
+		}
+		else if (txt_match (ctx, "ROTATE", 1)) {
+			if (txt_enc_rotate (ctx)) {
 				return (1);
 			}
 		}
@@ -803,6 +1062,10 @@ int txt_encode_pri0 (pri_text_t *ctx)
 		return (1);
 	}
 
+	if (txt_clean_comment (ctx)) {
+		return (1);
+	}
+
 	return (0);
 }
 
@@ -817,6 +1080,7 @@ int txt_encode (pri_text_t *ctx)
 	ctx->last_val = 0;
 	ctx->encoding = PRI_TEXT_RAW;
 	ctx->index_position = 0;
+	ctx->rotate = 0;
 	ctx->crc = 0xffff;
 
 	ctx->mac_check_active = 0;

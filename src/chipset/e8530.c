@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/chipset/e8530.c                                          *
  * Created:     2007-11-11 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2007-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2007-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -44,6 +44,8 @@ void e8530_init_chn (e8530_t *scc, unsigned chn)
 
 	c->txd_empty = 1;
 	c->rxd_empty = 1;
+
+	c->int_on_next_rx = 0;
 
 	c->char_clk_cnt = 0;
 	c->char_clk_div = 16384;
@@ -257,7 +259,37 @@ void e8530_set_int_cond (e8530_t *scc, unsigned chn, unsigned char cond)
 #else
 	if ((cond & RX_INT_COND) && ((c->wr[1] & 0x18) == 0x10)) {
 		/* receive interrupt */
-		c0->rr[3] |= (chn == 0) ? 0x20 : 0x04;
+		int data, spec, irq;
+
+		data = (c->rxd_empty == 0);
+		spec = (c->rr[0] & 0x80) != 0;
+		irq = 0;
+
+		switch ((c->wr[1] >> 3) & 3) {
+		case 0: /* disabled */
+			irq = 0;
+			break;
+
+		case 1: /* rx int on first char / special condition */
+			irq = (data && c->int_on_next_rx) || spec;
+			break;
+
+		case 2: /* rx int on all chars / special condition */
+			irq = data || spec;
+			break;
+
+		case 3: /* rx int on special condition */
+			irq = spec;
+			break;
+		}
+
+		if (data) {
+			c->int_on_next_rx = 0;
+		}
+
+		if (irq) {
+			c0->rr[3] |= (chn == 0) ? 0x20 : 0x04;
+		}
 	}
 #endif
 
@@ -339,6 +371,11 @@ void e8530_check_rxd (e8530_t *scc, unsigned chn)
 	}
 
 	if (c->read_char_cnt == 0) {
+		return;
+	}
+
+	if ((c->wr[3] & 0x01) == 0) {
+		/* receiver disabled */
 		return;
 	}
 
@@ -531,15 +568,14 @@ void e8530_check_txd (e8530_t *scc, unsigned chn)
 		/* When in SDLC mode... */
 		/* Set a flag to let us know we are tranmitting a frame. */
 		c->sdlc_frame_in_progress = 1;
-	} else {
+	} else 
 #endif
+	{
 		/* When in regular serial mode, notify char device of new data */
 		if (c->set_out != NULL) {
 			c->set_out (c->set_out_ext, val);
 		}
-#ifdef SDLC_LOCALTALK_ENABLE
 	}
-#endif
 
 	c->rr[0] |= 0x04;
 	c->txd_empty = 1;
@@ -671,7 +707,7 @@ void e8530_set_params (e8530_t *scc, unsigned chn)
 		div = (c->wr[13] << 8) | c->wr[12];
 		div = 2 * mul * (div + 2);
 
-		c->char_clk_div = (c->bpc + c->stop + 1) * div;
+		c->char_clk_div = ((2 * c->bpc + c->stop + 2) * div) / 2;
 
 		if (c->parity != 0) {
 			c->char_clk_div += div;
@@ -931,6 +967,7 @@ void e8530_set_wr0 (e8530_t *scc, unsigned chn, unsigned char val)
 #endif
 		}
 #endif
+		scc->chn[chn].int_on_next_rx = 1;
 		break;
 
 	case 0x05: /* reset tx interrupt pending */
@@ -947,6 +984,7 @@ void e8530_set_wr0 (e8530_t *scc, unsigned chn, unsigned char val)
 		/* Clear Rx Fifo Overrun */
 		scc->chn[chn].rr[1] &= ~0x20;
 #endif
+		scc->chn[chn].rr[1] &= 0x7f;
 		break;
 
 	case 0x07: /* reset highest ius */
@@ -1021,52 +1059,37 @@ void e8530_set_wr2 (e8530_t *scc, unsigned char val)
 static
 void e8530_set_wr3 (e8530_t *scc, unsigned chn, unsigned char val)
 {
-	e8530_chn_t   *c;
+	e8530_chn_t *c;
 
 	c = &scc->chn[chn];
 
+	if (c->wr[3] ^ val) {
+		if (val & 0x01) {
+#if DEBUG_SCC >= 1
+			fprintf (stderr, "SCC %c: receiver enable\n", scc_get_chn (chn));
+#endif
+			c->int_on_next_rx = 1;
+			c->rxd_empty = 1;
+		}
+		else {
+			c->rr[0] &= ~0x01;
+			e8530_clr_int_cond (scc, chn, 0x04);
+#if DEBUG_SCC >= 1
+			fprintf (stderr, "SCC %c: receiver disable\n", scc_get_chn (chn));
+#endif
+		}
+	}
+
 	if (val & 0x10) {
-#if defined DEBUG_SCC || defined SDLC_DEBUG
-		fprintf (stderr, "SCC %c: Enter hunt mode\n", scc_get_chn (chn));
-#endif
-		c->rr[0] |= 0x10; /* Set hunt bit */
-	}
-
-#ifdef SDLC_LOCALTALK_ENABLE
-	if((c->wr[4] & 0x30) == 0x20) {
-		/* In SDLC mode */
-
-#ifdef SDLC_DEBUG
-		if((val ^ c->wr[3]) & 0x04) {
-			/* Address Search Mode bit changed */
-			fprintf (stderr, "SCC %c: Address Search Mode = %c\n", scc_get_chn (chn), (val & 0x04) ? '1' : '0');
+#if DEBUG_SCC >= 1
+		if ((c->rr[0] & 0x10) == 0) {
+			fprintf (stderr, "SCC %c: sync/hunt mode\n", scc_get_chn (chn));
 		}
 #endif
-
-		if ((val ^ c->wr[3]) & 0x01) {
-#ifdef SDLC_DEBUG
-			fprintf (stderr, "SCC %c: Rx Enable = %c\n", scc_get_chn (chn), (val & 0x01) ? '1' : '0');
-#endif
-			/* Automatically enter hunt mode when Rx is enabled or disabled */
-			c->rr[0] |= 0x10;
-
-			if((val & 0x01) == 0) {
-				/* Rx is being disabled */
-				if(c->rx_j != c->rx_i && c->rx_j) {
-#ifdef SDLC_DEBUG
-					fprintf (stderr, "SCC %c: abandoned packet on Rx Disable (%d bytes out of %d bytes read)\n", scc_get_chn (chn), c->rx_j, c->rx_i);
-#endif
-					c->rx_j = 0;
-					c->rx_i = 0;
-				}
-				/* Clear End of Frame (SDLC) bit in RR1 */
-				scc->chn[chn].rr[1] &= ~0x80;
-			}
-		}
+		c->rr[0] |= 0x10;
 	}
-#endif
 
-	scc->chn[chn].wr[3] = val;
+	c->wr[3] = val;
 }
 
 /*

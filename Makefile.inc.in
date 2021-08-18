@@ -82,9 +82,9 @@ PCE_BUILD_IBMPC   := @PCE_BUILD_IBMPC@
 PCE_BUILD_MACPLUS := @PCE_BUILD_MACPLUS@
 PCE_BUILD_RC759   := @PCE_BUILD_RC759@
 PCE_BUILD_SIM405  := @PCE_BUILD_SIM405@
-PCE_BUILD_SIM6502 := @PCE_BUILD_SIM6502@
 PCE_BUILD_SIMARM  := @PCE_BUILD_SIMARM@
 PCE_BUILD_SIMS32  := @PCE_BUILD_SIMS32@
+PCE_BUILD_VIC20   := @PCE_BUILD_VIC20@
 
 PCE_BUILD_IBMPC_ROM   := @PCE_BUILD_IBMPC_ROM@
 PCE_BUILD_MACPLUS_ROM := @PCE_BUILD_MACPLUS_ROM@
@@ -113,12 +113,12 @@ DCL += Makefile Makefile.inc configure config.log config.status
 DIST += AUTHORS COPYING ChangeLog INSTALL \
 	Makefile.dep Makefile.in Makefile.inc.in \
 	NEWS README TODO autogen.sh config.guess config.sub \
-	configure configure.in gendep install-sh
+	configure configure.ac gendep install-sh
 
 DIST += doc/char-drivers.txt doc/keys.txt doc/messages.txt \
 	doc/monitor.txt doc/pce-ibmpc.txt doc/pce-macplus.txt \
 	doc/pfi-format.txt doc/pri-format.txt doc/psi-format.txt \
-	doc/rc759-keymap.txt doc/sound-drivers.txt
+	doc/pti-format.txt doc/rc759-keymap.txt doc/sound-drivers.txt
 
 # ----------------------------------------------------------------------
 
@@ -149,6 +149,7 @@ include $(srcdir)/src/drivers/char/Makefile.inc
 include $(srcdir)/src/drivers/pfi/Makefile.inc
 include $(srcdir)/src/drivers/pri/Makefile.inc
 include $(srcdir)/src/drivers/psi/Makefile.inc
+include $(srcdir)/src/drivers/pti/Makefile.inc
 include $(srcdir)/src/drivers/sound/Makefile.inc
 include $(srcdir)/src/drivers/video/Makefile.inc
 include $(srcdir)/src/arch/Makefile.inc
@@ -163,15 +164,16 @@ include $(srcdir)/src/arch/macplus/pcex/Makefile.inc
 include $(srcdir)/src/arch/rc759/Makefile.inc
 include $(srcdir)/src/arch/sim405/Makefile.inc
 include $(srcdir)/src/arch/sim405/pceutils/Makefile.inc
-include $(srcdir)/src/arch/sim6502/Makefile.inc
 include $(srcdir)/src/arch/simarm/Makefile.inc
 include $(srcdir)/src/arch/sims32/Makefile.inc
+include $(srcdir)/src/arch/vic20/Makefile.inc
 include $(srcdir)/src/utils/Makefile.inc
 include $(srcdir)/src/utils/aym/Makefile.inc
 include $(srcdir)/src/utils/pce-img/Makefile.inc
 include $(srcdir)/src/utils/pfi/Makefile.inc
 include $(srcdir)/src/utils/pri/Makefile.inc
 include $(srcdir)/src/utils/psi/Makefile.inc
+include $(srcdir)/src/utils/pti/Makefile.inc
 
 TARGETS += $(BIN) $(ETC) $(SHARE)
 

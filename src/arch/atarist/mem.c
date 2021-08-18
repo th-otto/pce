@@ -270,6 +270,8 @@ unsigned short st_mem_get_uint16 (void *ext, unsigned long addr)
 		}
 		return 0;
 
+	case 0xff8800:
+	case 0xff8802:
 	case 0xfffc00:
 	case 0xfffc02:
 	case 0xfffc04:

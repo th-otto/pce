@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/drivers/video/sdl2.c                                     *
  * Created:     2015-06-15 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2015-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2015-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -639,8 +639,6 @@ void sdl2_event_mouse_button (sdl2_t *sdl, int down, unsigned button)
 static
 void sdl2_event_mouse_motion (sdl2_t *sdl, int dx, int dy)
 {
-	unsigned but, val;
-
 	if (sdl->grab == 0) {
 		return;
 	}
@@ -649,18 +647,7 @@ void sdl2_event_mouse_motion (sdl2_t *sdl, int dx, int dy)
 		return;
 	}
 
-	val = 0;
-	but = SDL_GetMouseState (NULL, NULL);
-
-	if (but & SDL_BUTTON (1)) {
-		val |= 1;
-	}
-
-	if (but & SDL_BUTTON (3)) {
-		val |= 2;
-	}
-
-	trm_set_mouse (&sdl->trm, dx, dy, val);
+	trm_set_mouse (&sdl->trm, dx, dy, sdl->button);
 }
 
 static

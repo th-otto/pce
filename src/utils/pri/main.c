@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pri/main.c                                         *
  * Created:     2012-01-31 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2012-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2012-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -15,7 +15,7 @@
  *                                                                           *
  * This program is distributed in the hope  that  it  will  be  useful,  but *
  * WITHOUT  ANY   WARRANTY,   without   even   the   implied   warranty   of *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU  General *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General *
  * Public License for more details.                                          *
  *****************************************************************************/
 
@@ -65,6 +65,7 @@ pri_dec_mfm_t par_dec_mfm;
 pri_enc_mfm_t par_enc_mfm;
 
 char          par_mac_no_slip = 0;
+char          par_text_align = 1;
 
 
 static pce_option_t opts[] = {
@@ -119,6 +120,7 @@ static struct {
 	{ "mac-align-sync", "", "Align the longest sync sequence with the index" },
 	{ "mfm-align-am", "what number pos", "Align an address mark with pos" },
 	{ "new", "", "Create new tracks" },
+	{ "rotate-angle", "angle", "Rotate tracks by <angle> degrees" },
 	{ "rotate", "bits", "Rotate tracks left" },
 	{ "save", "filename", "Save raw tracks" },
 	{ "weak-clean", "", "Clean up weak bit events" },
@@ -186,10 +188,11 @@ void print_help (void)
 	fputs (
 		"\n"
 		"parameters are:\n"
+		"  mac-no-slip,\n"
 		"  mfm-auto-gap3, mfm-clock, mfm-iam, mfm-gap1, mfm-gap3, mfm-gap4a,\n"
 		"  mfm-min-size, mfm-nopos, mfm-track-size\n"
 		"  fm-auto-gap3, fm-clock, fm-iam, fm-gap1, fm-gap3, fm-gap4a,\n"
-		"  fm-track-size\n"
+		"  fm-track-size, text-align\n"
 		"\n"
 		"decode types are:\n"
 		"  auto, ibm-fm, ibm-mfm, mac-gcr,\n"
@@ -220,7 +223,7 @@ void print_version (void)
 	fputs (
 		"pri version " PCE_VERSION_STR
 		"\n\n"
-		"Copyright (C) 2012-2019 Hampa Hug <hampa@hampa.ch>\n",
+		"Copyright (C) 2012-2021 Hampa Hug <hampa@hampa.ch>\n",
 		stdout
 	);
 
@@ -603,6 +606,18 @@ int pri_operation (pri_img_t **img, const char *op, int argc, char **argv)
 	else if (strcmp (op, "new") == 0) {
 		r = pri_new (*img);
 	}
+	else if (strcmp (op, "rotate-angle") == 0) {
+		double val;
+
+		if (pce_getopt (argc, argv, &optarg1, NULL) != 0) {
+			fprintf (stderr, "%s: missing angle\n", arg0);
+			return (1);
+		}
+
+		val = strtod (optarg1[0], NULL);
+
+		r = pri_rotate_tracks_angle (*img, val);
+	}
 	else if (strcmp (op, "rotate") == 0) {
 		long ofs;
 
@@ -758,6 +773,9 @@ int pri_set_parameter (const char *name, const char *val)
 	}
 	else if (strcmp (name, "fm-track-size") == 0) {
 		par_enc_fm.track_size = strtoul (val, NULL, 0);
+	}
+	else if (strcmp (name, "text-align") == 0) {
+		par_text_align = (strtoul (val, NULL, 0) != 0);
 	}
 	else {
 		fprintf (stderr, "%s: unknown parameter (%s)\n", arg0, name);

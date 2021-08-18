@@ -54,6 +54,7 @@ extern unsigned long par_trk[2];
 extern unsigned long par_data_rate;
 
 extern char          par_mac_no_slip;
+extern char          par_text_align;
 
 
 typedef int (*pri_trk_cb) (pri_img_t *img, pri_trk_t *trk,
@@ -101,6 +102,7 @@ int pri_half_rate (pri_img_t *img);
 int pri_mac_gcr_align_sync (pri_img_t *img);
 int pri_mac_gcr_align_sector (pri_img_t *img);
 int pri_mfm_align_am (pri_img_t *img, const char *what, const char *idx, const char *pos);
+int pri_rotate_tracks_angle (pri_img_t *img, double val);
 int pri_rotate_tracks (pri_img_t *img, long ofs);
 int pri_rotate_tracks_left (pri_img_t *img, unsigned long ofs);
 int pri_rotate_tracks_right (pri_img_t *img, unsigned long ofs);

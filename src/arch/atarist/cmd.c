@@ -596,7 +596,7 @@ void st_run_emscripten (atari_st_t *sim)
 /*
  * run one iteration
  */
-void st_run_emscripten_step ()
+void st_run_emscripten_step (void)
 {
 	atari_st_t *sim = par_sim;
 

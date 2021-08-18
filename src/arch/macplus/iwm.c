@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/macplus/iwm.c                                       *
  * Created:     2007-11-25 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2007-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2007-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -70,7 +70,6 @@ int iwm_drv_init (mac_iwm_drive_t *drv, unsigned drive)
 	drv->img = NULL;
 	drv->img_del = 0;
 
-	drv->locked = 0;
 	drv->auto_rotate = 0;
 
 	drv->cylinders = MAC_IWM_CYLINDERS;
@@ -155,28 +154,28 @@ void iwm_drv_write_end (mac_iwm_drive_t *drv)
 static
 void iwm_drv_print_status (mac_iwm_drive_t *drv)
 {
-	char str[4];
+	char state1, state2;
 
 	if (drv->motor_on == 0) {
 		return;
 	}
 
-	str[0] = drv->dirty ? '*' : ' ';
+	state1 = drv->dirty ? '*' : ' ';
 
 	if (drv->track_dirty & 2) {
-		str[1] = '+';
+		state2 = '+';
 	}
 	else if (drv->track_dirty & 1) {
-		str[1] = '*';
+		state2 = '*';
 	}
 	else {
-		str[1] = ' ';
+		state2 = ' ';
 	}
 
-	str[2] = 0;
-
-	pce_printf ("IWM: D%u%s %u/%u    \r",
-		drv->drive + 1, str,
+	pce_printf ("IWM: %cD%u %c%u/%u    \r",
+		state1,
+		drv->drive + 1,
+		state2,
 		drv->cur_cyl, drv->cur_head
 	);
 }
@@ -399,11 +398,10 @@ int iwm_drv_get_locked (mac_iwm_drive_t *drv)
 	int    val;
 	disk_t *dsk;
 
-	val = drv->locked;
-
-	dsk = dsks_get_disk (drv->dsks, drv->diskid);
-
-	if ((dsk != NULL) && dsk_get_readonly (dsk)) {
+	if ((dsk = dsks_get_disk (drv->dsks, drv->diskid)) != NULL){
+		val = dsk_get_readonly (dsk);
+	}
+	else {
 		val = 1;
 	}
 
@@ -706,24 +704,6 @@ void mac_iwm_insert_disk (mac_iwm_t *iwm, unsigned id)
 			mac_iwm_insert (iwm, i);
 		}
 	}
-}
-
-int mac_iwm_get_locked (const mac_iwm_t *iwm, unsigned drive)
-{
-	if (drive >= MAC_IWM_DRIVES) {
-		return (1);
-	}
-
-	return (iwm->drv[drive].locked != 0);
-}
-
-void mac_iwm_set_locked (mac_iwm_t *iwm, unsigned drive, int locked)
-{
-	if (drive >= MAC_IWM_DRIVES) {
-		return;
-	}
-
-	iwm->drv[drive].locked = (locked != 0);
 }
 
 void mac_iwm_set_auto_rotate (mac_iwm_t *iwm, unsigned drive, int val)

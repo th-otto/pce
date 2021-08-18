@@ -1,4 +1,4 @@
-.TH PRI 1 "2019-09-14" "HH" "pce"
+.TH PRI 1 "2019-11-30" "HH" "pce"
 \
 .SH NAME
 pri \- convert and modify PCE raw image files
@@ -234,6 +234,10 @@ Create new tracks.
 Rotate all selected tracks left by \fIcnt\fR bits. If \fIcnt\fR
 is negative, the track is rotated right.
 .TP
+.BI "rotate-angle " angle
+Rotate all selected tracks left by \fIangle\fR degrees. If \fIangle\fR
+is negative, the track is rotated right.
+.TP
 .BI "save " filename
 Save all selected tracks to \fIfilename\fR. The contents of the
 tracks are written sequentially to the file.
@@ -344,6 +348,10 @@ Set the GAP4A length in bytes. The default is 40.
 .TP
 .BI "fm-track-size " integer
 Set the track size in bits.
+.TP
+.BI "text-align " boolean
+If true, bit-align the text output to the first address mark on a track.
+The default is true.
 .RE
 \
 .TP

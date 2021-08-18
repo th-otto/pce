@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pri/text-ibm-mfm.c                                 *
  * Created:     2017-10-29 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2017-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2017-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -168,17 +168,16 @@ int txt_mfm_dec_track (pri_text_t *ctx)
 	unsigned long bit, align;
 	unsigned long type, val;
 
-	if (ctx->first_track == 0) {
-		fputs ("\n\n", ctx->fp);
-	}
-
-	ctx->first_track = 0;
-
-	fprintf (ctx->fp, "TRACK %lu %lu\n\n", ctx->c, ctx->h);
+	fprintf (ctx->fp, "\nTRACK %lu %lu\n\n", ctx->c, ctx->h);
 	fprintf (ctx->fp, "MODE IBM-MFM\n");
 	fprintf (ctx->fp, "RATE %lu\n\n", pri_trk_get_clock (ctx->trk));
 
-	align = mfm_dec_align (ctx);
+	if (par_text_align) {
+		align = mfm_dec_align (ctx);
+	}
+	else {
+		align = 0;
+	}
 
 	ctx->shift_cnt = 0;
 	ctx->last_val = 0;
@@ -291,24 +290,43 @@ int mfm_enc_byte (pri_text_t *ctx, unsigned char data, unsigned char clock)
 }
 
 static
+int mfm_enc_bytes (pri_text_t *ctx, unsigned char data, unsigned char clock, unsigned cnt)
+{
+	while (cnt-- > 0) {
+		if (mfm_enc_byte (ctx, data, clock)) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+static
+int mfm_enc_address_mark (pri_text_t *ctx, unsigned val)
+{
+	ctx->crc = 0xffff;
+
+	if (mfm_enc_bytes (ctx, 0xa1, 0x04, 3)) {
+		return (1);
+	}
+
+	if (mfm_enc_byte (ctx, val, 0x00)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
 int mfm_enc_am (pri_text_t *ctx)
 {
-	unsigned      i;
 	unsigned long val;
 
 	if (txt_match_uint (ctx, 16, &val) == 0) {
 		return (1);
 	}
 
-	ctx->crc = 0xffff;
-
-	for (i = 0; i < 3; i++) {
-		if (mfm_enc_byte (ctx, 0xa1, 0x04)) {
-			return (1);
-		}
-	}
-
-	if (mfm_enc_byte (ctx, val, 0x00)) {
+	if (mfm_enc_address_mark (ctx, val & 0xff)) {
 		return (1);
 	}
 
@@ -384,6 +402,46 @@ int mfm_enc_check (pri_text_t *ctx)
 }
 
 static
+int mfm_enc_dam (pri_text_t *ctx)
+{
+	if (mfm_enc_bytes (ctx, 0x00, 0x00, 12)) {
+		return (1);
+	}
+
+	if (mfm_enc_address_mark (ctx, 0xfb)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int mfm_enc_eot (pri_text_t *ctx)
+{
+	unsigned long max;
+
+	if (pri_trk_get_clock (ctx->trk) < 750000) {
+		max = 100000;
+	}
+	else {
+		max = 200000;
+	}
+
+	if (ctx->bit_cnt < max) {
+		while (ctx->bit_cnt < max) {
+			if (mfm_enc_byte (ctx, 0x4e, 0x00)) {
+				return (1);
+			}
+		}
+
+		ctx->bit_cnt = max;
+		pri_trk_set_pos (ctx->trk, max);
+	}
+
+	return (0);
+}
+
+static
 int mfm_enc_fill (pri_text_t *ctx)
 {
 	unsigned long max;
@@ -434,6 +492,22 @@ int mfm_enc_fill (pri_text_t *ctx)
 }
 
 static
+int mfm_enc_gap (pri_text_t *ctx)
+{
+	unsigned long cnt;
+
+	if (txt_match_uint (ctx, 10, &cnt) == 0) {
+		return (1);
+	}
+
+	if (mfm_enc_bytes (ctx, 0x4e, 0x00, cnt)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
 int mfm_enc_hex (pri_text_t *ctx, unsigned val)
 {
 	unsigned      clk;
@@ -459,7 +533,6 @@ int mfm_enc_hex (pri_text_t *ctx, unsigned val)
 static
 int mfm_enc_iam (pri_text_t *ctx)
 {
-	unsigned long i;
 	unsigned long gap4a, gap1;
 
 	if (txt_match_uint (ctx, 10, &gap4a) == 0) {
@@ -470,32 +543,38 @@ int mfm_enc_iam (pri_text_t *ctx)
 		return (1);
 	}
 
-	for (i = 0; i < gap4a; i++) {
-		if (mfm_enc_byte (ctx, 0x4e, 0x00)) {
-			return (1);
-		}
+	if (mfm_enc_bytes (ctx, 0x4e, 0x00, gap4a)) {
+		return (1);
 	}
 
-	for (i = 0; i < 12; i++) {
-		if (mfm_enc_byte (ctx, 0x00, 0x00)) {
-			return (1);
-		}
+	if (mfm_enc_bytes (ctx, 0x00, 0x00, 12)) {
+		return (1);
 	}
 
-	for (i = 0; i < 3; i++) {
-		if (mfm_enc_byte (ctx, 0xc2, 0x08)) {
-			return (1);
-		}
+	if (mfm_enc_bytes (ctx, 0xc2, 0x08, 3)) {
+		return (1);
 	}
 
 	if (mfm_enc_byte (ctx, 0xfc, 0x00)) {
 		return (1);
 	}
 
-	for (i = 0; i < gap1; i++) {
-		if (mfm_enc_byte (ctx, 0x4e, 0x00)) {
-			return (1);
-		}
+	if (mfm_enc_bytes (ctx, 0x4e, 0x00, gap1)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+static
+int mfm_enc_idam (pri_text_t *ctx)
+{
+	if (mfm_enc_bytes (ctx, 0x00, 0x00, 12)) {
+		return (1);
+	}
+
+	if (mfm_enc_address_mark (ctx, 0xfe)) {
+		return (1);
 	}
 
 	return (0);
@@ -635,11 +714,23 @@ int txt_encode_pri0_mfm (pri_text_t *ctx)
 	else if (txt_match (ctx, "CRC", 1)) {
 		return (mfm_enc_check_stop (ctx, 1));
 	}
+	else if (txt_match (ctx, "DAM", 1)) {
+		return (mfm_enc_dam (ctx));
+	}
+	else if (txt_match (ctx, "EOT", 1)) {
+		return (mfm_enc_eot (ctx));
+	}
 	else if (txt_match (ctx, "FILL", 1)) {
 		return (mfm_enc_fill (ctx));
 	}
+	else if (txt_match (ctx, "GAP", 1)) {
+		return (mfm_enc_gap (ctx));
+	}
 	else if (txt_match (ctx, "IAM", 1)) {
 		return (mfm_enc_iam (ctx));
+	}
+	else if (txt_match (ctx, "IDAM", 1)) {
+		return (mfm_enc_idam (ctx));
 	}
 	else if (txt_match (ctx, "REP", 1)) {
 		return (mfm_enc_rep (ctx));

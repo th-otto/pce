@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/cpm80/cpm80.h                                       *
  * Created:     2012-11-28 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2012-2016 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2012-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -64,23 +64,43 @@ typedef struct cpm80_s {
 	unsigned long  sync_us;
 	long           sync_sleep;
 
+	unsigned       speed;
+
 	unsigned       brk;
 
 	char_drv_t     *con;
 	char_drv_t     *aux;
 	char_drv_t     *lst;
 
+	FILE           *con_read;
+	FILE           *con_write;
+	FILE           *aux_read;
+	FILE           *aux_write;
+
 	unsigned char  con_buf;
 	unsigned char  con_buf_cnt;
+	unsigned char  aux_buf;
+	unsigned char  aux_buf_cnt;
 
 	disks_t        *dsks;
 
-	unsigned       addr_ccp;
-	unsigned       addr_bdos;
-	unsigned       addr_bios;
+	unsigned char  boot;
+
+	unsigned char  altair_switches;
+
+	char           *cpm;
+	unsigned char  cpm_version;
+	unsigned char  zcpr_version;
+	unsigned short addr_ccp;
+	unsigned short addr_bdos;
+	unsigned short addr_bios;
 
 	unsigned       bios_disk_cnt;
 	unsigned char  bios_disk_type[CPM80_DRIVE_MAX];
+	unsigned short bios_disk_dph[CPM80_DRIVE_MAX];
+
+	unsigned short bios_index;
+	unsigned long  bios_limit;
 
 	unsigned short bios_dma;
 	unsigned char  bios_dsk;
@@ -98,6 +118,11 @@ void c80_stop (cpm80_t *sim);
 void c80_reset (cpm80_t *sim);
 
 int c80_set_cpu_model (cpm80_t *sim, const char *str);
+
+int c80_set_con_read (cpm80_t *sim, const char *fname);
+int c80_set_con_write (cpm80_t *sim, const char *fname, int append);
+int c80_set_aux_read (cpm80_t *sim, const char *fname);
+int c80_set_aux_write (cpm80_t *sim, const char *fname, int append);
 
 void c80_idle (cpm80_t *sim);
 

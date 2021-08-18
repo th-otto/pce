@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/macplus/macplus.c                                   *
  * Created:     2007-04-15 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2007-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2007-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -1010,7 +1010,7 @@ static
 void mac_setup_iwm (macplus_t *sim, ini_sct_t *ini)
 {
 	unsigned   n;
-	int        single, locked, rotate, inserted;
+	int        single, rotate, inserted;
 	unsigned   drive, disk;
 	ini_sct_t  *sct, *sctdev;
 
@@ -1033,9 +1033,6 @@ void mac_setup_iwm (macplus_t *sim, ini_sct_t *ini)
 		ini_get_bool (sct, "single_sided", &single, 0);
 		ini_get_bool (sctdev, "single_sided", &single, single);
 
-		ini_get_bool (sct, "locked", &locked, 0);
-		ini_get_bool (sctdev, "locked", &locked, locked);
-
 		ini_get_bool (sct, "inserted", &inserted, 0);
 		ini_get_bool (sctdev, "inserted", &inserted, inserted);
 
@@ -1049,13 +1046,12 @@ void mac_setup_iwm (macplus_t *sim, ini_sct_t *ini)
 		ini_get_bool (sctdev, "auto_rotate", &rotate, rotate);
 
 		pce_log_tag (MSG_INF,
-			"IWM:", "drive=%u size=%uK locked=%d ins=%d rotate=%d disk=%u\n",
-			drive, single ? 400 : 800, locked, inserted, rotate, disk
+			"IWM:", "drive=%u size=%uK ins=%d rotate=%d disk=%u\n",
+			drive, single ? 400 : 800, inserted, rotate, disk
 		);
 
 		mac_iwm_set_heads (&sim->iwm, drive - 1, single ? 1 : 2);
 		mac_iwm_set_disk_id (&sim->iwm, drive - 1, disk);
-		mac_iwm_set_locked (&sim->iwm, drive - 1, locked);
 		mac_iwm_set_auto_rotate (&sim->iwm, drive - 1, rotate);
 
 		if (inserted) {
@@ -1321,6 +1317,7 @@ void mac_init (macplus_t *sim, ini_sct_t *ini)
 		sim->speed_limit[i] = 0;
 	}
 
+	sim->ser_clk = 0;
 	sim->clk_cnt = 0;
 
 	for (i = 0; i < 4; i++) {
@@ -1600,6 +1597,17 @@ void mac_realtime_sync (macplus_t *sim, unsigned long n)
 	}
 }
 
+void mac_clock_scc (macplus_t *sim, unsigned n)
+{
+	/* 3.672 MHz = (15/32 * 7.8336 MHz) */
+	sim->ser_clk += 15 * n;
+
+	if (sim->ser_clk >= 32) {
+		e8530_clock (&sim->scc, sim->ser_clk / 32);
+		sim->ser_clk &= 31;
+	}
+}
+
 void mac_clock (macplus_t *sim, unsigned n)
 {
 	unsigned long viaclk, clkdiv, cpuclk;
@@ -1647,6 +1655,8 @@ void mac_clock (macplus_t *sim, unsigned n)
 
 	mac_iwm_clock (&sim->iwm, viaclk);
 
+	mac_clock_scc (sim, 10 * viaclk);
+
 	sim->clk_div[1] -= 10 * viaclk;
 	sim->clk_div[2] += 10 * viaclk;
 
@@ -1656,8 +1666,8 @@ void mac_clock (macplus_t *sim, unsigned n)
 
 	mac_video_clock (sim->video, sim->clk_div[2]);
 
-	mac_ser_clock (&sim->ser[0], sim->clk_div[2]);
-	mac_ser_clock (&sim->ser[1], sim->clk_div[2]);
+	mac_ser_process (&sim->ser[0]);
+	mac_ser_process (&sim->ser[1]);
 
 	if (sim->kbd != NULL) {
 		mac_kbd_clock (sim->kbd, sim->clk_div[2]);

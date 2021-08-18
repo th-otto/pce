@@ -40,6 +40,10 @@ system {
 	# Enable read access to the host's RTC.
 	rtc = 1
 
+	# When a CGA compatible video card is selected, start up
+	# in 40 column mode.
+	cga40 = 0
+
 	# Patch the main BIOS before the emulator starts running.
 	# If this option is set, the main BIOS is patched to use
 	# a custom initialization routine.
@@ -314,9 +318,10 @@ video {
 	color = "amber"
 
 	#color_background = 0x000000
-	#color_normal = 0xe89050
-	#color_bright = 0xfff0c8
-	#color_graphics = 0xfff0c8
+	#color_dim = 0x752500
+	#color_normal = 0xca7a2a
+	#color_bright = 0xffcf7f
+	#color_graphics = 0xca7a2a
 
 	# The blink rate for blinking characters and the
 	# cursor. Setting this to 0 will turn off blinking.
@@ -332,9 +337,10 @@ video {
 	color = "green"
 
 	#color_background = 0x000000
-	#color_normal = 0x55aa55
-	#color_bright = 0xaaffaa
-	#color_graphics = 0xaaffaa
+	#color_dim = 0x005500
+	#color_normal = 0x00aa25
+	#color_bright = 0x55ff7a
+	#color_graphics = 0x00aa25
 
 	# The blink rate for blinking characters and the
 	# cursor. Setting this to 0 will turn off blinking.
@@ -486,35 +492,26 @@ parport {
 
 
 # The cassette interface
+#
+# There are two separate tape images, one for reading and one for
+# writing. Data is read from the read image at the current position
+# and written to the end of the write tape.
+# If a separate read tape image is not specified, data will be read
+# from the write tape at the current position.
 cassette {
 	enable = 1
 
-	# The cassette data file. The file will be created if
+	# The tape image file. The file will be created if
 	# it does not exist.
-	file = "cas1.cas"
+	# Setting this is equivalent to setting a write image and
+	# not setting a read image.
+	file = "cas1.pti"
 
-	# The data format
-	#
-	# 1: Read and write cassette data as 8 bit signed PCM.
-	# 0: Read and write cassette data as binary.
-	#
-	# If pcm is not defined, PCM mode is set if the file name ends
-	# with ".pcm", binary mode otherwise.
-	#pcm = 1
+	# The read tape image.
+	#read = "cas1.pti
 
-	# Set the sample rate used in PCM mode.
-	srate = 44100
-
-	# The initial cassette mode (load or save). The default
-	# is "load".
-	mode = "load"
-
-	# The initial tape file position. The default is 0.
-	position = 0
-
-	# If append is true then the file position is set to the
-	# end of the file instead of to "position".
-	append = 0
+	# The write tape image.
+	#write = "cas1.pti"
 }
 
 

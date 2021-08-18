@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pri/rotate.c                                       *
  * Created:     2013-12-19 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2013-2015 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2013-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -110,6 +110,12 @@ int pri_mac_gcr_align_sector_cb (pri_img_t *img, pri_trk_t *trk, unsigned long c
 		}
 	}
 
+	if (par_verbose) {
+		fprintf (stderr, "track %lu/%lu rotate %6lu / %6lu\n",
+			c, h, min_pos, trk->size
+		);
+	}
+
 	if (min_pos != 0) {
 		pri_trk_rotate (trk, min_pos);
 	}
@@ -173,6 +179,12 @@ int pri_mac_gcr_align_sync_cb (pri_img_t *img, pri_trk_t *trk, unsigned long c, 
 	}
 
 	max1 = (max1 + (max2 - max1) / 2) % trk->size;
+
+	if (par_verbose) {
+		fprintf (stderr, "track %lu/%lu rotate %6lu / %6lu\n",
+			c, h, max1, trk->size
+		);
+	}
 
 	pri_trk_rotate (trk, max1);
 
@@ -350,6 +362,42 @@ int pri_mfm_align_am (pri_img_t *img, const char *what, const char *idx, const c
 	}
 
 	return (pri_for_all_tracks (img, pri_mfm_align_am_cb, &par));
+}
+
+
+static
+int pri_rotate_tracks_angle_cb (pri_img_t *img, pri_trk_t *trk, unsigned long c, unsigned long h, void *opaque)
+{
+	double        val;
+	unsigned long cnt, max;
+
+	max = pri_trk_get_size (trk);
+
+	if (max == 0) {
+		return (0);
+	}
+
+	val = *(double *) opaque;
+	cnt = (val * max) / 360.0;
+
+	if (pri_trk_rotate (trk, cnt)) {
+		return (1);
+	}
+
+	return (0);
+}
+
+int pri_rotate_tracks_angle (pri_img_t *img, double val)
+{
+	while (val < 0.0) {
+		val += 360.0;
+	}
+
+	while (val >= 360.0) {
+		val -= 360.0;
+	}
+
+	return (pri_for_all_tracks (img, pri_rotate_tracks_angle_cb, &val));
 }
 
 

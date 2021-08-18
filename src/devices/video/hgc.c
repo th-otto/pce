@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/devices/video/hgc.c                                      *
  * Created:     2003-08-19 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2003-2018 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2003-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -26,6 +26,7 @@
 
 #include <chipset/e6845.h>
 #include <devices/memory.h>
+#include <devices/video/video.h>
 #include <devices/video/hgc.h>
 #include <devices/video/mda_font.h>
 #include <drivers/video/terminal.h>
@@ -81,6 +82,8 @@ void hgc_line_text (hgc_t *hgc, unsigned row)
 	unsigned            val, cmask;
 	unsigned            addr, caddr;
 	unsigned char       code, attr;
+	int                 blink;
+	unsigned            fgi, bgi;
 	const unsigned char *mem, *col, *fg, *bg;
 	unsigned char       *ptr;
 
@@ -105,6 +108,8 @@ void hgc_line_text (hgc_t *hgc, unsigned row)
 		cmask = 0;
 	}
 
+	blink = (hgc->reg[HGC_MODE] & HGC_MODE_BLINK) != 0;
+
 	for (i = 0; i < hd; i++) {
 		code = mem[(2 * addr + 0) & 0x7fff];
 		attr = mem[(2 * addr + 1) & 0x7fff];
@@ -119,28 +124,39 @@ void hgc_line_text (hgc_t *hgc, unsigned row)
 			val = 0x1ff;
 		}
 
-		if ((attr & 0x80) && (hgc->reg[HGC_MODE] & HGC_MODE_BLINK)) {
-			if (hgc->blink == 0) {
-				val = 0;
-			}
+		if ((attr & 0x80) && blink && (hgc->blink == 0)) {
+			val = 0;
 		}
 
 		if (addr == caddr) {
 			val |= cmask;
 		}
 
-		if ((attr & 0x77) == 0x70) {
-			fg = hgc->rgb[0];
-			bg = hgc->rgb[7];
+		switch (attr & 0x7f) {
+		case 0x00:
+		case 0x08:
+			fgi = 0;
+			bgi = 0;
+			break;
 
-			if ((attr & 0x80) && (~hgc->reg[HGC_MODE] & HGC_MODE_BLINK)) {
-				bg = hgc->rgb[15];
-			}
+		case 0x70:
+			fgi = 0;
+			bgi = ((attr & 0x80) && !blink) ? 3 : 2;
+			break;
+
+		case 0x78:
+			fgi = 1;
+			bgi = ((attr & 0x80) && !blink) ? 3 : 2;
+			break;
+
+		default:
+			fgi = (attr & 0x08) ? 3 : 2;
+			bgi = 0;
+			break;
 		}
-		else {
-			fg = hgc->rgb[attr & 0x0f];
-			bg = hgc->rgb[0];
-		}
+
+		fg = hgc->rgb[fgi];
+		bg = hgc->rgb[bgi];
 
 		for (j = 0; j < 9; j++) {
 			col = (val & 0x100) ? fg : bg;
@@ -178,7 +194,7 @@ void hgc_line_graph (hgc_t *hgc, unsigned row)
 	mem = hgc->mem + ((hgc->reg[HGC_MODE] & HGC_MODE_PAGE1) ? 0x8000 : 0);
 	ptr = pce_video_get_row_ptr (&hgc->video, row);
 
-	fg = hgc->rgb[16];
+	fg = hgc->rgb[4];
 	bg = hgc->rgb[0];
 
 	for (i = 0; i < hd; i++) {
@@ -301,60 +317,32 @@ void hgc_clock (hgc_t *hgc, unsigned long cnt)
 }
 
 static
-void hgc_set_color (hgc_t *hgc, unsigned i1, unsigned i2, unsigned r, unsigned g, unsigned b)
+void hgc_set_blink_rate (hgc_t *hgc, unsigned rate, int start)
 {
-	if ((i1 > 16) || (i2 > 16)) {
-		return;
-	}
-
-	r &= 0xff;
-	g &= 0xff;
-	b &= 0xff;
-
-	while (i1 <= i2) {
-		hgc->rgb[i1][0] = r;
-		hgc->rgb[i1][1] = g;
-		hgc->rgb[i1][2] = b;
-		i1 += 1;
-	}
-
-	hgc->mod_cnt = 2;
-}
-
-static
-void hgc_set_blink_rate (hgc_t *hgc, unsigned rate)
-{
-	hgc->blink = 1;
+	hgc->blink = (start != 0);
 	hgc->blink_cnt = rate;
 	hgc->blink_rate = rate;
 	hgc->mod_cnt = 2;
 }
 
-/*
- * Map a color name to background/normal/bright RGB values
- */
 static
-void hgc_get_color (const char *name,
-	unsigned long *back, unsigned long *normal, unsigned long *bright)
+void hgc_set_color_index (hgc_t *hgc, unsigned i, unsigned long col)
 {
-	*back = 0x000000;
+	if (i < 5) {
+		hgc->rgb[i][0] = (col >> 16) & 0xff;
+		hgc->rgb[i][1] = (col >> 8) & 0xff;
+		hgc->rgb[i][2] = col & 0xff;
+		hgc->mod_cnt = 2;
+	}
+}
 
-	if (strcmp (name, "amber") == 0) {
-		*normal = 0xe89050;
-		*bright = 0xfff0c8;
-	}
-	else if (strcmp (name, "green") == 0) {
-		*normal = 0x55aa55;
-		*bright = 0xaaffaa;
-	}
-	else if (strcmp (name, "gray") == 0) {
-		*normal = 0xaaaaaa;
-		*bright = 0xffffff;
-	}
-	else {
-		*normal = 0xe89050;
-		*bright = 0xfff0c8;
-	}
+static
+void hgc_set_color (hgc_t *hgc, unsigned long col)
+{
+	hgc_set_color_index (hgc, 0, 0);
+	hgc_set_color_index (hgc, 1, pce_color_sub (col, 0x555555));
+	hgc_set_color_index (hgc, 2, col);
+	hgc_set_color_index (hgc, 3, pce_color_add (col, 0x555555));
 }
 
 /*
@@ -592,14 +580,14 @@ void hgc_mem_set_uint16 (void *ext, unsigned long addr, unsigned short val)
 static
 int hgc_set_msg (hgc_t *hgc, const char *msg, const char *val)
 {
-	if (msg_is_message ("emu.video.blink", msg)) {
-		unsigned v;
+	if (msg_is_message ("emu.video.color", msg)) {
+		unsigned long v;
 
-		if (msg_get_uint (val, &v)) {
+		if (pce_color_get (val, &v)) {
 			return (1);
 		}
 
-		hgc_set_blink_rate (hgc, v);
+		hgc_set_color (hgc, v);
 
 		return (0);
 	}
@@ -708,6 +696,7 @@ hgc_t *hgc_new (unsigned long io, unsigned long mem)
 	hgc->video.set_terminal = (void *) hgc_set_terminal;
 	hgc->video.get_mem = (void *) hgc_get_mem;
 	hgc->video.get_reg = (void *) hgc_get_reg;
+	hgc->video.set_blink_rate = (void *) hgc_set_blink_rate;
 	hgc->video.print_info = (void *) hgc_print_info;
 	hgc->video.clock = (void *) hgc_clock;
 
@@ -738,9 +727,7 @@ hgc_t *hgc_new (unsigned long io, unsigned long mem)
 	hgc->blink_cnt = 0;
 	hgc->blink_rate = 16;
 
-	hgc_set_color (hgc, 0, 0, 0x00, 0x00, 0x00);
-	hgc_set_color (hgc, 1, 7, 0x00, 0xaa, 0x00);
-	hgc_set_color (hgc, 8, 15, 0xaa, 0xff, 0xaa);
+	hgc_set_color (hgc, 0xaaaaaa);
 
 	return (hgc);
 }
@@ -760,39 +747,48 @@ void hgc_del (hgc_t *hgc)
 
 video_t *hgc_new_ini (ini_sct_t *sct)
 {
+	unsigned      i;
 	unsigned long io, addr;
-	unsigned long col0, col1, col2, col3;
+	unsigned long col[5];
 	unsigned      blink;
-	const char    *col;
+	const char    *colname;
 	hgc_t         *hgc;
 
 	ini_get_uint32 (sct, "io", &io, 0x3b0);
 	ini_get_uint32 (sct, "address", &addr, 0xb0000);
 	ini_get_uint16 (sct, "blink", &blink, 16);
-	ini_get_string (sct, "color", &col, "amber");
+	ini_get_string (sct, "color", &colname, "amber");
 
 	pce_log_tag (MSG_INF,
 		"VIDEO:", "HGC io=0x%04lx addr=0x%05lx blink=%u\n",
 		io, addr, blink
 	);
 
-	hgc_get_color (col, &col0, &col1, &col2);
+	if (pce_color_get (colname, col + 2)) {
+		pce_log (MSG_ERR, "*** unknown color (%s)\n", colname);
+		col[2] = 0xaaaaaa;
+	}
 
-	ini_get_uint32 (sct, "color_background", &col0, col0);
-	ini_get_uint32 (sct, "color_normal", &col1, col1);
-	ini_get_uint32 (sct, "color_bright", &col2, col2);
-	ini_get_uint32 (sct, "color_graphics", &col3, col2);
+	col[0] = 0;
+	col[1] = pce_color_sub (col[2], 0x555555);
+	col[3] = pce_color_add (col[2], 0x555555);
+	col[4] = col[2];
+
+	ini_get_uint32 (sct, "color_background", &col[0], col[0]);
+	ini_get_uint32 (sct, "color_dim", &col[1], col[1]);
+	ini_get_uint32 (sct, "color_normal", &col[2], col[2]);
+	ini_get_uint32 (sct, "color_bright", &col[3], col[3]);
+	ini_get_uint32 (sct, "color_graphics", &col[4], col[4]);
 
 	if ((hgc = hgc_new (io, addr)) == NULL) {
 		return (NULL);
 	}
 
-	hgc_set_color (hgc, 0, 0, col0 >> 16, col0 >> 8, col0);
-	hgc_set_color (hgc, 1, 7, col1 >> 16, col1 >> 8, col1);
-	hgc_set_color (hgc, 8, 15, col2 >> 16, col2 >> 8, col2);
-	hgc_set_color (hgc, 16, 16, col3 >> 16, col3 >> 8, col3);
+	for (i = 0; i < 5; i++) {
+		hgc_set_color_index (hgc, i, col[i]);
+	}
 
-	hgc_set_blink_rate (hgc, blink);
+	hgc_set_blink_rate (hgc, blink, 1);
 
 	return (&hgc->video);
 }

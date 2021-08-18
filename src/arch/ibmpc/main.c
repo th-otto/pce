@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/ibmpc/main.c                                        *
  * Created:     1999-04-16 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 1999-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 1999-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -94,7 +94,7 @@ void print_version (void)
 	fputs (
 		"pce-ibmpc version " PCE_VERSION_STR
 		"\n\n"
-		"Copyright (C) 1995-2019 Hampa Hug <hampa@hampa.ch>\n",
+		"Copyright (C) 1995-2020 Hampa Hug <hampa@hampa.ch>\n",
 		stdout
 	);
 
@@ -106,7 +106,7 @@ void pc_log_banner (void)
 {
 	pce_log (MSG_MSG,
 		"pce-ibmpc version " PCE_VERSION_STR "\n"
-		"Copyright (C) 1995-2019 Hampa Hug <hampa@hampa.ch>\n"
+		"Copyright (C) 1995-2020 Hampa Hug <hampa@hampa.ch>\n"
 	);
 }
 
@@ -372,6 +372,7 @@ int main (int argc, char *argv[])
 	mon_set_msg_fct (&par_mon, pc_set_msg, par_pc);
 	mon_set_get_mem_fct (&par_mon, par_pc->mem, mem_get_uint8);
 	mon_set_set_mem_fct (&par_mon, par_pc->mem, mem_set_uint8);
+	mon_set_set_memrw_fct (&par_mon, par_pc->mem, mem_set_uint8_rw);
 	mon_set_memory_mode (&par_mon, 1);
 
 	cmd_init (par_pc, cmd_get_sym, cmd_set_sym);

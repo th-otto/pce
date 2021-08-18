@@ -5,7 +5,7 @@
 ;*****************************************************************************
 ;* File name:   src/arch/ibmpc/bios/pcex.asm                                 *
 ;* Created:     2003-04-14 by Hampa Hug <hampa@hampa.ch>                     *
-;* Copyright:   (C) 2003-2011 Hampa Hug <hampa@hampa.ch>                     *
+;* Copyright:   (C) 2003-2021 Hampa Hug <hampa@hampa.ch>                     *
 ;*****************************************************************************
 
 ;*****************************************************************************
@@ -320,17 +320,20 @@ init_dma:
 	out	0x01, al			; count
 	out	0x01, al
 
-	mov	al, 0x58			; mode channel 0
-	out	0x0b, al
+	mov	al, 0x58
+	out	0x0b, al			; mode channel 0
 
 	mov	al, 0x41
-	out	0x0b, al
+	out	0x0b, al			; mode channel 1
 
 	inc	ax
-	out	0x0b, al
+	out	0x0b, al			; mode channel 2
 
 	inc	ax
-	out	0x0b, al
+	out	0x0b, al			; mode channel 3
+
+	xor	al, al
+	out	0x0a, al			; unmask channel 0
 
 	pop	ax
 	ret
@@ -343,26 +346,30 @@ init_video:
 	push	ax
 	push	si
 
-	mov	ax, [0x0010]
-	and	al, 0x30
+	mov	ax, [0x0010]			; configuration
+	and	ax, 0x30			; initial video mode
 
-	cmp	al, 0x30
-	je	.mda
+	sub	al, 0x10
+	jc	.done				; 00
+	jz	.cga40				; 01
 
-	cmp	al, 0x20
-	je	.cga
-
-	jmp	.done
-
-.cga:
-	mov	ax, 0x0003
-	int	0x10
-	jmp	.done
+	sub	al, 0x10
+	jz	.cga80				; 02
 
 .mda:
-	mov	ax, 0x0007
-	int	0x10
-	jmp	.done
+	mov	al, 0x07
+	jmp	.set
+
+.cga40:
+	mov	al, 0x01
+	jmp	.set
+
+.cga80:
+	mov	al, 0x03
+	;jmp	.set
+
+.set:
+	int	0x10				; set video mode
 
 .done:
 	pop	si
@@ -893,11 +900,11 @@ inttab:
 	dw	0x0000, 0xf600			; 18: F600:0000
 	dw	int_19, 0x0000			; 19: F000:E6F2
 	dw	int_1a, 0x0000			; 1A: F000:FE6E
-	dw	int_1b, 0x0000			; 1B: F000:FF53
+	dw	0xff53, 0xf000			; 1B: F000:FF53
 	dw	0xff53, 0xf000			; 1C: F000:FF53
 	dw	0xf0a4, 0xf000			; 1D: F000:F0A4
 	dw	0xefc7, 0xf000			; 1E: F000:EFC7
-	dw	int_1f, 0x0000			; 1F: F000:0000
+	dw	0x0000, 0xf000			; 1F: F000:0000
 
 
 int_default:
@@ -914,10 +921,6 @@ int_01:
 	pceh	PCEH_INT, 0x01
 	iret
 
-int_02:
-	pceh	PCEH_INT, 0x02
-	iret
-
 int_03:
 	pceh	PCEH_INT, 0x03
 	iret
@@ -926,56 +929,12 @@ int_04:
 	pceh	PCEH_INT, 0x04
 	iret
 
-int_05:
-	pceh	PCEH_INT, 0x05
-	iret
-
 int_06:
 	pceh	PCEH_INT, 0x06
 	iret
 
 int_07:
 	pceh	PCEH_INT, 0x07
-	iret
-
-int_09:
-	pceh	PCEH_INT, 0x09
-	iret
-
-int_0a:
-	pceh	PCEH_INT, 0x0a
-	iret
-
-int_0b:
-	pceh	PCEH_INT, 0x0b
-	iret
-
-int_0c:
-	pceh	PCEH_INT, 0x0c
-	iret
-
-int_0d:
-	pceh	PCEH_INT, 0x0d
-	iret
-
-int_0e:
-	pceh	PCEH_INT, 0x0e
-	iret
-
-int_0f:
-	pceh	PCEH_INT, 0x0f
-	iret
-
-int_10:
-	pceh	PCEH_INT, 0x10
-	iret
-
-int_11:
-	pceh	PCEH_INT, 0x11
-	iret
-
-int_12:
-	pceh	PCEH_INT, 0x12
 	iret
 
 int_13:
@@ -993,10 +952,6 @@ int_13:
 	pop	ax
 	jmp	0xf000:0xec59
 
-int_14:
-	pceh	PCEH_INT, 0x14
-	iret
-
 int_15:
 	cmp	ah, 3
 	jbe	.cassette
@@ -1005,26 +960,6 @@ int_15:
 	retf	2
 .cassette:
 	jmp	0xf000:0xf859			; bios int 15
-
-int_17:
-	pceh	PCEH_INT, 0x17
-	iret
-
-int_1b:
-	pceh	PCEH_INT, 0x1b
-	iret
-
-int_1d:
-	pceh	PCEH_INT, 0x1d
-	iret
-
-int_1e:
-	pceh	PCEH_INT, 0x1e
-	iret
-
-int_1f:
-	pceh	PCEH_INT, 0x1f
-	iret
 
 
 ;-----------------------------------------------------------------------------

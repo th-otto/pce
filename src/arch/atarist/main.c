@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/arch/atarist/main.c                                      *
  * Created:     2011-03-17 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2011-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2011-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -99,7 +99,7 @@ void print_version (void)
 	fputs (
 		"pce-atarist version " PCE_VERSION_STR
 		"\n\n"
-		"Copyright (C) 2011-2019 Hampa Hug <hampa@hampa.ch>\n",
+		"Copyright (C) 2011-2020 Hampa Hug <hampa@hampa.ch>\n",
 		stdout
 	);
 
@@ -111,7 +111,7 @@ void st_log_banner (void)
 {
 	pce_log (MSG_INF,
 		"pce-atarist version " PCE_VERSION_STR "\n"
-		"Copyright (C) 2011-2019 Hampa Hug <hampa@hampa.ch>\n"
+		"Copyright (C) 2011-2020 Hampa Hug <hampa@hampa.ch>\n"
 	);
 }
 
@@ -361,6 +361,7 @@ int main (int argc, char *argv[])
 	mon_set_msg_fct (&par_mon, st_set_msg, par_sim);
 	mon_set_get_mem_fct (&par_mon, par_sim->mem, mem_get_uint8);
 	mon_set_set_mem_fct (&par_mon, par_sim->mem, mem_set_uint8);
+	mon_set_set_memrw_fct (&par_mon, par_sim->mem, mem_set_uint8_rw);
 	mon_set_memory_mode (&par_mon, 0);
 
 	cmd_init (par_sim, cmd_get_sym, cmd_set_sym);

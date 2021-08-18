@@ -274,6 +274,7 @@ src/arch/cpm80/bios.o: src/arch/cpm80/bios.c \
 	src/drivers/psi/psi.h \
 	src/lib/brkpt.h \
 	src/lib/cmd.h \
+	src/lib/load.h \
 	src/lib/log.h \
 	src/libini/libini.h
 
@@ -312,6 +313,7 @@ src/arch/cpm80/cpm80.o: src/arch/cpm80/cpm80.c \
 	src/lib/log.h \
 	src/lib/msg.h \
 	src/lib/path.h \
+	src/lib/string.h \
 	src/lib/sysdep.h \
 	src/libini/libini.h
 
@@ -421,7 +423,6 @@ src/arch/dos/path.o: src/arch/dos/path.c \
 
 src/arch/ibmpc/atari-pc.o: src/arch/ibmpc/atari-pc.c \
 	src/arch/ibmpc/atari-pc.h \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/ibmpc.h \
@@ -438,6 +439,7 @@ src/arch/ibmpc/atari-pc.o: src/arch/ibmpc/atari-pc.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -448,6 +450,7 @@ src/arch/ibmpc/atari-pc.o: src/arch/ibmpc/atari-pc.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -457,14 +460,7 @@ src/arch/ibmpc/atari-pc.o: src/arch/ibmpc/atari-pc.c \
 	src/lib/log.h \
 	src/libini/libini.h
 
-src/arch/ibmpc/cassette.o: src/arch/ibmpc/cassette.c \
-	src/arch/ibmpc/cassette.h \
-	src/arch/ibmpc/main.h \
-	src/config.h \
-	src/lib/console.h
-
 src/arch/ibmpc/cmd.o: src/arch/ibmpc/cmd.c \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/ibmpc.h \
@@ -481,6 +477,7 @@ src/arch/ibmpc/cmd.o: src/arch/ibmpc/cmd.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -491,6 +488,7 @@ src/arch/ibmpc/cmd.o: src/arch/ibmpc/cmd.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -522,7 +520,6 @@ src/arch/ibmpc/ems.o: src/arch/ibmpc/ems.c \
 	src/libini/libini.h
 
 src/arch/ibmpc/hook.o: src/arch/ibmpc/hook.c \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/hook.h \
@@ -542,6 +539,7 @@ src/arch/ibmpc/hook.o: src/arch/ibmpc/hook.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -552,6 +550,7 @@ src/arch/ibmpc/hook.o: src/arch/ibmpc/hook.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -563,7 +562,6 @@ src/arch/ibmpc/hook.o: src/arch/ibmpc/hook.c \
 
 src/arch/ibmpc/ibmpc.o: src/arch/ibmpc/ibmpc.c \
 	src/arch/ibmpc/atari-pc.h \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/hook.h \
@@ -584,6 +582,7 @@ src/arch/ibmpc/ibmpc.o: src/arch/ibmpc/ibmpc.c \
 	src/chipset/e6845.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -602,6 +601,8 @@ src/arch/ibmpc/ibmpc.o: src/arch/ibmpc/ibmpc.c \
 	src/devices/video/wy700.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -618,7 +619,6 @@ src/arch/ibmpc/ibmpc.o: src/arch/ibmpc/ibmpc.c \
 	src/libini/libini.h
 
 src/arch/ibmpc/int13.o: src/arch/ibmpc/int13.c \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/ibmpc.h \
@@ -636,6 +636,7 @@ src/arch/ibmpc/int13.o: src/arch/ibmpc/int13.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -646,6 +647,7 @@ src/arch/ibmpc/int13.o: src/arch/ibmpc/int13.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -664,7 +666,6 @@ src/arch/ibmpc/keyboard.o: src/arch/ibmpc/keyboard.c \
 	src/libini/libini.h
 
 src/arch/ibmpc/m24.o: src/arch/ibmpc/m24.c \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/ibmpc.h \
@@ -681,6 +682,7 @@ src/arch/ibmpc/m24.o: src/arch/ibmpc/m24.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -691,6 +693,7 @@ src/arch/ibmpc/m24.o: src/arch/ibmpc/m24.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -701,7 +704,6 @@ src/arch/ibmpc/m24.o: src/arch/ibmpc/m24.c \
 	src/libini/libini.h
 
 src/arch/ibmpc/main.o: src/arch/ibmpc/main.c \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/cmd.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
@@ -720,6 +722,7 @@ src/arch/ibmpc/main.o: src/arch/ibmpc/main.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -730,6 +733,7 @@ src/arch/ibmpc/main.o: src/arch/ibmpc/main.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -746,7 +750,6 @@ src/arch/ibmpc/main.o: src/arch/ibmpc/main.c \
 	src/libini/libini.h
 
 src/arch/ibmpc/msg.o: src/arch/ibmpc/msg.c \
-	src/arch/ibmpc/cassette.h \
 	src/arch/ibmpc/covox.h \
 	src/arch/ibmpc/ems.h \
 	src/arch/ibmpc/ibmpc.h \
@@ -763,6 +766,7 @@ src/arch/ibmpc/msg.o: src/arch/ibmpc/msg.c \
 	src/chipset/clock/mc146818a.h \
 	src/config.h \
 	src/cpu/e8086/e8086.h \
+	src/devices/cassette.h \
 	src/devices/device.h \
 	src/devices/fdc.h \
 	src/devices/hdc.h \
@@ -773,6 +777,7 @@ src/arch/ibmpc/msg.o: src/arch/ibmpc/msg.c \
 	src/devices/video/video.h \
 	src/drivers/block/block.h \
 	src/drivers/char/char.h \
+	src/drivers/pti/pti.h \
 	src/drivers/sound/filter.h \
 	src/drivers/sound/sound.h \
 	src/drivers/video/keys.h \
@@ -1565,61 +1570,6 @@ src/arch/sim405/sim405.o: src/arch/sim405/sim405.c \
 	src/lib/sysdep.h \
 	src/libini/libini.h
 
-src/arch/sim6502/console.o: src/arch/sim6502/console.c \
-	src/arch/sim6502/console.h \
-	src/arch/sim6502/main.h \
-	src/arch/sim6502/sim6502.h \
-	src/config.h \
-	src/cpu/e6502/e6502.h \
-	src/devices/memory.h \
-	src/lib/brkpt.h \
-	src/lib/cmd.h \
-	src/lib/console.h \
-	src/lib/ihex.h \
-	src/lib/iniram.h \
-	src/lib/load.h \
-	src/lib/log.h \
-	src/lib/monitor.h \
-	src/lib/sysdep.h \
-	src/libini/libini.h
-
-src/arch/sim6502/main.o: src/arch/sim6502/main.c \
-	src/arch/sim6502/console.h \
-	src/arch/sim6502/main.h \
-	src/arch/sim6502/sim6502.h \
-	src/config.h \
-	src/cpu/e6502/e6502.h \
-	src/devices/memory.h \
-	src/lib/brkpt.h \
-	src/lib/cfg.h \
-	src/lib/cmd.h \
-	src/lib/console.h \
-	src/lib/ihex.h \
-	src/lib/iniram.h \
-	src/lib/load.h \
-	src/lib/log.h \
-	src/lib/monitor.h \
-	src/lib/sysdep.h \
-	src/libini/libini.h
-
-src/arch/sim6502/sim6502.o: src/arch/sim6502/sim6502.c \
-	src/arch/sim6502/console.h \
-	src/arch/sim6502/main.h \
-	src/arch/sim6502/sim6502.h \
-	src/config.h \
-	src/cpu/e6502/e6502.h \
-	src/devices/memory.h \
-	src/lib/brkpt.h \
-	src/lib/cmd.h \
-	src/lib/console.h \
-	src/lib/ihex.h \
-	src/lib/iniram.h \
-	src/lib/load.h \
-	src/lib/log.h \
-	src/lib/monitor.h \
-	src/lib/sysdep.h \
-	src/libini/libini.h
-
 src/arch/simarm/cmd_arm.o: src/arch/simarm/cmd_arm.c \
 	src/arch/simarm/cmd_arm.h \
 	src/arch/simarm/intc.h \
@@ -1838,6 +1788,168 @@ src/arch/sims32/sims32.o: src/arch/sims32/sims32.c \
 	src/lib/sysdep.h \
 	src/libini/libini.h
 
+src/arch/vic20/cmd.o: src/arch/vic20/cmd.c \
+	src/arch/vic20/cmd.h \
+	src/arch/vic20/main.h \
+	src/arch/vic20/vic20.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6522.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/cpu/e6502/e6502.h \
+	src/devices/cassette.h \
+	src/devices/memory.h \
+	src/drivers/pti/pti.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/brkpt.h \
+	src/lib/cmd.h \
+	src/lib/console.h \
+	src/lib/log.h \
+	src/lib/monitor.h \
+	src/lib/sysdep.h \
+	src/libini/libini.h
+
+src/arch/vic20/keybd.o: src/arch/vic20/keybd.c \
+	src/arch/vic20/keybd.h \
+	src/arch/vic20/main.h \
+	src/arch/vic20/msg.h \
+	src/arch/vic20/vic20.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6522.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/cpu/e6502/e6502.h \
+	src/devices/cassette.h \
+	src/devices/memory.h \
+	src/drivers/pti/pti.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/brkpt.h \
+	src/lib/cmd.h \
+	src/libini/libini.h
+
+src/arch/vic20/main.o: src/arch/vic20/main.c \
+	src/arch/vic20/cmd.h \
+	src/arch/vic20/main.h \
+	src/arch/vic20/msg.h \
+	src/arch/vic20/setup.h \
+	src/arch/vic20/vic20.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6522.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/cpu/e6502/e6502.h \
+	src/devices/cassette.h \
+	src/devices/memory.h \
+	src/drivers/pti/pti.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/brkpt.h \
+	src/lib/cfg.h \
+	src/lib/cmd.h \
+	src/lib/console.h \
+	src/lib/getopt.h \
+	src/lib/log.h \
+	src/lib/monitor.h \
+	src/lib/path.h \
+	src/lib/sysdep.h \
+	src/libini/libini.h
+
+src/arch/vic20/msg.o: src/arch/vic20/msg.c \
+	src/arch/vic20/main.h \
+	src/arch/vic20/msg.h \
+	src/arch/vic20/vic20.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6522.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/cpu/e6502/e6502.h \
+	src/devices/cassette.h \
+	src/devices/memory.h \
+	src/drivers/pti/pti.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/brkpt.h \
+	src/lib/cmd.h \
+	src/lib/log.h \
+	src/lib/monitor.h \
+	src/lib/msg.h \
+	src/lib/string.h \
+	src/lib/sysdep.h \
+	src/libini/libini.h
+
+src/arch/vic20/setup.o: src/arch/vic20/setup.c \
+	src/arch/vic20/keybd.h \
+	src/arch/vic20/main.h \
+	src/arch/vic20/msg.h \
+	src/arch/vic20/vic20.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6522.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/cpu/e6502/e6502.h \
+	src/devices/cassette.h \
+	src/devices/memory.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/brkpt.h \
+	src/lib/cmd.h \
+	src/lib/iniram.h \
+	src/lib/initerm.h \
+	src/lib/load.h \
+	src/lib/log.h \
+	src/libini/libini.h
+
+src/arch/vic20/vic20.o: src/arch/vic20/vic20.c \
+	src/arch/vic20/keybd.h \
+	src/arch/vic20/main.h \
+	src/arch/vic20/msg.h \
+	src/arch/vic20/setup.h \
+	src/arch/vic20/vic20.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6522.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/cpu/e6502/e6502.h \
+	src/devices/cassette.h \
+	src/devices/memory.h \
+	src/drivers/pti/pti.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/brkpt.h \
+	src/lib/cmd.h \
+	src/lib/log.h \
+	src/lib/sysdep.h \
+	src/libini/libini.h
+
+src/arch/vic20/video.o: src/arch/vic20/video.c \
+	src/arch/vic20/main.h \
+	src/arch/vic20/video.h \
+	src/chipset/e6560.h \
+	src/config.h \
+	src/devices/memory.h \
+	src/drivers/sound/filter.h \
+	src/drivers/sound/sound.h \
+	src/drivers/video/keys.h \
+	src/drivers/video/terminal.h \
+	src/lib/console.h \
+	src/libini/libini.h
+
 src/chipset/80186/dma.o: src/chipset/80186/dma.c \
 	src/chipset/80186/dma.h
 
@@ -1873,6 +1985,9 @@ src/chipset/clock/mc146818a.o: src/chipset/clock/mc146818a.c \
 
 src/chipset/e6522.o: src/chipset/e6522.c \
 	src/chipset/e6522.h
+
+src/chipset/e6560.o: src/chipset/e6560.c \
+	src/chipset/e6560.h
 
 src/chipset/e6845.o: src/chipset/e6845.c \
 	src/chipset/e6845.h
@@ -2082,6 +2197,15 @@ src/devices/ata.o: src/devices/ata.c \
 	src/devices/ata.h \
 	src/devices/memory.h \
 	src/drivers/block/block.h
+
+src/devices/cassette.o: src/devices/cassette.c \
+	src/config.h \
+	src/devices/cassette.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h \
+	src/lib/console.h \
+	src/lib/msg.h \
+	src/lib/string.h
 
 src/devices/clock/ds1743.o: src/devices/clock/ds1743.c \
 	src/chipset/clock/ds1743.h \
@@ -2591,6 +2715,49 @@ src/drivers/psi/psi-io.o: src/drivers/psi/psi-io.c \
 src/drivers/psi/psi.o: src/drivers/psi/psi.c \
 	src/drivers/psi/psi.h
 
+src/drivers/pti/pti-img-cas.o: src/drivers/pti/pti-img-cas.c \
+	src/drivers/pti/pti-img-cas.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti-img-pcm.o: src/drivers/pti/pti-img-pcm.c \
+	src/drivers/pti/pti-img-pcm.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti-img-pti.o: src/drivers/pti/pti-img-pti.c \
+	src/drivers/pti/pti-img-pti.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti-img-tap.o: src/drivers/pti/pti-img-tap.c \
+	src/drivers/pti/pti-img-tap.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti-img-txt.o: src/drivers/pti/pti-img-txt.c \
+	src/drivers/pti/pti-img-txt.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti-img-wav.o: src/drivers/pti/pti-img-wav.c \
+	src/drivers/pti/pti-img-wav.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti-io.o: src/drivers/pti/pti-io.c \
+	src/drivers/pti/pti-img-cas.h \
+	src/drivers/pti/pti-img-pcm.h \
+	src/drivers/pti/pti-img-pti.h \
+	src/drivers/pti/pti-img-tap.h \
+	src/drivers/pti/pti-img-txt.h \
+	src/drivers/pti/pti-img-wav.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h
+
+src/drivers/pti/pti.o: src/drivers/pti/pti.c \
+	src/drivers/pti/pti.h
+
 src/drivers/sound/filter.o: src/drivers/sound/filter.c \
 	src/config.h \
 	src/drivers/sound/filter.h
@@ -2736,23 +2903,31 @@ src/lib/initerm.o: src/lib/initerm.c \
 	src/libini/libini.h
 
 src/lib/load.o: src/lib/load.c \
+	src/config.h \
 	src/devices/memory.h \
 	src/lib/ihex.h \
 	src/lib/load.h \
 	src/lib/log.h \
+	src/lib/mhex.h \
 	src/lib/path.h \
 	src/lib/srec.h \
+	src/lib/thex.h \
 	src/libini/libini.h
 
 src/lib/log.o: src/lib/log.c \
 	src/lib/log.h
 
+src/lib/mhex.o: src/lib/mhex.c \
+	src/lib/mhex.h
+
 src/lib/monitor.o: src/lib/monitor.c \
 	src/lib/cmd.h \
 	src/lib/console.h \
 	src/lib/ihex.h \
+	src/lib/mhex.h \
 	src/lib/monitor.h \
-	src/lib/srec.h
+	src/lib/srec.h \
+	src/lib/thex.h
 
 src/lib/msg.o: src/lib/msg.c \
 	src/lib/msg.h \
@@ -2785,6 +2960,9 @@ src/lib/string.o: src/lib/string.c \
 src/lib/sysdep.o: src/lib/sysdep.c \
 	src/config.h \
 	src/lib/sysdep.h
+
+src/lib/thex.o: src/lib/thex.c \
+	src/lib/thex.h
 
 src/lib/tun.o: src/lib/tun.c \
 	src/config.h \
@@ -2930,6 +3108,12 @@ src/utils/pfi/encode.o: src/utils/pfi/encode.c \
 	src/drivers/pfi/track.h \
 	src/drivers/pri/pri-img.h \
 	src/drivers/pri/pri.h \
+	src/utils/pfi/main.h
+
+src/utils/pfi/fold.o: src/utils/pfi/fold.c \
+	src/config.h \
+	src/drivers/pfi/pfi.h \
+	src/drivers/pfi/track.h \
 	src/utils/pfi/main.h
 
 src/utils/pfi/info.o: src/utils/pfi/info.c \
@@ -3174,3 +3358,34 @@ src/utils/psi/save.o: src/utils/psi/save.c \
 	src/drivers/psi/psi.h \
 	src/utils/psi/main.h \
 	src/utils/psi/save.h
+
+src/utils/pti/comment.o: src/utils/pti/comment.c \
+	src/config.h \
+	src/drivers/pti/pti.h \
+	src/utils/pti/comment.h \
+	src/utils/pti/main.h
+
+src/utils/pti/main.o: src/utils/pti/main.c \
+	src/config.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h \
+	src/lib/getopt.h \
+	src/utils/pti/comment.h \
+	src/utils/pti/main.h \
+	src/utils/pti/ops.h
+
+src/utils/pti/ops.o: src/utils/pti/ops.c \
+	src/config.h \
+	src/drivers/pti/pti-io.h \
+	src/drivers/pti/pti.h \
+	src/lib/getopt.h \
+	src/utils/pti/comment.h \
+	src/utils/pti/main.h \
+	src/utils/pti/ops.h \
+	src/utils/pti/space.h
+
+src/utils/pti/space.o: src/utils/pti/space.c \
+	src/config.h \
+	src/drivers/pti/pti.h \
+	src/utils/pti/main.h \
+	src/utils/pti/space.h

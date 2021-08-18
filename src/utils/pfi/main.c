@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pfi/main.c                                         *
  * Created:     2012-01-19 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2012-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2012-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -15,7 +15,7 @@
  *                                                                           *
  * This program is distributed in the hope  that  it  will  be  useful,  but *
  * WITHOUT  ANY   WARRANTY,   without   even   the   implied   warranty   of *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU  General *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General *
  * Public License for more details.                                          *
  *****************************************************************************/
 
@@ -78,6 +78,11 @@ unsigned      par_fold_mode = PFI_FOLD_MAXRUN;
 unsigned      par_fold_window = 32;
 unsigned long par_fold_max = 16384;
 
+unsigned      par_pfi_fold_revolution = 0;
+unsigned long par_pfi_fold_window = 1024;
+unsigned long par_pfi_fold_compare = 2048;
+int           par_pfi_fold_right = 0;
+
 
 static pce_option_t opts[] = {
 	{ '?', 0, "help", NULL, "Print usage information" },
@@ -126,6 +131,7 @@ void print_help (void)
 		"  double-step-even       Remove even numbered tracks\n"
 		"  encode <type> <file>   Encode a file\n"
 		"  export <filename>      Export tracks as text\n"
+		"  fold <revolutions>     Fold tracks\n"
 		"  import <filename>      Import tracks as text\n"
 		"  info                   Print image information\n"
 		"  revolutions <range>    Extract revolutions\n"
@@ -136,10 +142,22 @@ void print_help (void)
 		"  set-rpm-mac-490        Set Macintosh RPMs at 489.6 kbit/s\n"
 		"  set-rpm-mac-500        Set Macintosh RPMs at 500 kbit/s\n"
 		"  shift-index <offset>   Shift the index by offset clock cycles\n"
+		"  shift-index-us <us>    Shift the index by us microseconds\n"
 		"  wpcom                  Simulate write precompensation\n"
 		"\n"
 		"parameters are:\n"
-		"  clock-tolerance, fold-max, fold-mode, pfi-clock, slack1, slack2, weak-bits\n"
+		"  clock-tolerance\n"
+		"  fold-max\n"
+		"  fold-mode\n"
+		"  pfi-clock\n"
+		"  pfi-fold-compare\n"
+		"  pfi-fold-revolution\n"
+		"  pfi-fold-right\n"
+		"  pfi-fold-window\n"
+		"  pll\n"
+		"  slack1\n"
+		"  slack2\n"
+		"  weak-bits\n"
 		"\n"
 		"decode types are:\n"
 		"  pri, pri-mac, pri-mac-490, pri-mac-500,"
@@ -162,7 +180,7 @@ void print_version (void)
 	fputs (
 		"pfi version " PCE_VERSION_STR
 		"\n\n"
-		"Copyright (C) 2012-2019 Hampa Hug <hampa@hampa.ch>\n",
+		"Copyright (C) 2012-2021 Hampa Hug <hampa@hampa.ch>\n",
 		stdout
 	);
 
@@ -458,6 +476,9 @@ int pfi_operation (pfi_img_t **img, const char *op, int argc, char **argv)
 
 		r = pfi_encode (*img, optarg1[0], optarg2[0]);
 	}
+	else if (strcmp (op, "fold") == 0) {
+		r = pfi_fold (*img);
+	}
 	else if (strcmp (op, "info") == 0) {
 		r = pfi_print_info (*img);
 	}
@@ -542,6 +563,19 @@ int pfi_operation (pfi_img_t **img, const char *op, int argc, char **argv)
 		}
 
 		r = pfi_shift_index (*img, ofs);
+	}
+	else if (strcmp (op, "shift-index-us") == 0) {
+		long us;
+
+		if (pce_getopt (argc, argv, &optarg1, NULL) != 0) {
+			return (1);
+		}
+
+		if (pfi_parse_long (optarg1[0], &us)) {
+			return (1);
+		}
+
+		r = pfi_shift_index_us (*img, us);
 	}
 	else if (strcmp (op, "slack") == 0) {
 		if (pce_getopt (argc, argv, &optarg1, NULL) != 0) {
@@ -669,6 +703,26 @@ int pfi_set_parameter (const char *name, const char *val)
 	}
 	else if (strcmp (name, "pfi-clock") == 0) {
 		if (pfi_parse_rate (val, &par_pfi_clock)) {
+			return (1);
+		}
+	}
+	else if (strcmp (name, "pfi-fold-compare") == 0) {
+		if (pfi_parse_ulong (val, &par_pfi_fold_compare)) {
+			return (1);
+		}
+	}
+	else if (strcmp (name, "pfi-fold-revolution") == 0) {
+		if (pfi_parse_uint (val, &par_pfi_fold_revolution)) {
+			return (1);
+		}
+	}
+	else if (strcmp (name, "pfi-fold-right") == 0) {
+		if (pfi_parse_bool (val, &par_pfi_fold_right)) {
+			return (1);
+		}
+	}
+	else if (strcmp (name, "pfi-fold-window") == 0) {
+		if (pfi_parse_ulong (val, &par_pfi_fold_window)) {
 			return (1);
 		}
 	}

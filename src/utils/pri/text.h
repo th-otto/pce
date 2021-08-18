@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/utils/pri/text.h                                         *
  * Created:     2017-10-28 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2017-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2017-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -51,8 +51,6 @@ typedef struct {
 	unsigned long  h;
 	unsigned       s;
 
-	char           first_track;
-
 	unsigned long  bit_cnt;
 	unsigned long  bit_max;
 
@@ -64,6 +62,9 @@ typedef struct {
 	unsigned short encoding;
 
 	unsigned long  index_position;
+	unsigned long  rotate;
+
+	unsigned long  offset;
 
 	unsigned       column;
 	char           need_nl;
@@ -74,6 +75,7 @@ typedef struct {
 	unsigned char  mac_check_buf[3];
 	unsigned short mac_check_chk[3];
 	char           mac_no_slip;
+	char           mac_nibble;
 
 	unsigned short crc;
 } pri_text_t;
@@ -91,6 +93,7 @@ int txt_error (pri_text_t *ctx, const char *str);
 
 int txt_match_eol (pri_text_t *ctx);
 int txt_match (pri_text_t *ctx, const char *str, int skip);
+int txt_match_string (pri_text_t *ctx, char *str, unsigned max);
 int txt_match_uint (pri_text_t *ctx, unsigned base, unsigned long *val);
 
 int txt_enc_bits_raw (pri_text_t *ctx, unsigned long val, unsigned cnt);

@@ -3,9 +3,9 @@
  *****************************************************************************/
 
 /*****************************************************************************
- * File name:   src/arch/sim6502/console.h                                   *
- * Created:     2004-05-31 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2004-2009 Hampa Hug <hampa@hampa.ch>                     *
+ * File name:   src/lib/mhex.h                                               *
+ * Created:     2020-05-02 by Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2020 Hampa Hug <hampa@hampa.ch>                          *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -20,40 +20,19 @@
  *****************************************************************************/
 
 
-#ifndef PCE_SIM6502_CONSOLE_H
-#define PCE_SIM6502_CONSOLE_H 1
+#ifndef PCE_LIB_MHEX_H
+#define PCE_LIB_MHEX_H 1
 
 
-#define CON_BUF_CNT 16
-
-typedef void (*con_set_uint8_f) (void *ext, unsigned char val);
-
-
-typedef struct {
-	mem_blk_t       *io;
-
-	void            *irq_ext;
-	con_set_uint8_f irq;
-
-	void            *msg_ext;
-
-	unsigned char   status;
-	unsigned char   data_inp;
-	unsigned char   data_out;
-
-	unsigned        buf_i;
-	unsigned        buf_j;
-	unsigned char   buf[CON_BUF_CNT];
-} console_t;
+typedef void (*mhex_set_f) (void *ext, unsigned long addr, unsigned char val);
+typedef unsigned char (*mhex_get_f) (void *ext, unsigned long addr);
 
 
-void con_init (console_t *con, ini_sct_t *sct);
-void con_free (console_t *con);
+int mhex_load_fp (FILE *fp, void *ext, mhex_set_f set);
+int mhex_load (const char *fname, void *ext, mhex_set_f set);
 
-unsigned char con_get_uint8 (console_t *con, unsigned long addr);
-void con_set_uint8 (console_t *con, unsigned long addr, unsigned char val);
-
-void con_check (console_t *con);
+int mhex_save_fp (FILE *fp, unsigned long base, unsigned addr, unsigned size, void *ext, mhex_get_f get);
+int mhex_save (const char *fname, unsigned long base, unsigned addr, unsigned size, void *ext, mhex_get_f set);
 
 
 #endif

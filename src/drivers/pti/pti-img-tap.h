@@ -3,9 +3,9 @@
  *****************************************************************************/
 
 /*****************************************************************************
- * File name:   src/arch/sim6502/main.h                                      *
- * Created:     2004-05-25 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2004-2009 Hampa Hug <hampa@hampa.ch>                     *
+ * File name:   src/drivers/pti/pti-img-tap.h                                *
+ * Created:     2020-04-25 by Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2020 Hampa Hug <hampa@hampa.ch>                          *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -20,31 +20,19 @@
  *****************************************************************************/
 
 
-#ifndef PCE_SIM6502_MAIN_H
-#define PCE_SIM6502_MAIN_H 1
+#ifndef PTI_IMG_TAP_H
+#define PTI_IMG_TAP_H 1
 
 
-#include <config.h>
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include "sim6502.h"
-
-#include <lib/cmd.h>
-#include <lib/console.h>
-#include <lib/iniram.h>
-#include <lib/load.h>
-#include <lib/monitor.h>
-#include <lib/sysdep.h>
+#include <drivers/pti/pti.h>
 
 
-extern int       par_verbose;
+pti_img_t *pti_load_tap (FILE *fp, unsigned long clock);
 
-extern sim6502_t *par_sim;
+int pti_save_tap (FILE *fp, const pti_img_t *img);
 
-extern unsigned  par_sig_int;
+int pti_probe_tap_fp (FILE *fp);
+int pti_probe_tap (const char *fname);
 
 
 #endif

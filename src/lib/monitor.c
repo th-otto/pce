@@ -5,7 +5,7 @@
 /*****************************************************************************
  * File name:   src/lib/monitor.c                                            *
  * Created:     2006-12-13 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2006-2019 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2006-2020 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -29,13 +29,17 @@
 #include <lib/cmd.h>
 #include <lib/console.h>
 #include <lib/ihex.h>
+#include <lib/mhex.h>
 #include <lib/srec.h>
+#include <lib/thex.h>
 
 
 #define MON_FORMAT_NONE   0
 #define MON_FORMAT_BINARY 1
 #define MON_FORMAT_IHEX   2
-#define MON_FORMAT_SREC   3
+#define MON_FORMAT_MHEX   3
+#define MON_FORMAT_SREC   4
+#define MON_FORMAT_THEX   5
 
 
 static mon_cmd_t par_cmd[] = {
@@ -45,6 +49,7 @@ static mon_cmd_t par_cmd[] = {
 	{ "f", "addr cnt [val...]", "find bytes in memory" },
 	{ "h", "", "print help" },
 	{ "load", "name [fmt] [a [n]]", "read a file into memory" },
+	{ "mem", "[ro|rw]", "set memory ro or rw" },
 	{ "m", "msg [val]", "send a message to the emulator core" },
 	{ "q", "", "quit" },
 	{ "save", "name [fmt] [a n...]", "write memory to a file" },
@@ -74,6 +79,9 @@ void mon_init (monitor_t *mon)
 	mon->set_mem8_ext = NULL;
 	mon->set_mem8 = NULL;
 
+	mon->set_mem8rw_ext = NULL;
+	mon->set_mem8rw = NULL;
+
 	mon->memory_mode = 0;
 
 	mon->default_seg = 0;
@@ -84,6 +92,7 @@ void mon_init (monitor_t *mon)
 	mon->cmd_cnt = 0;
 	mon->cmd = NULL;
 
+	mon->rw = 0;
 	mon->terminate = 0;
 	mon->prompt = NULL;
 
@@ -141,6 +150,12 @@ void mon_set_set_mem_fct (monitor_t *mon, void *ext, void *fct)
 	mon->set_mem8 = fct;
 }
 
+void mon_set_set_memrw_fct (monitor_t *mon, void *ext, void *fct)
+{
+	mon->set_mem8rw_ext = ext;
+	mon->set_mem8rw = fct;
+}
+
 void mon_set_memory_mode (monitor_t *mon, unsigned mode)
 {
 	mon->memory_mode = mode;
@@ -169,8 +184,15 @@ unsigned char mon_get_mem8 (monitor_t *mon, unsigned long addr)
 static
 void mon_set_mem8 (monitor_t *mon, unsigned long addr, unsigned char val)
 {
-	if (mon->set_mem8 != NULL) {
-		mon->set_mem8 (mon->set_mem8_ext, addr, val);
+	if (mon->rw) {
+		if (mon->set_mem8rw != NULL) {
+			mon->set_mem8rw (mon->set_mem8_ext, addr, val);
+		}
+	}
+	else {
+		if (mon->set_mem8 != NULL) {
+			mon->set_mem8 (mon->set_mem8_ext, addr, val);
+		}
 	}
 }
 
@@ -233,8 +255,14 @@ unsigned mon_guess_format (const char *fname)
 	else if (strcasecmp (ext, "hex") == 0) {
 		return (MON_FORMAT_IHEX);
 	}
+	else if (strcasecmp (ext, "mhex") == 0) {
+		return (MON_FORMAT_MHEX);
+	}
 	else if (strcasecmp (ext, "srec") == 0) {
 		return (MON_FORMAT_SREC);
+	}
+	else if (strcasecmp (ext, "thex") == 0) {
+		return (MON_FORMAT_THEX);
 	}
 
 	return (MON_FORMAT_BINARY);
@@ -249,8 +277,14 @@ int mon_match_format (monitor_t *mon, cmd_t *cmd, unsigned *fmt)
 	else if (cmd_match (cmd, "ihex")) {
 		*fmt = MON_FORMAT_IHEX;
 	}
+	else if (cmd_match (cmd, "mhex")) {
+		*fmt = MON_FORMAT_MHEX;
+	}
 	else if (cmd_match (cmd, "srec")) {
 		*fmt = MON_FORMAT_SREC;
+	}
+	else if (cmd_match (cmd, "thex")) {
+		*fmt = MON_FORMAT_THEX;
 	}
 	else {
 		*fmt = MON_FORMAT_NONE;
@@ -266,7 +300,12 @@ int mon_match_address (monitor_t *mon, cmd_t *cmd, unsigned long *addr, unsigned
 	unsigned short tseg, tofs;
 
 	if (mon->memory_mode == 0) {
-		return (cmd_match_uint32 (cmd, addr));
+		if (!cmd_match_uint32 (cmd, addr)) {
+			return (0);
+		}
+
+		tseg = *addr >> 4;
+		tofs = *addr & 0x0f;
 	}
 	else {
 		tseg = mon->default_seg;
@@ -278,14 +317,14 @@ int mon_match_address (monitor_t *mon, cmd_t *cmd, unsigned long *addr, unsigned
 		mon->default_seg = tseg;
 
 		*addr = ((unsigned long) tseg << 4) + tofs;
+	}
 
-		if (seg != NULL) {
-			*seg = tseg;
-		}
+	if (seg != NULL) {
+		*seg = tseg;
+	}
 
-		if (ofs != NULL) {
-			*ofs = tofs;
-		}
+	if (ofs != NULL) {
+		*ofs = tofs;
 	}
 
 	return (1);
@@ -715,9 +754,21 @@ void mon_cmd_load (monitor_t *mon, cmd_t *cmd)
 		}
 		break;
 
+	case MON_FORMAT_MHEX:
+		if (mhex_load_fp (fp, mon, (mhex_set_f) mon_set_mem8)) {
+			pce_printf ("loading mhex failed\n");
+		}
+		break;
+
 	case MON_FORMAT_SREC:
 		if (srec_load_fp (fp, mon, (srec_set_f) mon_set_mem8)) {
 			pce_printf ("loading srec failed\n");
+		}
+		break;
+
+	case MON_FORMAT_THEX:
+		if (thex_load_fp (fp, mon, (thex_set_f) mon_set_mem8)) {
+			pce_printf ("loading thex failed\n");
 		}
 		break;
 	}
@@ -754,6 +805,32 @@ void mon_cmd_m (monitor_t *mon, cmd_t *cmd)
 }
 
 /*
+ * mem - set memory to r/w or r/o
+ */
+static
+void mon_cmd_mem (monitor_t *mon, cmd_t *cmd)
+{
+	if (cmd_match (cmd, "ro")) {
+		mon->rw = 0;
+	}
+	else if (cmd_match (cmd, "rw")) {
+		if (mon->set_mem8rw == NULL) {
+			pce_puts ("monitor: no rw function\n");
+		}
+		else {
+			mon->rw = 1;
+		}
+	}
+	else {
+		pce_printf ("memory is %s\n", mon->rw ? "rw" : "ro");
+	}
+
+	if (!cmd_match_end (cmd)) {
+		return;
+	}
+}
+
+/*
  * save - write memory to disk
  */
 static
@@ -784,6 +861,10 @@ void mon_cmd_save (monitor_t *mon, cmd_t *cmd)
 	if (fp == NULL) {
 		pce_printf ("can't open file (%s)\n", fname);
 		return;
+	}
+
+	if (fmt == MON_FORMAT_THEX) {
+		thex_save_start (fp);
 	}
 
 	while (cmd_match_eol (cmd) == 0) {
@@ -820,11 +901,36 @@ void mon_cmd_save (monitor_t *mon, cmd_t *cmd)
 			}
 			break;
 
+		case MON_FORMAT_MHEX:
+			if (mon->memory_mode == 0) {
+				seg = 0;
+				ofs = addr;
+			}
+
+			if (mhex_save_fp (fp, seg, ofs, cnt, mon, (mhex_get_f) mon_get_mem8)) {
+				pce_printf ("saving mhex failed\n");
+			}
+			break;
+
 		case MON_FORMAT_SREC:
 			if (srec_save (fp, addr, cnt, mon, (srec_get_f) mon_get_mem8)) {
 				pce_printf ("saving srec failed\n");
 			}
 			break;
+
+		case MON_FORMAT_THEX:
+			if (mon->memory_mode == 0) {
+				if (thex_save (fp, addr, cnt, mon, (thex_get_f) mon_get_mem8)) {
+					pce_printf ("saving thex failed\n");
+				}
+			}
+			else {
+				if (thex_save_seg (fp, seg, ofs, cnt, mon, (thex_get_f) mon_get_mem8)) {
+					pce_printf ("saving thex failed\n");
+				}
+			}
+			break;
+
 		}
 	}
 
@@ -833,6 +939,9 @@ void mon_cmd_save (monitor_t *mon, cmd_t *cmd)
 	}
 	else if (fmt == MON_FORMAT_SREC) {
 		srec_save_done (fp);
+	}
+	else if (fmt == MON_FORMAT_THEX) {
+		thex_save_done (fp);
 	}
 
 	fclose (fp);
@@ -1012,6 +1121,9 @@ int mon_run (monitor_t *mon)
 			}
 			else if (cmd_match (&cmd, "h")) {
 				mon_cmd_h (mon, &cmd);
+			}
+			else if (cmd_match (&cmd, "mem")) {
+				mon_cmd_mem (mon, &cmd);
 			}
 			else if (cmd_match (&cmd, "m")) {
 				mon_cmd_m (mon, &cmd);

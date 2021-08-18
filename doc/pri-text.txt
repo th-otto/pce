@@ -7,9 +7,12 @@ TRACK <cylinder> <head>
 CLOCK <val>
 INDEX
 MODE <mode>
+OFFSET <val>
 RATE <clock-rate>
 RAW <bit>...
+ROTATE <cnt>
 WEAK <val>
+WEAK RUN <cnt>
 
 
 Mode RAW
@@ -26,7 +29,7 @@ Mode IBM-FM
 
 <val>[/<clock>]
 
-AM <val> := <val>/F7
+AM <val> := <val>/C7
 
 BIT [0|1]*
 
@@ -35,8 +38,18 @@ CHECK END
 CHECK SUM
 CRC := CHECK SUM
 
+DAM := SYNC FB/C7
+
+EOT := FILL TRACK FF
+
 FILL <size> <val>[/<clock>]
 FILL TRACK <val>[/<clock>]
+
+GAP <cnt> := REP <cnt> FF
+
+IAM <v1> <v2> := REP <v1> FF SYNC FC/D7 REP <v2> FF
+
+IDAM := SYNC FE/C7
 
 REP <count> <val>[/<clock>]
 
@@ -59,10 +72,18 @@ CHECK END
 CHECK SUM
 CRC := CHECK SUM
 
+DAM := SYNC AM FB
+
+EOT := FILL TRACK 4E
+
 FILL <size> <val>[/<clock>]
 FILL TRACK <val>[/<clock>]
 
-IAM <v1> <v2> := REP <v1> 4E REP 12 00 REP 3 C2/08 FC REP <v2> 4E
+GAP <cnt> := REP <cnt> 4E
+
+IAM <v1> <v2> := REP <v1> 4E SYNC REP 3 C2/08 FC REP <v2> 4E
+
+IDAM := SYNC AM FE
 
 REP <cnt> <val>[/<clock>]
 
@@ -75,6 +96,10 @@ MODE MAC-GCR
 -----------
 
 <hex>
+<hex>/<bitcnt>
+
+"<"
+">"
 
 BIT [0|1]*
 
@@ -82,7 +107,9 @@ CHECK START
 CHECK END
 CHECK SUM
 
-FILL TRACK
+EOT := FILL TRACK SYNC GROUP
+
+FILL TRACK <val>
 FILL <size> SYNC
 FILL <size> SYNC GROUP
 FILL <size> <val>

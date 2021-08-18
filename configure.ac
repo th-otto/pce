@@ -3,9 +3,9 @@
 #*****************************************************************************
 
 #*****************************************************************************
-#* File name:   configure.in                                                 *
+#* File name:   configure.ac                                                 *
 #* Created:     2002-05-20 by Hampa Hug <hampa@hampa.ch>                     *
-#* Copyright:   (C) 2002-2018 Hampa Hug <hampa@hampa.ch>                     *
+#* Copyright:   (C) 2002-2021 Hampa Hug <hampa@hampa.ch>                     *
 #*****************************************************************************
 
 #*****************************************************************************
@@ -22,9 +22,9 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT(pce)
-AC_CONFIG_SRCDIR(Makefile.in)
-AC_CONFIG_HEADER(src/config.h)
+AC_INIT([pce])
+AC_CONFIG_SRCDIR([Makefile.in])
+AC_CONFIG_HEADERS([src/config.h])
 
 
 #-----------------------------------------------------------------------------
@@ -191,7 +191,6 @@ AC_SUBST(PCE_HAVE_IHEX)
 #-----------------------------------------------------------------------------
 # Checks for header files.
 
-AC_HEADER_STDC
 AC_CHECK_HEADERS( \
 	arpa/inet.h \
 	fcntl.h \
@@ -367,9 +366,9 @@ if test -d "$srcdir/src/arch/ibmpc"; then have_ibmpc=1; else have_ibmpc=0; fi
 if test -d "$srcdir/src/arch/macplus"; then have_macplus=1; else have_macplus=0; fi
 if test -d "$srcdir/src/arch/rc759"; then have_rc759=1; else have_rc759=0; fi
 if test -d "$srcdir/src/arch/sim405"; then have_sim405=1; else have_sim405=0; fi
-if test -d "$srcdir/src/arch/sim6502"; then have_sim6502=1; else have_sim6502=0; fi
 if test -d "$srcdir/src/arch/simarm"; then have_simarm=1; else have_simarm=0; fi
 if test -d "$srcdir/src/arch/sims32"; then have_sims32=1; else have_sims32=0; fi
+if test -d "$srcdir/src/arch/vic20"; then have_vic20=1; else have_vic20=0; fi
 
 
 AH_TEMPLATE([PCE_BUILD_ATARIST], [whether to build the Atari ST emulator])
@@ -580,35 +579,6 @@ if test "x$PCE_BUILD_SIM405" = "x1" ; then
 fi
 
 
-AH_TEMPLATE([PCE_BUILD_SIM6502], [whether to build the 6502 simulator])
-AC_MSG_CHECKING([whether to build the 6502 simulator])
-if test "x$have_sim6502" != "x1" ; then
-	PCE_BUILD_SIM6502=0
-	AC_MSG_RESULT([no (no source)])
-else
-	AC_ARG_ENABLE(sim6502,
-	  [AS_HELP_STRING([--enable-sim6502], [Enable the 6502 simulator [yes]])],
-	  [
-		if test "x$enableval" = "xyes" ; then
-			PCE_BUILD_SIM6502=1
-			AC_MSG_RESULT([yes (forced)])
-		else
-			PCE_BUILD_SIM6502=0
-			AC_MSG_RESULT([no (forced)])
-		fi
-	  ],
-	  [
-		PCE_BUILD_SIM6502=1
-		AC_MSG_RESULT([yes (default)])
-	  ]
-	)
-fi
-AC_SUBST(PCE_BUILD_SIM6502)
-if test "x$PCE_BUILD_SIM6502" = "x1" ; then
-	AC_DEFINE(PCE_BUILD_SIM6502)
-fi
-
-
 AH_TEMPLATE([PCE_BUILD_SIMS32], [whether to build the sparc32 simulator])
 AC_MSG_CHECKING([whether to build the sparc32 simulator])
 if test "x$have_sims32" != "x1" ; then
@@ -664,6 +634,29 @@ fi
 AC_SUBST(PCE_BUILD_SIMARM)
 if test "x$PCE_BUILD_SIMARM" = "x1" ; then
 	AC_DEFINE(PCE_BUILD_SIMARM)
+fi
+
+
+AC_MSG_CHECKING([whether to build the VIC20 emulator])
+AC_ARG_ENABLE(vic20,
+  [AS_HELP_STRING([--enable-vic20], [Enable the VIC20 emulator [yes]])],
+  [
+	if test "x$enableval" = "xyes" ; then
+		PCE_BUILD_VIC20=1
+		AC_MSG_RESULT([yes (forced)])
+	else
+		PCE_BUILD_VIC20=0
+		AC_MSG_RESULT([no (forced)])
+	fi
+  ],
+  [
+	PCE_BUILD_VIC20=1
+	AC_MSG_RESULT([yes (default)])
+  ]
+)
+AC_SUBST(PCE_BUILD_VIC20)
+if test $PCE_BUILD_VIC20 -eq 1 ; then
+	AC_DEFINE(PCE_BUILD_VIC20)
 fi
 
 
@@ -1044,12 +1037,6 @@ else
 	emu2="$emu2 sim405"
 fi
 
-if test "x$PCE_BUILD_SIM6502" = "x1" ; then
-	emu1="$emu1 sim6502"
-else
-	emu2="$emu2 sim6502"
-fi
-
 if test "x$PCE_BUILD_SIMARM" = "x1" ; then
 	emu1="$emu1 simarm"
 else
@@ -1060,6 +1047,12 @@ if test "x$PCE_BUILD_SIMS32" = "x1" ; then
 	emu1="$emu1 sims32"
 else
 	emu2="$emu2 sims32"
+fi
+
+if test "x$PCE_BUILD_VIC20" = "x1" ; then
+	emu1="$emu1 vic20"
+else
+	emu2="$emu2 vic20"
 fi
 
 

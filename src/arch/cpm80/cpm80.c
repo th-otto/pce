@@ -3,9 +3,9 @@
  *****************************************************************************/
 
 /*****************************************************************************
- * File name:   src/arch/sim8080/sim8080.c                                   *
+ * File name:   src/arch/cpm80/cpm80.c                                       *
  * Created:     2012-11-28 by Hampa Hug <hampa@hampa.ch>                     *
- * Copyright:   (C) 2012-2016 Hampa Hug <hampa@hampa.ch>                     *
+ * Copyright:   (C) 2012-2021 Hampa Hug <hampa@hampa.ch>                     *
  *****************************************************************************/
 
 /*****************************************************************************
@@ -44,23 +44,38 @@
 #include <lib/log.h>
 #include <lib/msg.h>
 #include <lib/path.h>
+#include <lib/string.h>
 #include <lib/sysdep.h>
+
+
+#ifndef BASIC_DELETE
+#define BASIC_DELETE 1
+#endif
 
 
 static
 void c80_set_port8 (cpm80_t *sim, unsigned long addr, unsigned char val)
 {
 	switch (addr) {
+	case 0x00:
+	case 0x10:
+		break;
+
 	case 0x01:
 	case 0x11:
+#if BASIC_DELETE
 		if (val == 0x5f) {
 			val = 0x08;
 		}
+#endif
 		con_putc (sim, val);
 		break;
 
-	case 0x00:
-	case 0x02:
+	case 0x06:
+		break;
+
+	case 0x07:
+		aux_putc (sim, val);
 		break;
 
 	case 0xfe:
@@ -82,11 +97,11 @@ unsigned char c80_get_port8 (cpm80_t *sim, unsigned long addr)
 
 	switch (addr) {
 	case 0x00:
+		val = con_ready (sim) ? 0x22 : 0x03;
+		break;
+
 	case 0x10:
-		val = 0x02;
-		if (con_ready (sim)) {
-			val |= (addr == 0) ? 0x20 : 0x21;
-		}
+		val = con_ready (sim) ? 0x03 : 0x02;
 		break;
 
 	case 0x01:
@@ -94,20 +109,27 @@ unsigned char c80_get_port8 (cpm80_t *sim, unsigned long addr)
 		if (con_getc (sim, &val)) {
 			val = 0;
 		}
+#if BASIC_DELETE
 		else {
 			if ((val == 0x7f) || (val == 0x08)) {
 				val = 0x5f;
 			}
 		}
+#endif
 		break;
 
-	case 0x13:
-	case 0x20:
-		val = 0;
+	case 0x06:
+		val = aux_ready (sim) ? 0x22 : 0x03;
+		break;
+
+	case 0x07:
+		if (aux_getc (sim, &val)) {
+			val = 0;
+		}
 		break;
 
 	case 0xff:
-		val = 0xff;
+		val = sim->altair_switches;
 		break;
 
 	default:
@@ -121,23 +143,40 @@ unsigned char c80_get_port8 (cpm80_t *sim, unsigned long addr)
 static
 void c80_setup_system (cpm80_t *sim, ini_sct_t *ini)
 {
-	const char *model;
+	unsigned   boot, altair;
+	const char *model, *cpm;
 	ini_sct_t  *sct;
 
 	sim->brk = 0;
 	sim->clk_cnt = 0;
 	sim->clk_div = 0;
 
+	sim->boot = 0;
+	sim->altair_switches = 0xff;
+
+	sim->cpm = NULL;
+	sim->cpm_version = 0;
+	sim->addr_ccp = 0;
+	sim->addr_bdos = 0;
+	sim->addr_bios = 0;
+
 	sim->model = CPM80_MODEL_PLAIN;
 
 	sct = ini_next_sct (ini, NULL, "system");
 
 	ini_get_string (sct, "model", &model, "cpm");
+	ini_get_string (sct, "cpm", &cpm, "cpm.ihex");
+	ini_get_uint16 (sct, "boot", &boot, 0);
+	ini_get_uint16 (sct, "altair_switches", &altair, 0xff);
 
 	pce_log_tag (MSG_INF,
 		"SYSTEM:",
-		"model=%s\n", model
+		"model=%s cpm=\"%s\" boot=%u altair=0x%02x\n",
+		model, cpm, boot, altair
 	);
+
+	sim->boot = boot;
+	sim->altair_switches = altair;
 
 	if (strcmp (model, "plain") == 0) {
 		sim->model = CPM80_MODEL_PLAIN;
@@ -148,6 +187,8 @@ void c80_setup_system (cpm80_t *sim, ini_sct_t *ini)
 	else {
 		pce_log (MSG_ERR, "*** unknown machine model (%s)\n", model);
 	}
+
+	sim->cpm = str_copy_alloc (cpm);
 }
 
 static
@@ -169,9 +210,14 @@ void c80_setup_cpu (cpm80_t *sim, ini_sct_t *ini)
 
 	sct = ini_next_sct (ini, NULL, "system");
 
+	sim->speed = 0;
+
 	if (ini_get_uint32 (sct, "clock", &clock, 0)) {
-		ini_get_uint16 (sct, "speed", &speed, 0);
+		ini_get_uint16 (sct, "speed", &speed, 1);
+
 		clock = 1000000UL * speed;
+
+		sim->speed = speed;
 	}
 
 	ini_get_string (sct, "cpu", &cpu, "8080");
@@ -216,8 +262,16 @@ void c80_setup_char (cpm80_t *sim, ini_sct_t *ini)
 	sim->aux = NULL;
 	sim->lst = NULL;
 
+	sim->con_read = NULL;
+	sim->con_write = NULL;
+	sim->aux_read = NULL;
+	sim->aux_write = NULL;
+
 	sim->con_buf = 0;
 	sim->con_buf_cnt = 0;
+
+	sim->aux_buf = 0;
+	sim->aux_buf_cnt = 0;
 
 	sct = ini_next_sct (ini, NULL, "system");
 
@@ -359,6 +413,78 @@ int c80_set_cpu_model (cpm80_t *sim, const char *str)
 	return (0);
 }
 
+int c80_set_con_read (cpm80_t *sim, const char *fname)
+{
+	if (sim->con_read != NULL) {
+		fclose (sim->con_read);
+	}
+
+	if (fname == NULL) {
+		sim->con_read = NULL;
+	}
+	else {
+		if ((sim->con_read = fopen (fname, "rb")) == NULL) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+int c80_set_con_write (cpm80_t *sim, const char *fname, int append)
+{
+	if (sim->con_write != NULL) {
+		fclose (sim->con_write);
+	}
+
+	if (fname == NULL) {
+		sim->con_write = NULL;
+	}
+	else {
+		if ((sim->con_write = fopen (fname, append ? "ab" : "wb")) == NULL) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+int c80_set_aux_read (cpm80_t *sim, const char *fname)
+{
+	if (sim->aux_read != NULL) {
+		fclose (sim->aux_read);
+	}
+
+	if (fname == NULL) {
+		sim->aux_read = NULL;
+	}
+	else {
+		if ((sim->aux_read = fopen (fname, "rb")) == NULL) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
+int c80_set_aux_write (cpm80_t *sim, const char *fname, int append)
+{
+	if (sim->aux_write != NULL) {
+		fclose (sim->aux_write);
+	}
+
+	if (fname == NULL) {
+		sim->aux_write = NULL;
+	}
+	else {
+		if ((sim->aux_write = fopen (fname, append ? "ab" : "wb")) == NULL) {
+			return (1);
+		}
+	}
+
+	return (0);
+}
+
 void c80_idle (cpm80_t *sim)
 {
 	pce_usleep (10000);
@@ -379,13 +505,15 @@ void c80_set_clock (cpm80_t *sim, unsigned long clock)
 {
 	sim->clock = clock;
 
-	sim_log_deb ("set clock to %lu\n", clock);
+	sim_log_deb ("set clock to %lu MHz\n", clock / 1000000);
 
 	c80_clock_discontinuity (sim);
 }
 
 void c80_set_speed (cpm80_t *sim, unsigned speed)
 {
+	sim->speed = speed;
+
 	c80_set_clock (sim, 1000000UL * speed);
 }
 
